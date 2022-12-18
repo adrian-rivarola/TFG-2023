@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  "files.associations": {
+    "*.js": "javascriptreact"
+  },
+  "editor.insertSpaces": true
+}
