@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { AppRegistry } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { MainContextProvider } from "./context/MainContext";
 
 import { ThemeContextProvider } from "./context/ThemeContext";
 import useCachedResources from "./hooks/useCachedResources";
@@ -14,10 +15,12 @@ export default function App() {
   } else {
     return (
       <ThemeContextProvider>
-        <SafeAreaProvider>
-          <Navigation />
-          <StatusBar />
-        </SafeAreaProvider>
+        <MainContextProvider>
+          <SafeAreaProvider>
+            <Navigation />
+            <StatusBar />
+          </SafeAreaProvider>
+        </MainContextProvider>
       </ThemeContextProvider>
     );
   }

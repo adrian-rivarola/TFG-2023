@@ -4,5 +4,6 @@
   "files.associations": {
     "*.js": "javascriptreact"
   },
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2
 }

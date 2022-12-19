@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { BarChart, LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { ChartData } from "react-native-chart-kit/dist/HelperTypes";
 import { Card, SegmentedButtons, Text } from "react-native-paper";
 import { useTheme } from "../../context/ThemeContext";
+import ReportService from "../../data/classes/Report";
 
 type ReportsPreviewProps = {};
 type ReportOption = "week" | "month";
@@ -12,7 +13,8 @@ type ReportOption = "week" | "month";
 type ReportData = {
   [k in ReportOption]: ChartData;
 };
-const reportData: ReportData = {
+
+const mockReportData: ReportData = {
   week: {
     labels: ["L", "M", "M", "J", "V", "S", "D"],
     datasets: [
@@ -31,9 +33,28 @@ const reportData: ReportData = {
   },
 };
 
+const reportService = new ReportService();
+
 export default function ReportsPreview(props: ReportsPreviewProps) {
   const { theme, isDarkTheme } = useTheme();
   const [activeSegment, setActiveSegment] = useState<ReportOption>("week");
+  const [reportData, setReportData] = useState(mockReportData);
+
+  useEffect(() => {
+    reportService.getWeekTotals().then(() => {
+      setReportData({
+        ...reportData,
+        week: {
+          ...reportData.week,
+          datasets: [
+            {
+              data: Object.values(reportService.weekTotals),
+            },
+          ],
+        },
+      });
+    });
+  }, []);
 
   const chartConfig: AbstractChartConfig = {
     labelColor: () => theme.colors.text,

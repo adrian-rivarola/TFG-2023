@@ -2,9 +2,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 import { Pressable } from "react-native";
+import { IconButton } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
+import CategorySelectScreen from "../screens/CategorySelectScreen";
 import ConfigurationScreen from "../screens/ConfigurationScreen";
-import CreateScreen from "../screens/CreateScreen";
+import CreteCategoryScreen from "../screens/CreateCategoryScreen";
+import CreateTransactionScreen from "../screens/CreateTransactionScreen";
 import PlanningScreen from "../screens/PlanningScreen";
 import TestComponents from "../screens/TestComponents";
 import TransactionsScreen from "../screens/TransactionsScreen";
@@ -44,7 +47,12 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="TestComponents"
-      screenOptions={{ headerRight }}
+      screenOptions={({ route }) => ({
+        headerRight,
+        tabBarButton: ["CategorySelect", "CategoryCreate"].includes(route.name)
+          ? () => null
+          : undefined,
+      })}
     >
       <BottomTab.Screen
         name="TestComponents"
@@ -75,8 +83,8 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="Create"
-        component={CreateScreen}
+        name="TransactionCreate"
+        component={CreateTransactionScreen}
         options={{
           title: "Add Transaction",
           headerTitleAlign: "left",
@@ -113,6 +121,35 @@ export default function BottomTabNavigator() {
             <TabBarIcon name="account-outline" color={color} />
           ),
         }}
+      />
+      {/* Don't show on bottom tab */}
+      <BottomTab.Screen
+        name="CategorySelect"
+        component={CategorySelectScreen}
+        options={({ navigation }) => ({
+          title: "Select Category",
+          unmountOnBlur: true,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              onPress={() => navigation.navigate("TransactionCreate")}
+            />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="CategoryCreate"
+        component={CreteCategoryScreen}
+        options={({ navigation }) => ({
+          title: "Create Category",
+          unmountOnBlur: true,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              onPress={() => navigation.navigate("CategorySelect")}
+            />
+          ),
+        })}
       />
     </BottomTab.Navigator>
   );

@@ -1,9 +1,9 @@
 import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -12,17 +12,39 @@ import {
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
+import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
+import { Category } from "../data/classes/Category";
 import TransactionService from "../data/classes/Transaction";
+import { RootTabParamList } from "../types";
 
-type CreateScreenProps = {};
+type ScreenProps = NativeStackScreenProps<
+  RootTabParamList,
+  "TransactionCreate"
+>;
 
-export default function CreateScreen(props: CreateScreenProps) {
+export default function CreateTransactionScreen({
+  navigation,
+  route,
+}: ScreenProps) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<Category>();
   const [date, setDate] = useState(new Date());
   const { themeType, theme } = useTheme();
+
+  const { categories } = useMainContext();
+
+  useEffect(() => {
+    const selectedCategoryId = route.params?.selectedCategoryId;
+    if (selectedCategoryId) {
+      const newCategory = categories.find(
+        (cat) => cat.id === selectedCategoryId
+      );
+      setCategory(newCategory);
+      console.log(`Transaction category set to ${JSON.stringify(newCategory)}`);
+    }
+  }, [route.params]);
 
   const datePicker =
     Platform.OS === "ios" ? (
@@ -81,12 +103,28 @@ export default function CreateScreen(props: CreateScreenProps) {
         </View>
         <View style={styles.inputGroup}>
           <Text>Categoría:</Text>
-          <TextInput
+          <TouchableWithoutFeedback
+            onPress={() => {
+              navigation.navigate("CategorySelect");
+            }}
+          >
+            <Text
+              style={{
+                borderColor: theme.colors.secondary,
+                borderWidth: 1,
+                borderRadius: 4,
+                padding: 14,
+              }}
+            >
+              {!category ? "Seleccionar categoría" : category.name}
+            </Text>
+          </TouchableWithoutFeedback>
+          {/* <TextInput
             style={styles.input}
             mode="outlined"
             value={category}
             onChangeText={(val) => setCategory(val)}
-          />
+          /> */}
         </View>
         <View style={styles.inputGroup}>
           <Text style={{ marginBottom: 8 }}>Fecha:</Text>
@@ -96,15 +134,15 @@ export default function CreateScreen(props: CreateScreenProps) {
         <Button
           mode="contained-tonal"
           style={{ marginTop: 24 }}
+          disabled={!amount || !description || !category}
           onPress={() => {
             const transactionService = new TransactionService();
             transactionService
-              // .createTable()
-              // .insertTestData()
-              // .query()
               .insert({
+                date: date.toISOString().split("T")[0],
                 description,
                 amount: parseInt(amount, 10),
+                category_id: category!.id,
               })
               .then((res) => {
                 console.log(
@@ -117,6 +155,25 @@ export default function CreateScreen(props: CreateScreenProps) {
           }}
         >
           Guardar
+        </Button>
+        <Button
+          mode="contained-tonal"
+          style={{ marginTop: 32 }}
+          onPress={() => {
+            const transactionService = new TransactionService();
+            transactionService
+              .createTable()
+              .then((res) => {
+                console.log(
+                  `\n\nQuery run correctly:\n${JSON.stringify(res)}\n\n`
+                );
+              })
+              .catch((err) => {
+                console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
+              });
+          }}
+        >
+          Create Table
         </Button>
       </View>
     </ScrollView>

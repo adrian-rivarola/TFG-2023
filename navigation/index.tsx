@@ -32,6 +32,7 @@ function RootNavigator() {
   const {
     theme: { colors },
   } = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen

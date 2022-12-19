@@ -4,32 +4,17 @@ import { Button } from "react-native-paper";
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import TransactionsList from "../components/transactions/TransactionsList";
+import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
 
 export default function TestComponents(props: {}) {
   const { toggleThemeType } = useTheme();
-  const navigation = useNavigation();
-
-  const testFooter = (
-    <View style={styles.footer}>
-      <Button
-        mode="outlined"
-        onPress={() => {
-          navigation.navigate("Modal");
-        }}
-      >
-        Open Modal
-      </Button>
-      <Button mode="outlined" onPress={toggleThemeType}>
-        Toggle Theme
-      </Button>
-    </View>
-  );
+  const { balance } = useMainContext();
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Balance balance={2_250_060} />
+        <Balance balance={balance} />
         <View style={styles.smallSeparator} />
         <ReportsPreview />
         <View style={styles.smallSeparator} />

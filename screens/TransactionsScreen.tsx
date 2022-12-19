@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
-import { RefreshControl, ScrollView } from "react-native";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Text } from "react-native-paper";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 
 import TransactionCard from "../components/transactions/TransactionCard";
+import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
+import { Category } from "../data/classes/Category";
 import TransactionService, { Transaction } from "../data/classes/Transaction";
 
 const transactionsService = new TransactionService();
@@ -61,11 +68,18 @@ const styles = StyleSheet.create({
 type TransactionsByDateProps = {
   range: "week" | "month";
 };
+
 function TransactionsByDate({ range }: TransactionsByDateProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { categories } = useMainContext();
+  const categoriesMap = useRef<Map<number, Category>>(new Map());
 
   useEffect(() => {
+    categoriesMap.current = categories.reduce((map, cat) => {
+      map.set(cat.id, cat);
+      return map;
+    }, new Map<number, Category>());
     getTransactions();
   }, []);
 
@@ -76,7 +90,7 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
     transactionsService
       .query({
         where: {
-          createdAt: {
+          date: {
             gte: minDate,
           },
         },
@@ -107,19 +121,30 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
       minDate.setMonth(minDate.getMonth() - 1);
     }
 
-    return minDate;
+    return minDate.toISOString().split("T")[0];
   };
 
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={getTransactions} />
       }
     >
-      {transactions.map((transaction) => (
-        <TransactionCard key={transaction.id} transaction={transaction} />
-      ))}
+      <View style={styles.container}>
+        {transactions.length ? (
+          transactions.map((transaction) => (
+            <TransactionCard
+              key={transaction.id}
+              transaction={transaction}
+              category={categoriesMap.current.get(transaction.category_id)}
+            />
+          ))
+        ) : (
+          <Text style={{ paddingVertical: 16 }}>
+            Aún no hay transacciones :(
+          </Text>
+        )}
+      </View>
     </ScrollView>
   );
 }

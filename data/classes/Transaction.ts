@@ -1,4 +1,3 @@
-import * as SQLite from "expo-sqlite";
 import {
   ColumnMapping,
   columnTypes,
@@ -8,20 +7,21 @@ import {
   Repository,
   sql,
 } from "expo-sqlite-orm";
+import config from "../../constants/config";
 
 export interface Transaction {
   id: number;
   description: string;
   amount: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  category_id: number;
+  date: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 type TransactionCreate = Omit<Transaction, "id" | "createdAt" | "updatedAt">;
 
 type TransactionRepository = Repository<Transaction>;
-
-const DB_NAME = "app.db";
 
 export default class TransactionService {
   repository: TransactionRepository;
@@ -29,7 +29,7 @@ export default class TransactionService {
 
   constructor() {
     this.repository = new Repository(
-      DB_NAME,
+      config.DB_NAME,
       this.tableName,
       this.columnMapping
     );
@@ -38,8 +38,10 @@ export default class TransactionService {
   get columnMapping(): ColumnMapping<Transaction> {
     return {
       id: { type: columnTypes.INTEGER },
+      category_id: { type: columnTypes.INTEGER },
       description: { type: columnTypes.TEXT },
       amount: { type: columnTypes.FLOAT },
+      date: { type: columnTypes.DATETIME },
       createdAt: { type: columnTypes.DATETIME, default: () => Date.now() },
       updatedAt: { type: columnTypes.DATETIME, default: () => Date.now() },
     };
@@ -47,38 +49,39 @@ export default class TransactionService {
 
   createTable() {
     const createStatement: IStatement = {
-      [`${Date.now()}_create_transactions_table`]: sql`
+      "1671397885342_create_transactions_table": sql`
         CREATE TABLE transactions (
           id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
           amount FLOAT NOT NULL,
-          description TEXT,
-          createdAt DATETIME,
-          updatedAt DATETIME
+          description TEXT NOT NULL,
+          category_id INTEGER NOT NULL,
+          date DATETIME DEFAULT CURRENT_TIMESTAMP,
+          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (category_id) REFERENCES categories(id)
         );`,
     };
-    const migrations = new Migrations(DB_NAME, createStatement);
+    const migrations = new Migrations(config.DB_NAME, createStatement);
     return migrations.migrate();
   }
 
-  insertTestData() {
-    return this.repository.insert({
-      description: "Test Transaction #1",
-      amount: 42000,
-    });
-  }
-
   query(options: IQueryOptions<Transaction> | undefined) {
-    console.log(`Getting transactions with query: ${JSON.stringify(options)} `);
+    console.log(`Transaction.query.options: ${JSON.stringify(options)}`);
 
-    return this.repository.query(options);
+    return this.repository.query({
+      ...options,
+      order: {
+        date: "DESC",
+      },
+    });
   }
 
   insert(options: TransactionCreate) {
-    const now = new Date();
-    return this.repository.insert({
-      ...options,
-      createdAt: now,
-      updatedAt: now,
-    });
+    return this.repository.insert(options);
+  }
+
+  async getBalance(): Promise<number> {
+    this.repository.databaseLayer.executeSql(sql``);
+    return 12;
   }
 }
