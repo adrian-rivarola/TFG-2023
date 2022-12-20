@@ -1,16 +1,10 @@
-import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, List } from "react-native-paper";
+import { Button, List, Text } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import CategoryService, {
-  Category,
-  CategoryType,
-} from "../data/classes/Category";
-
-const categoryService = new CategoryService();
+import { Category, CategoryType } from "../data/classes/Category";
 
 import { RootTabParamList } from "../types";
 
@@ -22,7 +16,7 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
   const {
     theme: { colors },
   } = useTheme();
-  const { setCategories } = useMainContext();
+  const { categories, selectCategory } = useMainContext();
 
   const themedStyles = {
     categoryItem: {
@@ -33,33 +27,27 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
   };
 
   useEffect(() => {
-    categoryService
-      .query({})
-      .then((res) => {
-        setCategories(res);
-        setExpenseCategories(
-          res.filter((cat) => cat.type === CategoryType.expense)
-        );
-        setIncomeCategories(
-          res.filter((cat) => cat.type === CategoryType.income)
-        );
-
-        // console.log(`Found ${res.length} categories`);
-      })
-      .catch((err) => {
-        console.log("Failed to get categories", err);
-      });
-  }, []);
+    setExpenseCategories(
+      categories.filter((cat) => cat.type === CategoryType.expense)
+    );
+    setIncomeCategories(
+      categories.filter((cat) => cat.type === CategoryType.income)
+    );
+  }, [categories]);
 
   const onCategoryPress = (category: Category) => {
-    navigation.navigate("TransactionCreate", {
-      selectedCategoryId: category.id,
-    });
+    selectCategory(category);
+    navigation.goBack();
   };
 
   return (
     <ScrollView>
       <View style={styles.container}>
+        {incomeCategories.length === 0 && expenseCategories.length === 0 && (
+          <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+            Aún no tienes ninguna categoría
+          </Text>
+        )}
         {expenseCategories.length > 0 && (
           <List.Section
             title="Egresos"
@@ -112,5 +100,6 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignContent: "center",
   },
 });

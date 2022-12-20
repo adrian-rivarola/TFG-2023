@@ -79,9 +79,4 @@ export default class TransactionService {
   insert(options: TransactionCreate) {
     return this.repository.insert(options);
   }
-
-  async getBalance(): Promise<number> {
-    this.repository.databaseLayer.executeSql(sql``);
-    return 12;
-  }
 }

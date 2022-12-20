@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 import Layout from "../../constants/Layout";
+import { useMainContext } from "../../context/MainContext";
 import TransactionService, {
   Transaction,
 } from "../../data/classes/Transaction";
@@ -12,7 +13,7 @@ type TransactionsListProps = {};
 const transactionsService = new TransactionService();
 
 export default function TransactionsList(props: TransactionsListProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { transactions, setTransactions } = useMainContext();
 
   useEffect(() => {
     getLastTransactions();
@@ -20,7 +21,7 @@ export default function TransactionsList(props: TransactionsListProps) {
 
   const getLastTransactions = () => {
     transactionsService
-      .query({ limit: 2, page: 1 })
+      .query({ limit: 3, page: 1 })
       .then((res) => {
         // console.log(`Found ${res.length} transactions`);
         setTransactions(res);

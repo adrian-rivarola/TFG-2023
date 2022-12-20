@@ -1,7 +1,7 @@
 import { sql } from "expo-sqlite-orm";
 import DatabaseLayer from "expo-sqlite-orm/lib/DatabaseLayer";
 import config from "../../constants/config";
-import { Category, CategoryType } from "./Category";
+import { CategoryType } from "./Category";
 import { Transaction } from "./Transaction";
 
 type CategoryTotalsResult = Array<{ category_id: CategoryType; total: number }>;

@@ -14,7 +14,6 @@ import { Button, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import { Category } from "../data/classes/Category";
 import TransactionService from "../data/classes/Transaction";
 import { RootTabParamList } from "../types";
 
@@ -23,28 +22,12 @@ type ScreenProps = NativeStackScreenProps<
   "TransactionCreate"
 >;
 
-export default function CreateTransactionScreen({
-  navigation,
-  route,
-}: ScreenProps) {
+export default function CreateTransactionScreen({ navigation }: ScreenProps) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category>();
   const [date, setDate] = useState(new Date());
+  const { transactions, selectedCategory, setTransactions } = useMainContext();
   const { themeType, theme } = useTheme();
-
-  const { categories } = useMainContext();
-
-  useEffect(() => {
-    const selectedCategoryId = route.params?.selectedCategoryId;
-    if (selectedCategoryId) {
-      const newCategory = categories.find(
-        (cat) => cat.id === selectedCategoryId
-      );
-      setCategory(newCategory);
-      console.log(`Transaction category set to ${JSON.stringify(newCategory)}`);
-    }
-  }, [route.params]);
 
   const datePicker =
     Platform.OS === "ios" ? (
@@ -116,15 +99,11 @@ export default function CreateTransactionScreen({
                 padding: 14,
               }}
             >
-              {!category ? "Seleccionar categoría" : category.name}
+              {!selectedCategory
+                ? "Seleccionar categoría"
+                : selectedCategory.name}
             </Text>
           </TouchableWithoutFeedback>
-          {/* <TextInput
-            style={styles.input}
-            mode="outlined"
-            value={category}
-            onChangeText={(val) => setCategory(val)}
-          /> */}
         </View>
         <View style={styles.inputGroup}>
           <Text style={{ marginBottom: 8 }}>Fecha:</Text>
@@ -134,7 +113,7 @@ export default function CreateTransactionScreen({
         <Button
           mode="contained-tonal"
           style={{ marginTop: 24 }}
-          disabled={!amount || !description || !category}
+          disabled={!amount || !description || !selectedCategory}
           onPress={() => {
             const transactionService = new TransactionService();
             transactionService
@@ -142,12 +121,11 @@ export default function CreateTransactionScreen({
                 date: date.toISOString().split("T")[0],
                 description,
                 amount: parseInt(amount, 10),
-                category_id: category!.id,
+                category_id: selectedCategory!.id,
               })
-              .then((res) => {
-                console.log(
-                  `\n\nQuery run correctly:\n${JSON.stringify(res)}\n\n`
-                );
+              .then((newTransaction) => {
+                setTransactions([newTransaction, ...transactions]);
+                navigation.navigate("Home");
               })
               .catch((err) => {
                 console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
@@ -155,25 +133,6 @@ export default function CreateTransactionScreen({
           }}
         >
           Guardar
-        </Button>
-        <Button
-          mode="contained-tonal"
-          style={{ marginTop: 32 }}
-          onPress={() => {
-            const transactionService = new TransactionService();
-            transactionService
-              .createTable()
-              .then((res) => {
-                console.log(
-                  `\n\nQuery run correctly:\n${JSON.stringify(res)}\n\n`
-                );
-              })
-              .catch((err) => {
-                console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
-              });
-          }}
-        >
-          Create Table
         </Button>
       </View>
     </ScrollView>

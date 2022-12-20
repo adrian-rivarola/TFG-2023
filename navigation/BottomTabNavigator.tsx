@@ -6,12 +6,13 @@ import { IconButton } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
 import CategorySelectScreen from "../screens/CategorySelectScreen";
 import ConfigurationScreen from "../screens/ConfigurationScreen";
-import CreteCategoryScreen from "../screens/CreateCategoryScreen";
-import CreateTransactionScreen from "../screens/CreateTransactionScreen";
+import CategoryCreateScreen from "../screens/CategoryCreateScreen";
+import CreateTransactionScreen from "../screens/TransactionCreateScreen";
 import PlanningScreen from "../screens/PlanningScreen";
 import TestComponents from "../screens/TestComponents";
 import TransactionsScreen from "../screens/TransactionsScreen";
 import { RootTabParamList } from "../types";
+import BudgetCreateScreen from "../screens/BudgetCreateScreen";
 
 type TabBarIconProps = {
   name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
@@ -34,6 +35,14 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 export default function BottomTabNavigator() {
   const { isDarkTheme, toggleThemeType } = useTheme();
 
+  const tabBarItems: Array<keyof RootTabParamList> = [
+    "Home",
+    "Transactions",
+    "TransactionCreate",
+    "Planning",
+    "Configuration",
+  ];
+
   const headerRight = () => (
     <Pressable onPress={toggleThemeType} style={{ marginEnd: 16 }}>
       <MaterialCommunityIcons
@@ -46,16 +55,16 @@ export default function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TestComponents"
+      backBehavior="history"
+      initialRouteName="Home"
       screenOptions={({ route }) => ({
+        lazy: true,
         headerRight,
-        tabBarButton: ["CategorySelect", "CategoryCreate"].includes(route.name)
-          ? () => null
-          : undefined,
+        tabBarButton: tabBarItems.includes(route.name) ? undefined : () => null,
       })}
     >
       <BottomTab.Screen
-        name="TestComponents"
+        name="Home"
         component={TestComponents}
         options={{
           title: "Home",
@@ -130,24 +139,28 @@ export default function BottomTabNavigator() {
           title: "Select Category",
           unmountOnBlur: true,
           headerLeft: () => (
-            <IconButton
-              icon="arrow-left"
-              onPress={() => navigation.navigate("TransactionCreate")}
-            />
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
         })}
       />
       <BottomTab.Screen
         name="CategoryCreate"
-        component={CreteCategoryScreen}
+        component={CategoryCreateScreen}
         options={({ navigation }) => ({
           title: "Create Category",
           unmountOnBlur: true,
           headerLeft: () => (
-            <IconButton
-              icon="arrow-left"
-              onPress={() => navigation.navigate("CategorySelect")}
-            />
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="BudgetCreate"
+        component={BudgetCreateScreen}
+        options={({ navigation, route }) => ({
+          title: "Create a budget",
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
         })}
       />

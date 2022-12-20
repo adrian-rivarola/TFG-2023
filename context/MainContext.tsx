@@ -1,22 +1,34 @@
 import React, { Reducer, useContext, useEffect, useReducer } from "react";
+import BudgetService, { Budget, BudgetStatus } from "../data/classes/Budget";
 import CategoryService, { Category } from "../data/classes/Category";
 import ReportService from "../data/classes/Report";
 import TransactionService, { Transaction } from "../data/classes/Transaction";
 
 interface MainContextValue {
   balance: number;
+  allBudgets: BudgetStatus[];
+  activeBudgets: BudgetStatus[];
+  inactiveBudgets: BudgetStatus[];
   transactions: Transaction[];
   categories: Category[];
+  selectedCategory?: Category;
+  setBudgets(budgets: BudgetStatus[]): void;
   setTransactions(transactions: Transaction[]): void;
   setCategories(categories: Category[]): void;
+  selectCategory(category: Category): void;
 }
 
 const initialValue: MainContextValue = {
   balance: 0,
+  allBudgets: [],
+  activeBudgets: [],
+  inactiveBudgets: [],
   transactions: [],
   categories: [],
   setTransactions() {},
   setCategories() {},
+  setBudgets() {},
+  selectCategory() {},
 };
 
 export const MainContext = React.createContext(initialValue);
@@ -25,7 +37,9 @@ export const useMainContext = () => useContext(MainContext);
 
 type ActionType =
   | { type: "set-balance"; payload: number }
+  | { type: "set-budgets"; payload: BudgetStatus[] }
   | { type: "set-transactions"; payload: Transaction[] }
+  | { type: "select-category"; payload: Category }
   | { type: "set-categories"; payload: Category[] };
 
 const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
@@ -34,6 +48,13 @@ const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
       return {
         ...state,
         balance: action.payload,
+      };
+    case "set-budgets":
+      return {
+        ...state,
+        allBudgets: action.payload,
+        activeBudgets: action.payload.filter((budget) => budget.is_active),
+        inactiveBudgets: action.payload.filter((budget) => !budget.is_active),
       };
     case "set-transactions":
       return {
@@ -44,6 +65,11 @@ const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
       return {
         ...state,
         categories: action.payload,
+      };
+    case "select-category":
+      return {
+        ...state,
+        selectedCategory: action.payload,
       };
   }
 };
@@ -57,14 +83,22 @@ export const MainContextProvider = ({
 
   useEffect(() => {
     const categoryService = new CategoryService();
-    categoryService.query({}).then(setCategories);
-
     const reportService = new ReportService();
-    reportService.getTransactionsWithCategory();
+    const budgetService = new BudgetService();
+
+    budgetService.query().then(async (budgetList) => {
+      const budgets = await Promise.all(
+        budgetList.map((b) => budgetService.addStatusToBudget(b))
+      );
+      setBudgets(budgets);
+    });
+
+    categoryService.query({}).then(setCategories);
     reportService.getData().then(() => {
       setBalance(reportService.balance);
     });
 
+    // reportService.getTransactionsWithCategory();
     // const transactionService = new TransactionService();
     // transactionService.getBalance().then(setBalance);
   }, []);
@@ -73,16 +107,35 @@ export const MainContextProvider = ({
     dispatch({ type: "set-balance", payload: balance });
   };
 
-  const setCategories = (categories: Category[]) => {
-    dispatch({ type: "set-categories", payload: categories });
+  const setBudgets = (budgets: BudgetStatus[]) => {
+    dispatch({ type: "set-budgets", payload: budgets });
   };
 
   const setTransactions = (transactions: Transaction[]) => {
     dispatch({ type: "set-transactions", payload: transactions });
   };
 
+  const setCategories = (categories: Category[]) => {
+    dispatch({ type: "set-categories", payload: categories });
+  };
+
+  const selectCategory = (category: Category) => {
+    dispatch({
+      type: "select-category",
+      payload: category,
+    });
+  };
+
   return (
-    <MainContext.Provider value={{ ...state, setCategories, setTransactions }}>
+    <MainContext.Provider
+      value={{
+        ...state,
+        setTransactions,
+        setBudgets,
+        setCategories,
+        selectCategory,
+      }}
+    >
       {children}
     </MainContext.Provider>
   );

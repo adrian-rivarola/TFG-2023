@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
+import { useMainContext } from "../context/MainContext";
 import CategoryService, { CategoryType } from "../data/classes/Category";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryCreate">;
 
-export default function CreteCategoryScreen({ navigation }: ScreenProps) {
+export default function CategoryCreateScreen({ navigation }: ScreenProps) {
+  const { categories, setCategories } = useMainContext();
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [type, setType] = useState(CategoryType.expense);
@@ -61,9 +63,10 @@ export default function CreteCategoryScreen({ navigation }: ScreenProps) {
                 icon,
                 type,
               })
-              .then(() => {
+              .then((newCategory) => {
                 console.log("Category created!");
-                navigation.navigate("CategorySelect");
+                setCategories([newCategory, ...categories]);
+                navigation.goBack();
               })
               .catch((err) => {
                 console.log("Failed to create Category!", err);

@@ -1,7 +1,5 @@
-import { View } from "react-native";
-import { Card, Text, Title } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
 import Layout from "../../constants/Layout";
-import { useMainContext } from "../../context/MainContext";
 import { Category, CategoryType } from "../../data/classes/Category";
 import { Transaction } from "../../data/classes/Transaction";
 

@@ -1,14 +1,10 @@
-import { useNavigation } from "@react-navigation/native";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import { Button } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import TransactionsList from "../components/transactions/TransactionsList";
 import { useMainContext } from "../context/MainContext";
-import { useTheme } from "../context/ThemeContext";
 
 export default function TestComponents(props: {}) {
-  const { toggleThemeType } = useTheme();
   const { balance } = useMainContext();
 
   return (
