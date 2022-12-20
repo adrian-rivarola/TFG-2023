@@ -1,13 +1,17 @@
 import { sql } from "expo-sqlite-orm";
 import DatabaseLayer from "expo-sqlite-orm/lib/DatabaseLayer";
 import config from "../../constants/config";
-import { CategoryType } from "./Category";
+import { Category, CategoryType } from "./Category";
 import { Transaction } from "./Transaction";
 
 type CategoryTotalsResult = Array<{ category_id: CategoryType; total: number }>;
 
 type WeekTotalsResult = Array<{ date: string; total: number }>;
 
+type TransactionWithCategory = Omit<Transaction, "category_id"> & {
+  type: number | string;
+  category: string;
+};
 export default class ReportService {
   databaseLayer: DatabaseLayer<Transaction>;
   weekTotals: Record<string, number> = {};
@@ -78,6 +82,31 @@ export default class ReportService {
       })
       .catch((err) => {
         console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+      });
+  }
+
+  async getTransactionsWithCategory(): Promise<TransactionWithCategory[]> {
+    return this.databaseLayer
+      .executeSql(
+        sql`
+          SELECT t.*,
+          c.type AS type,
+          c.name AS category
+        FROM
+          transactions t
+        JOIN categories c 
+        ON t.category_id = c.id;
+        `
+      )
+      .then(({ rows }: { rows: TransactionWithCategory[] }) => {
+        return rows.map((row) => ({
+          ...row,
+          type: row.type === CategoryType.expense ? "Gasto" : "Ingreso",
+        }));
+      })
+      .catch((err) => {
+        console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+        return [];
       });
   }
 }

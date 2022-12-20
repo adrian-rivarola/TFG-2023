@@ -60,6 +60,7 @@ export const MainContextProvider = ({
     categoryService.query({}).then(setCategories);
 
     const reportService = new ReportService();
+    reportService.getTransactionsWithCategory();
     reportService.getData().then(() => {
       setBalance(reportService.balance);
     });

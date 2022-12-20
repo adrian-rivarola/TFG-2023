@@ -44,10 +44,10 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
           res.filter((cat) => cat.type === CategoryType.income)
         );
 
-        console.log(`Found ${res.length} categories`);
+        // console.log(`Found ${res.length} categories`);
       })
       .catch((err) => {
-        console.log("Failed to get categories");
+        console.log("Failed to get categories", err);
       });
   }, []);
 

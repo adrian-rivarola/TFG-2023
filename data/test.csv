@@ -1,0 +1,5 @@
+description,amount,date,category_id
+Transacción 1 con categoría,185000,2022-12-19,2
+Gasto de la casa,12000,2022-12-18,4
+Nueva transacción con cat 3,120000,2022-12-14,3
+Gasto miércoles 14,400000,2022-12-14,1

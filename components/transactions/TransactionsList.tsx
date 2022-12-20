@@ -22,11 +22,11 @@ export default function TransactionsList(props: TransactionsListProps) {
     transactionsService
       .query({ limit: 2, page: 1 })
       .then((res) => {
-        console.log(`Found ${res.length} transactions`);
+        // console.log(`Found ${res.length} transactions`);
         setTransactions(res);
       })
       .catch((err) => {
-        console.log(`Failed to get transactions`, err);
+        // console.log(`Failed to get transactions`, err);
       });
   };
 

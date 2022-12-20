@@ -96,7 +96,7 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
         },
       })
       .then((res) => {
-        console.log(`Found ${res.length} transactions in range '${range}'`);
+        // console.log(`Found ${res.length} transactions in range '${range}'`);
         setTransactions(res);
       })
       .catch((err) => {

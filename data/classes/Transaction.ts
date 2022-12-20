@@ -65,8 +65,8 @@ export default class TransactionService {
     return migrations.migrate();
   }
 
-  query(options: IQueryOptions<Transaction> | undefined) {
-    console.log(`Transaction.query.options: ${JSON.stringify(options)}`);
+  query(options: IQueryOptions<Transaction> = {}) {
+    // console.log(`Transaction.query.options: ${JSON.stringify(options)}`);
 
     return this.repository.query({
       ...options,

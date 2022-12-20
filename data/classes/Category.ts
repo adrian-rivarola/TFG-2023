@@ -73,7 +73,7 @@ export default class CategoryService {
   }
 
   query(options: IQueryOptions<Category> | undefined) {
-    console.log(`Getting Categories with query: ${JSON.stringify(options)} `);
+    // console.log(`Getting Categories with query: ${JSON.stringify(options)} `);
 
     return this.repository.query(options);
   }
