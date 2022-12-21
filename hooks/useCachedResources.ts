@@ -14,7 +14,7 @@ export default function useCachedResources() {
         SplashScreen.preventAutoHideAsync();
 
         // run db migrations
-        // await runMigrations();
+        await runMigrations();
 
         // Load fonts
         await Font.loadAsync({

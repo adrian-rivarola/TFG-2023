@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
@@ -13,6 +14,10 @@ type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 export default function BudgetListScreen({ navigation }: ScreenProps) {
   const { activeBudgets, inactiveBudgets, setBudgets } = useMainContext();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    updateBudgets();
+  }, []);
 
   const updateBudgets = () => {
     const budgetService = new BudgetService();
@@ -114,9 +119,9 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
                 });
               }}
               title={budget.description}
-              description={`${budget.start_date} al ${budget.end_date}`
-                .replaceAll("2022-", "")
-                .replaceAll("-", "/")}
+              description={`${dayjs(budget.start_date).format("D")} al ${dayjs(
+                budget.end_date
+              ).format("D [de] MMMM")}`}
               descriptionStyle={{ marginTop: 4 }}
               right={() => {
                 return (
