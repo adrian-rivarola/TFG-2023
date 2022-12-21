@@ -27,13 +27,13 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
 
 export type RootTabParamList = {
   Home: undefined;
-  Configuration: undefined;
-  TestComponents: undefined;
-  BudgetList: undefined;
   TransactionList: undefined;
+  TransactionForm: undefined;
+  BudgetList: undefined;
+  Configuration: undefined;
+
   CategorySelect: undefined;
   CategoryForm: undefined;
-  TransactionForm: undefined;
   TransactionEditForm: {
     transactionId: number;
   };

@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -40,6 +41,25 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
     navigation.goBack();
   };
 
+  const renderCategoryItem = (cat: Category) => {
+    return (
+      <List.Item
+        key={cat.id}
+        title={cat.name}
+        style={themedStyles.categoryItem}
+        left={() => (
+          <MaterialIcons
+            name={cat.icon.toLowerCase() as any}
+            color={colors.text}
+            size={16}
+            style={{ marginStart: 16 }}
+          />
+        )}
+        onPress={() => onCategoryPress(cat)}
+      />
+    );
+  };
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -55,14 +75,7 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
               fontWeight: "bold",
             }}
           >
-            {expenseCategories.map((cat) => (
-              <List.Item
-                key={cat.id}
-                title={cat.name}
-                style={themedStyles.categoryItem}
-                onPress={() => onCategoryPress(cat)}
-              />
-            ))}
+            {expenseCategories.map(renderCategoryItem)}
           </List.Section>
         )}
         {incomeCategories.length > 0 && (
@@ -72,14 +85,7 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
               fontWeight: "bold",
             }}
           >
-            {incomeCategories.map((cat) => (
-              <List.Item
-                key={cat.id}
-                title={cat.name}
-                style={themedStyles.categoryItem}
-                onPress={() => onCategoryPress(cat)}
-              />
-            ))}
+            {incomeCategories.map(renderCategoryItem)}
           </List.Section>
         )}
         <Button

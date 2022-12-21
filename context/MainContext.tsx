@@ -1,7 +1,6 @@
 import React, { Reducer, useContext, useEffect, useReducer } from "react";
 import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import CategoryService, { Category } from "../data/classes/Category";
-import ReportService from "../data/classes/Report";
 import { Transaction } from "../data/classes/Transaction";
 
 interface MainContextValue {
@@ -12,10 +11,11 @@ interface MainContextValue {
   transactions: Transaction[];
   categories: Category[];
   selectedCategory?: Category;
-  setBudgets(budgets: BudgetStatus[]): void;
-  setTransactions(transactions: Transaction[]): void;
-  setCategories(categories: Category[]): void;
+  setBalance(balance: number): void;
   selectCategory(category: Category): void;
+  setBudgets(budgets: BudgetStatus[]): void;
+  setCategories(categories: Category[]): void;
+  setTransactions(transactions: Transaction[]): void;
 }
 
 const initialValue: MainContextValue = {
@@ -25,10 +25,11 @@ const initialValue: MainContextValue = {
   inactiveBudgets: [],
   transactions: [],
   categories: [],
-  setTransactions() {},
-  setCategories() {},
+  setBalance() {},
   setBudgets() {},
+  setCategories() {},
   selectCategory() {},
+  setTransactions() {},
 };
 
 export const MainContext = React.createContext(initialValue);
@@ -83,7 +84,6 @@ export const MainContextProvider = ({
 
   useEffect(() => {
     const categoryService = new CategoryService();
-    const reportService = new ReportService();
     const budgetService = new BudgetService();
 
     budgetService.query().then(async (budgetList) => {
@@ -92,11 +92,7 @@ export const MainContextProvider = ({
       );
       setBudgets(budgets);
     });
-
     categoryService.query({}).then(setCategories);
-    reportService.getData().then(() => {
-      setBalance(reportService.balance);
-    });
   }, []);
 
   const setBalance = (balance: number) => {
@@ -130,6 +126,7 @@ export const MainContextProvider = ({
         setBudgets,
         setCategories,
         selectCategory,
+        setBalance,
       }}
     >
       {children}

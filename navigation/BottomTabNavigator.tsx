@@ -9,7 +9,7 @@ import ConfigurationScreen from "../screens/ConfigurationScreen";
 import CategoryFormScreen from "../screens/CategoryFormScreen";
 import TransactionFormScreen from "../screens/TransactionFormScreen";
 import BudgetListScreen from "../screens/BudgetListScreen";
-import TestComponents from "../screens/TestComponents";
+import HomeScreen from "../screens/HomeScreen";
 import TransactionsListScreen from "../screens/TransactionsListScreen";
 import { RootTabParamList } from "../types";
 import BudgetFormScreen from "../screens/BudgetFormScreen";
@@ -63,9 +63,10 @@ export default function BottomTabNavigator() {
     >
       <BottomTab.Screen
         name="Home"
-        component={TestComponents}
+        component={HomeScreen}
         options={{
           title: "Home",
+          unmountOnBlur: true,
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,

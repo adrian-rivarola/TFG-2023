@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { sql } from "expo-sqlite-orm";
 import DatabaseLayer from "expo-sqlite-orm/lib/DatabaseLayer";
 import config from "../../constants/config";
@@ -7,6 +8,12 @@ import { Transaction } from "./Transaction";
 type CategoryTotalsResult = Array<{ category_id: CategoryType; total: number }>;
 
 type WeekTotalsResult = Array<{ date: string; total: number }>;
+type MonthDataResult = Array<{
+  weekNumber: string;
+  weekStart: string;
+  weekEnd: string;
+  total_transactions: number;
+}>;
 
 type TransactionWithCategory = Omit<Transaction, "category_id"> & {
   type: number | string;
@@ -14,7 +21,6 @@ type TransactionWithCategory = Omit<Transaction, "category_id"> & {
 };
 export default class ReportService {
   databaseLayer: DatabaseLayer<Transaction>;
-  weekTotals: Record<string, number> = {};
   totalSums: Record<CategoryType, number> = {
     [CategoryType.expense]: 0,
     [CategoryType.income]: 0,
@@ -25,12 +31,7 @@ export default class ReportService {
     this.databaseLayer = new DatabaseLayer(config.DB_NAME, "transactions");
   }
 
-  async getData() {
-    await this.getTotals();
-    // this.getWeekTotals();
-  }
-
-  async getTotals() {
+  async getBalance(): Promise<number> {
     this.totalSums = {
       [CategoryType.expense]: 0,
       [CategoryType.income]: 0,
@@ -44,45 +45,56 @@ export default class ReportService {
         rows.forEach((categoryTotal) => {
           this.totalSums[categoryTotal.category_id] = categoryTotal.total;
         });
-        this.balance =
+        return (
           this.totalSums[CategoryType.income] -
-          this.totalSums[CategoryType.expense];
+          this.totalSums[CategoryType.expense]
+        );
       })
       .catch((err) => {
         console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+        return 0;
       });
   }
 
-  async getWeekTotals() {
-    const lastMonday = new Date();
-    const dateOffset = 6 + lastMonday.getDay();
-    lastMonday.setDate(lastMonday.getDate() - dateOffset);
-
+  async getWeekTotals(startDate: string, endDate: string) {
     return this.databaseLayer
       .executeSql(
         sql`
           SELECT date, SUM(amount) AS total
           FROM transactions t
           JOIN categories c ON t.category_id = c.id
-          WHERE c."type" = ? and date >= ?
+          WHERE c."type" = ? AND date BETWEEN ? AND ?
           GROUP BY date;
         `,
-        [CategoryType.expense, lastMonday.toISOString().split("T")[0]]
+        [CategoryType.expense, startDate, endDate]
       )
       .then(({ rows }: { rows: WeekTotalsResult }) => {
-        // TODO: improve this
-        this.weekTotals = {};
-        for (let i = 0; i < 7; i++) {
-          this.weekTotals[`${lastMonday.getDate() + i}`] = 0;
-        }
-        rows.forEach(({ date, total }) => {
-          const day = date.split("-")[2];
-          this.weekTotals[day] = total;
-        });
+        return rows;
       })
       .catch((err) => {
         console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+        return [];
       });
+  }
+
+  async getSomething(startDate: string): Promise<MonthDataResult> {
+    return this.databaseLayer
+      .executeSql(
+        sql`
+        SELECT 
+            strftime('%W', date) weekNumber,
+            max(date(date, 'weekday 1', '-7 day')) weekStart,
+            max(date(date, 'weekday 1', '-1 day')) weekEnd,
+            SUM(t.amount) as total_transactions
+        FROM transactions t
+        JOIN categories c 
+        ON t.category_id = c.id
+        WHERE c."type" = 0 AND t.date >= ?
+        GROUP BY weekNumber;
+      `,
+        [startDate]
+      )
+      .then(({ rows }) => rows);
   }
 
   async getTransactionsWithCategory(): Promise<TransactionWithCategory[]> {
@@ -95,7 +107,8 @@ export default class ReportService {
         FROM
           transactions t
         JOIN categories c 
-        ON t.category_id = c.id;
+        ON t.category_id = c.id
+        ORDER BY t."date";
         `
       )
       .then(({ rows }: { rows: TransactionWithCategory[] }) => {
@@ -105,7 +118,9 @@ export default class ReportService {
         }));
       })
       .catch((err) => {
-        console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+        console.log(
+          `Failed to getTransactionsWithCategory: ${JSON.stringify(err)}`
+        );
         return [];
       });
   }

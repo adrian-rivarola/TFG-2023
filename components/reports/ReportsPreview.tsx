@@ -1,3 +1,4 @@
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { BarChart, LineChart } from "react-native-chart-kit";
@@ -16,11 +17,10 @@ type ReportData = {
 
 const mockReportData: ReportData = {
   week: {
-    labels: ["L", "M", "M", "J", "V", "S", "D"],
+    labels: ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"],
     datasets: [
       {
-        data: [0, 0, 0, 0, 0, 0, 0],
-        // data: [12_500, 8_000, 9_500, 12_000, 18_000, 21_000, 32_000],
+        data: [0, 0, 0],
       },
     ],
   },
@@ -33,29 +33,89 @@ const mockReportData: ReportData = {
     ],
   },
 };
-
-const reportService = new ReportService();
+const WEEK_LABELS = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
 
 export default function ReportsPreview(props: ReportsPreviewProps) {
   const { theme, isDarkTheme } = useTheme();
   const [activeSegment, setActiveSegment] = useState<ReportOption>("week");
   const [reportData, setReportData] = useState(mockReportData);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    reportService.getWeekTotals().then(() => {
-      setReportData({
-        ...reportData,
-        week: {
-          ...reportData.week,
-          datasets: [
-            {
-              data: Object.values(reportService.weekTotals),
-            },
-          ],
-        },
-      });
-    });
+    getReportsData();
   }, []);
+
+  const getReportsData = async () => {
+    const weekData = await getWeekData();
+    const monthData = await getMonthData();
+
+    setReportData({
+      ...weekData,
+      ...monthData,
+    });
+    setLoading(false);
+  };
+
+  const getWeekData = async () => {
+    const reportService = new ReportService();
+    const weekStart = dayjs().startOf("week");
+    const weekDates: string[] = [];
+
+    for (let i = 0; i < 7; i++) {
+      weekDates.push(weekStart.add(i, "days").format("YYYY-MM-DD"));
+    }
+    const weekData = await reportService.getWeekTotals(
+      weekDates[0],
+      weekDates[weekDates.length - 1]
+    );
+    const weekReportData = weekDates.map(
+      (d) => weekData.find((wd) => wd.date === d)?.total || 0
+    );
+    return {
+      week: {
+        labels: WEEK_LABELS,
+        datasets: [
+          {
+            data: weekReportData,
+          },
+        ],
+      },
+    };
+  };
+
+  const getMonthData = async () => {
+    const reportService = new ReportService();
+    let monthStart = dayjs().startOf("month");
+
+    // get first monday
+    while (monthStart.day() !== 1) {
+      monthStart = monthStart.add(1, "day");
+    }
+
+    const monthDates: Dayjs[] = [];
+
+    for (let i = 0; i < 4; i++) {
+      monthDates.push(monthStart.add(i, "weeks"));
+    }
+    const monthData = await reportService.getSomething(
+      monthDates[0].format("YYYY-MM-DD")
+    );
+    const monthReportData = monthDates.map(
+      (d) =>
+        monthData.find((md) => md.weekStart === d.format("YYYY-MM-DD"))
+          ?.total_transactions || 0
+    );
+    return {
+      month: {
+        labels: monthDates.map((d) => d.format("DD/MM")),
+        datasets: [
+          {
+            data: monthReportData,
+          },
+        ],
+      },
+    };
+  };
 
   const chartConfig: AbstractChartConfig = {
     labelColor: () => theme.colors.text,
@@ -64,6 +124,10 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
         ? `rgba(255, 255, 255, ${opacity})`
         : `rgba(0, 0, 0, ${opacity})`,
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <View style={styles.reportsContainer}>
@@ -85,7 +149,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
       />
       <Card
         mode="outlined"
-        style={{ marginTop: 8, width: screenWidth - 50, padding: 0 }}
+        style={{ marginTop: 16, width: screenWidth - 50, padding: 0 }}
       >
         <LineChart
           style={{ paddingTop: 12 }}
@@ -96,7 +160,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
           chartConfig={chartConfig}
           width={screenWidth - 50}
           height={250}
-          // xLabelsOffset={-4}
+          segments={activeSegment === "month" ? 5 : 4}
           yAxisLabel="Gs "
           formatYLabel={(n) => {
             let num = parseInt(n);

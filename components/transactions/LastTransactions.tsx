@@ -11,25 +11,23 @@ import TransactionService, {
 import { RootTabParamList } from "../../types";
 import TransactionCard from "./TransactionCard";
 
-const transactionsService = new TransactionService();
-
 export default function LastTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const navigation = useNavigation();
+  const { categories } = useMainContext();
 
   useEffect(() => {
     getLastTransactions();
   }, []);
 
   const getLastTransactions = () => {
+    const transactionsService = new TransactionService();
     transactionsService
       .query({ limit: 3, page: 1 })
       .then((res) => {
-        // console.log(`Found ${res.length} transactions`);
         setTransactions(res);
       })
       .catch((err) => {
-        // console.log(`Failed to get transactions`, err);
+        console.log(`Failed to get transactions`, err);
       });
   };
 
@@ -41,7 +39,11 @@ export default function LastTransactions() {
       </View>
       {transactions.length ? (
         transactions.map((transaction) => (
-          <TransactionCard key={transaction.id} transaction={transaction} />
+          <TransactionCard
+            key={transaction.id}
+            transaction={transaction}
+            category={categories.find((c) => c.id === transaction.category_id)}
+          />
         ))
       ) : (
         <Text style={{ paddingVertical: 16 }}>Aún no hay transacciones :(</Text>
