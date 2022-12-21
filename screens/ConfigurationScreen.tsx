@@ -1,9 +1,15 @@
 import React, { useState } from "react";
+import { useRef } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { List, Snackbar } from "react-native-paper";
+import ConfirmationModal, { ModalRef } from "../components/ConfirmationModal";
+import SnackbarMessage, { SnackRef } from "../components/SnackbarMessage";
+import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import ReportService from "../data/classes/Report";
-import { convertToCSV, openCSV, saveCSV } from "../data/utils";
+import { clearAllData } from "../data/migrations";
+import { convertToCSV, saveCSV } from "../data/utils";
 
 type SnackOptions = {
   visible: boolean;
@@ -12,22 +18,19 @@ type SnackOptions = {
 };
 
 const ConfigurationScreen = () => {
-  const [snackOptions, setSnackOptions] = useState<SnackOptions>({
-    visible: false,
-    message: "",
-    type: "success",
-  });
+  const { confirmModalRef, snackRef } = useRefContext();
+  const { setCategories } = useMainContext();
   const {
     theme: { colors },
   } = useTheme();
 
-  const themedStyles = {
+  const themedStyles = StyleSheet.create({
     categoryItem: {
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
-      backgroundColor: colors.onSecondary,
+      backgroundColor: colors.surface,
     },
-  };
+  });
 
   const exportCSV = async () => {
     const reportService = new ReportService();
@@ -45,53 +48,62 @@ const ConfigurationScreen = () => {
       const saved = await saveCSV("transactions.csv", csvData);
       if (saved) {
         // TODO: don't show this on iOS if share is canceled
-        setSnackOptions({
-          visible: true,
+        snackRef.current?.showSnackMessage({
           message: "El archivo fue exportado correctamente",
           type: "success",
         });
       } else {
-        setSnackOptions({
-          visible: true,
+        snackRef.current?.showSnackMessage({
           message: "No se pudo guardar el archivo",
           type: "error",
         });
       }
     } catch (err) {
-      setSnackOptions({
-        visible: true,
+      snackRef.current?.showSnackMessage({
         message: "Algo salió mal, por favor intente nuevamente",
         type: "error",
       });
     }
   };
 
+  const clearData = async () => {
+    confirmModalRef.current?.showConfirmationModal({
+      content:
+        "Está seguro que quiere eliminar todos los datos registrados en esta aplicación?",
+      confirmText: "Eliminar todo",
+      onConfirm: () => {
+        clearAllData().then((deleted) => {
+          if (deleted) {
+            setCategories([]);
+            snackRef.current?.showSnackMessage({
+              message: "Los datos fueron eliminados correctamente",
+              type: "success",
+            });
+          } else {
+            snackRef.current?.showSnackMessage({
+              message: "Algo salío mal, intente nuevamente más tarde",
+              type: "error",
+            });
+          }
+        });
+      },
+    });
+  };
+
   return (
-    <>
-      <View style={{ marginVertical: 8 }}>
-        <List.Item
-          title="Exportar datos a CSV"
-          style={themedStyles.categoryItem}
-          onPress={exportCSV}
-        />
-      </View>
-      <Snackbar
-        style={{
-          backgroundColor:
-            snackOptions.type === "error" ? colors.error : colors.backdrop,
-        }}
-        visible={snackOptions.visible}
-        onDismiss={() => setSnackOptions({ ...snackOptions, visible: false })}
-        action={{
-          label: "OK",
-          onPress: () => {
-            setSnackOptions({ ...snackOptions, visible: false });
-          },
-        }}
-      >
-        {snackOptions.message}
-      </Snackbar>
-    </>
+    <View style={{ marginVertical: 8 }}>
+      <List.Item
+        title="Exportar datos a CSV"
+        style={themedStyles.categoryItem}
+        onPress={exportCSV}
+      />
+      <List.Item
+        title="Borrar todos los datos"
+        underlayColor={colors.error}
+        style={themedStyles.categoryItem}
+        onPress={clearData}
+      />
+    </View>
   );
 };
 

@@ -59,3 +59,23 @@ export default function runMigrations() {
       console.log(`Migrations failed!:\n${JSON.stringify(err)}`);
     });
 }
+
+export function clearAllData() {
+  const migrations = new Migrations(config.DB_NAME, {});
+  const sqlQueries = [
+    sql`DELETE FROM transactions;`,
+    sql`DELETE FROM categories;`,
+    sql`DELETE FROM budgets;`,
+  ];
+
+  return migrations.repository.databaseLayer
+    .executeBulkSql(sqlQueries)
+    .then((res) => {
+      console.log(`Deletion completed!:\n${JSON.stringify(res)}`);
+      return true;
+    })
+    .catch((err) => {
+      console.log(`Deletion failed!:\n${JSON.stringify(err)}`);
+      return false;
+    });
+}

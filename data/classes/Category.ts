@@ -49,29 +49,6 @@ export default class CategoryService {
     };
   }
 
-  createTable() {
-    const createStatement: IStatement = {
-      "1671398460360_create_categories_table": sql`
-          CREATE TABLE categories (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            icon TEXT NOT NULL,
-            type INTEGER NOT NULL,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-          );`,
-    };
-    const migrations = new Migrations(DB_NAME, createStatement);
-    return migrations.migrate();
-  }
-
-  insertTestData() {
-    return this.repository.insert({
-      name: "Category #1",
-      icon: "house",
-      type: 0,
-    });
-  }
-
   query(options: IQueryOptions<Category> | undefined) {
     // console.log(`Getting Categories with query: ${JSON.stringify(options)} `);
 

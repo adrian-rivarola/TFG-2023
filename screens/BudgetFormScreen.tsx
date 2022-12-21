@@ -14,6 +14,7 @@ import {
 import { Button, Switch, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import BudgetService from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
@@ -21,6 +22,7 @@ import { RootTabParamList } from "../types";
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
+  const { snackRef } = useRefContext();
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState(new Date());
@@ -71,9 +73,17 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
       budgetService
         .update(budgetId, budgetData)
         .then(() => {
+          snackRef.current?.showSnackMessage({
+            message: "Presupuesto actualizado correctamente",
+            type: "success",
+          });
           navigation.goBack();
         })
         .catch((err) => {
+          snackRef.current?.showSnackMessage({
+            message: "Algo salió mal, intente de nuevo",
+            type: "error",
+          });
           console.log(`Failed to update budget with id: ${budgetId}`, err);
         });
     } else {
@@ -82,9 +92,17 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         .then(async (newBudget) => {
           const budgetStatus = await budgetService.addStatusToBudget(newBudget);
           setBudgets([budgetStatus, ...allBudgets]);
+          snackRef.current?.showSnackMessage({
+            message: "Presupuesto creado correctamente",
+            type: "success",
+          });
           navigation.navigate("BudgetList");
         })
         .catch((err) => {
+          snackRef.current?.showSnackMessage({
+            message: "Algo salió mal, intente de nuevo",
+            type: "error",
+          });
           console.log("Failed to create Budget!", err);
         });
     }

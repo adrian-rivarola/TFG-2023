@@ -57,6 +57,7 @@ export default function BottomTabNavigator() {
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         lazy: true,
+        tabBarHideOnKeyboard: true,
         headerRight,
         tabBarButton: tabBarItems.includes(route.name) ? undefined : () => null,
       })}
@@ -79,6 +80,7 @@ export default function BottomTabNavigator() {
         component={TransactionsListScreen}
         options={{
           title: "Transactions",
+          unmountOnBlur: true,
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,

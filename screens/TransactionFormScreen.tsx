@@ -14,6 +14,7 @@ import {
 import { Button, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import TransactionService from "../data/classes/Transaction";
 import { RootTabParamList } from "../types";
@@ -30,13 +31,8 @@ export default function TransactionFormScreen({
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
-  const {
-    transactions,
-    selectedCategory,
-    categories,
-    selectCategory,
-    setTransactions,
-  } = useMainContext();
+  const { selectedCategory, selectCategory } = useMainContext();
+  const { snackRef } = useRefContext();
   const { themeType, theme } = useTheme();
   const transactionId = route.params?.transactionId;
 
@@ -50,9 +46,6 @@ export default function TransactionFormScreen({
         } else {
           setAmount(transaction.amount.toString());
           setDescription(transaction.description);
-          selectCategory(
-            categories.find((c) => c.id === transaction.category_id)!
-          );
           setDate(dayjs(transaction.date).toDate());
         }
       });
@@ -93,6 +86,13 @@ export default function TransactionFormScreen({
       </TouchableWithoutFeedback>
     );
 
+  const resetFields = () => {
+    setAmount("");
+    setDescription("");
+    selectCategory(undefined);
+    setDate(new Date());
+  };
+
   const onSubmit = () => {
     const transactionService = new TransactionService();
     const transactionData = {
@@ -106,9 +106,18 @@ export default function TransactionFormScreen({
       transactionService
         .update(transactionId, transactionData)
         .then(() => {
+          snackRef.current?.showSnackMessage({
+            message: "Transacción actualizada",
+            type: "success",
+          });
           navigation.goBack();
+          resetFields();
         })
         .catch((err) => {
+          snackRef.current?.showSnackMessage({
+            message: "Algo salió mal, intente de nuevo",
+            type: "error",
+          });
           console.log(
             `Failed to update transaction with id: ${transactionId}`,
             err
@@ -117,11 +126,19 @@ export default function TransactionFormScreen({
     } else {
       transactionService
         .insert(transactionData)
-        .then((newTransaction) => {
-          setTransactions([newTransaction, ...transactions]);
-          navigation.navigate("Home");
+        .then(() => {
+          snackRef.current?.showSnackMessage({
+            message: "Transacción creada correctamente",
+            type: "success",
+          });
+          navigation.navigate("TransactionList");
+          resetFields();
         })
         .catch((err) => {
+          snackRef.current?.showSnackMessage({
+            message: "Algo salió mal, intente de nuevo",
+            type: "error",
+          });
           console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
         });
     }
@@ -134,6 +151,7 @@ export default function TransactionFormScreen({
           <Text>Monto:</Text>
           <TextInput
             style={styles.input}
+            keyboardType="numeric"
             mode="outlined"
             value={amount}
             onChangeText={(val) => setAmount(val)}

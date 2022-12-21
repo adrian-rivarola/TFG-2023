@@ -12,7 +12,7 @@ interface MainContextValue {
   categories: Category[];
   selectedCategory?: Category;
   setBalance(balance: number): void;
-  selectCategory(category: Category): void;
+  selectCategory(category?: Category): void;
   setBudgets(budgets: BudgetStatus[]): void;
   setCategories(categories: Category[]): void;
   setTransactions(transactions: Transaction[]): void;
@@ -40,7 +40,7 @@ type ActionType =
   | { type: "set-balance"; payload: number }
   | { type: "set-budgets"; payload: BudgetStatus[] }
   | { type: "set-transactions"; payload: Transaction[] }
-  | { type: "select-category"; payload: Category }
+  | { type: "select-category"; payload: Category | undefined }
   | { type: "set-categories"; payload: Category[] };
 
 const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
@@ -111,7 +111,7 @@ export const MainContextProvider = ({
     dispatch({ type: "set-categories", payload: categories });
   };
 
-  const selectCategory = (category: Category) => {
+  const selectCategory = (category?: Category) => {
     dispatch({
       type: "select-category",
       payload: category,

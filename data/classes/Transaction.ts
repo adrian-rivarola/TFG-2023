@@ -58,6 +58,7 @@ export default class TransactionService {
       ...options,
       order: {
         date: "DESC",
+        updatedAt: "DESC",
       },
     });
   }

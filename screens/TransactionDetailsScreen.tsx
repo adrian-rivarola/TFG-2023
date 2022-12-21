@@ -11,6 +11,7 @@ import {
   Text,
 } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import { BudgetStatus } from "../data/classes/Budget";
 import { CategoryType } from "../data/classes/Category";
@@ -29,8 +30,8 @@ export default function TransactionDetailsScreen({
   route,
 }: ScreenProps) {
   const [transaction, setTransaction] = useState<Transaction>();
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const { categories, activeBudgets } = useMainContext();
+  const { categories, activeBudgets, selectCategory } = useMainContext();
+  const { confirmModalRef, snackRef } = useRefContext();
   const {
     theme: { colors },
   } = useTheme();
@@ -59,13 +60,26 @@ export default function TransactionDetailsScreen({
   });
 
   const deleteTransaction = () => {
-    const transactionService = new TransactionService();
-    transactionService.delete(route.params.transactionId).then((deleted) => {
-      if (deleted) {
-        navigation.goBack();
-      } else {
-        console.log("Failed to delete transaction");
-      }
+    confirmModalRef.current?.showConfirmationModal({
+      onConfirm: () => {
+        const transactionService = new TransactionService();
+        transactionService
+          .delete(route.params.transactionId)
+          .then((deleted) => {
+            if (deleted) {
+              navigation.goBack();
+              snackRef.current?.showSnackMessage({
+                message: "La transacción fue eliminada correctamente",
+                type: "success",
+              });
+            } else {
+              snackRef.current?.showSnackMessage({
+                message: "Algo salío mal, intente nuevamente más tarde",
+                type: "error",
+              });
+            }
+          });
+      },
     });
   };
 
@@ -118,6 +132,7 @@ export default function TransactionDetailsScreen({
         <View style={styles.description}>
           <Button
             onPress={() => {
+              selectCategory(category);
               navigation.navigate("TransactionEditForm", {
                 transactionId: transaction.id,
               });
@@ -128,9 +143,7 @@ export default function TransactionDetailsScreen({
             Editar
           </Button>
           <Button
-            onPress={() => {
-              setDialogVisible(true);
-            }}
+            onPress={deleteTransaction}
             style={styles.ms2}
             mode="contained-tonal"
             icon="delete"
@@ -162,12 +175,6 @@ export default function TransactionDetailsScreen({
           </Text>
         )}
       </View>
-
-      <DeleteDialog
-        onDelete={deleteTransaction}
-        visible={dialogVisible}
-        hideDialog={() => setDialogVisible(false)}
-      />
     </View>
   );
 }
@@ -244,40 +251,5 @@ function BudgetCard({ budget, onPress }: BudgetCardProps) {
       }}
       style={themedStyles.budgetItem}
     />
-  );
-}
-
-type DialogProps = {
-  visible: boolean;
-  hideDialog(): void;
-  onDelete(): void;
-};
-
-function DeleteDialog({ visible, hideDialog, onDelete }: DialogProps) {
-  return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Content>
-          <Paragraph>Está seguro que quiere eliminar este elemento?</Paragraph>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button
-            onPress={() => {
-              hideDialog();
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onPress={() => {
-              hideDialog();
-              onDelete();
-            }}
-          >
-            Eliminar
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
   );
 }

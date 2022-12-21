@@ -1,10 +1,11 @@
+import { useNavigation } from "@react-navigation/native";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { BarChart, LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { ChartData } from "react-native-chart-kit/dist/HelperTypes";
-import { Card, SegmentedButtons, Text } from "react-native-paper";
+import { Button, Card, SegmentedButtons, Text } from "react-native-paper";
 import { useTheme } from "../../context/ThemeContext";
 import ReportService from "../../data/classes/Report";
 
@@ -40,6 +41,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   const [activeSegment, setActiveSegment] = useState<ReportOption>("week");
   const [reportData, setReportData] = useState(mockReportData);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   useEffect(() => {
     getReportsData();
@@ -167,12 +169,23 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
             if (!num) {
               return "0";
             }
-            return num / 1000 + "K";
+            return Math.floor(num / 1000) + "K";
           }}
           transparent
           fromZero
         />
       </Card>
+      <View>
+        <Button
+          onPress={() => {
+            navigation.navigate("Root", {
+              screen: "Home",
+            });
+          }}
+        >
+          Ver más
+        </Button>
+      </View>
     </View>
   );
 }

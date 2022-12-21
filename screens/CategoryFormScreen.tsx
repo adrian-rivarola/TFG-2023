@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import CategoryService, { CategoryType } from "../data/classes/Category";
 import { RootTabParamList } from "../types";
 
@@ -11,6 +12,7 @@ type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
 
 export default function CategoryFormScreen({ navigation }: ScreenProps) {
   const { categories, setCategories } = useMainContext();
+  const { snackRef } = useRefContext();
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [type, setType] = useState(CategoryType.expense);
@@ -44,12 +46,14 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
 
         <View style={styles.inputGroup}>
           <Text>Icon:</Text>
-          <TextInput
-            autoCapitalize="none"
-            mode="outlined"
-            value={icon}
-            onChangeText={(val) => setIcon(val)}
-          />
+          <View>
+            <TextInput
+              autoCapitalize="none"
+              mode="outlined"
+              value={icon}
+              onChangeText={(val) => setIcon(val)}
+            />
+          </View>
         </View>
 
         <Button
@@ -65,11 +69,18 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
                 type,
               })
               .then((newCategory) => {
-                console.log("Category created!");
+                snackRef.current?.showSnackMessage({
+                  message: "Categoría creada correctamente",
+                  type: "success",
+                });
                 setCategories([newCategory, ...categories]);
                 navigation.goBack();
               })
               .catch((err) => {
+                snackRef.current?.showSnackMessage({
+                  message: "Algo salió mal, intente de nuevo",
+                  type: "error",
+                });
                 console.log("Failed to create Category!", err);
               });
           }}

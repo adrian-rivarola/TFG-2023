@@ -1,13 +1,19 @@
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import { StatusBar } from "expo-status-bar";
-import { AppRegistry } from "react-native";
+import { AppRegistry, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import ConfirmationModal from "./components/ConfirmationModal";
+import SnackbarMessage from "./components/SnackbarMessage";
 import { MainContextProvider } from "./context/MainContext";
+import { RefContextProvider, useRefContext } from "./context/RefContext";
 
 import { ThemeContextProvider } from "./context/ThemeContext";
 import useCachedResources from "./hooks/useCachedResources";
 import Navigation from "./navigation";
+
+LogBox.ignoreLogs([".+"]);
+LogBox.ignoreAllLogs(); // Ignore all log notifications
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -18,10 +24,12 @@ export default function App() {
     return (
       <ThemeContextProvider>
         <MainContextProvider>
-          <SafeAreaProvider>
-            <Navigation />
-            <StatusBar />
-          </SafeAreaProvider>
+          <RefContextProvider>
+            <SafeAreaProvider>
+              <Navigation />
+              <StatusBar />
+            </SafeAreaProvider>
+          </RefContextProvider>
         </MainContextProvider>
       </ThemeContextProvider>
     );
