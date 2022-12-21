@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
@@ -173,18 +174,36 @@ export default function TransactionFormScreen({
               navigation.navigate("CategorySelect");
             }}
           >
-            <Text
+            <View
               style={{
                 borderColor: theme.colors.secondary,
+                flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 4,
-                padding: 14,
+                paddingVertical: 14,
               }}
             >
-              {!selectedCategory
-                ? "Seleccionar categoría"
-                : selectedCategory.name}
-            </Text>
+              {selectedCategory?.id && (
+                <MaterialIcons
+                  name={selectedCategory.icon.toLowerCase() as any}
+                  color={theme.colors.text}
+                  size={16}
+                  style={{ marginStart: 16 }}
+                />
+              )}
+              <Text
+                style={{
+                  marginStart: 16,
+                  color: selectedCategory
+                    ? theme.colors.text
+                    : theme.colors.outline,
+                }}
+              >
+                {!selectedCategory
+                  ? "Seleccionar categoría"
+                  : selectedCategory.name}
+              </Text>
+            </View>
           </TouchableWithoutFeedback>
         </View>
         <View style={styles.inputGroup}>

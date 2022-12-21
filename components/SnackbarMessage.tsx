@@ -53,6 +53,7 @@ const SnackbarMessage: React.ForwardRefRenderFunction<SnackRef, {}> = (
       visible={visible}
       onDismiss={() => setVisible(false)}
       theme={{ colors: { inversePrimary: colors.onPrimary } }}
+      duration={4000}
       action={{
         label: "OK",
         onPress: hideSnack,

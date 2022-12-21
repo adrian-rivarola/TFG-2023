@@ -42,6 +42,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   const [reportData, setReportData] = useState(mockReportData);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const hasData = reportData.week.datasets[0].data.some((d) => d > 0);
 
   useEffect(() => {
     getReportsData();
@@ -127,7 +128,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
         : `rgba(0, 0, 0, ${opacity})`,
   };
 
-  if (loading) {
+  if (loading || !hasData) {
     return null;
   }
 
@@ -175,7 +176,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
           fromZero
         />
       </Card>
-      {reportData.week.datasets[0].data.some((d) => d > 0) && (
+      {hasData && (
         <View>
           <Button
             onPress={() => {

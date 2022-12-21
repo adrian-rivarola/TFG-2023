@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
@@ -78,6 +79,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
             type: "success",
           });
           navigation.goBack();
+          resetForm();
         })
         .catch((err) => {
           snackRef.current?.showSnackMessage({
@@ -97,6 +99,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
             type: "success",
           });
           navigation.navigate("BudgetList");
+          resetForm();
         })
         .catch((err) => {
           snackRef.current?.showSnackMessage({
@@ -106,6 +109,15 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           console.log("Failed to create Budget!", err);
         });
     }
+  };
+
+  const resetForm = () => {
+    setDescription("");
+    setMaxAmount("");
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setIsActive(true);
+    selectCategory(undefined);
   };
 
   return (
@@ -137,18 +149,36 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
               navigation.navigate("CategorySelect");
             }}
           >
-            <Text
+            <View
               style={{
                 borderColor: theme.colors.secondary,
+                flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 4,
-                padding: 14,
+                paddingVertical: 14,
               }}
             >
-              {!selectedCategory
-                ? "Seleccionar categoría"
-                : selectedCategory.name}
-            </Text>
+              {selectedCategory?.id && (
+                <MaterialIcons
+                  name={selectedCategory.icon.toLowerCase() as any}
+                  color={theme.colors.text}
+                  size={16}
+                  style={{ marginStart: 16 }}
+                />
+              )}
+              <Text
+                style={{
+                  marginStart: 16,
+                  color: selectedCategory
+                    ? theme.colors.text
+                    : theme.colors.outline,
+                }}
+              >
+                {!selectedCategory
+                  ? "Seleccionar categoría"
+                  : selectedCategory.name}
+              </Text>
+            </View>
           </TouchableWithoutFeedback>
         </View>
 

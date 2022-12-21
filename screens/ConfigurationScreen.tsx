@@ -99,7 +99,6 @@ const ConfigurationScreen = () => {
       />
       <List.Item
         title="Borrar todos los datos"
-        underlayColor={colors.error}
         style={themedStyles.categoryItem}
         onPress={clearData}
       />

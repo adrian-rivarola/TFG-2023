@@ -47,16 +47,16 @@ const migrationStatements: IStatement = {
 
 export default function runMigrations() {
   const migrations = new Migrations(config.DB_NAME, migrationStatements);
-  console.log(
-    `Running migrations:\n ${Object.keys(migrationStatements).join("\n")}`
-  );
+  // console.log(
+  //   `Running migrations:\n ${Object.keys(migrationStatements).join("\n")}`
+  // );
   return migrations
     .migrate()
     .then((res) => {
-      console.log(`Migrations completed!:\n${JSON.stringify(res)}`);
+      // console.log(`Migrations completed!:\n${JSON.stringify(res)}`);
     })
     .catch((err) => {
-      console.log(`Migrations failed!:\n${JSON.stringify(err)}`);
+      // console.log(`Migrations failed!:\n${JSON.stringify(err)}`);
     });
 }
 
@@ -71,11 +71,11 @@ export function clearAllData() {
   return migrations.repository.databaseLayer
     .executeBulkSql(sqlQueries)
     .then((res) => {
-      console.log(`Deletion completed!:\n${JSON.stringify(res)}`);
+      // console.log(`Deletion completed!:\n${JSON.stringify(res)}`);
       return true;
     })
     .catch((err) => {
-      console.log(`Deletion failed!:\n${JSON.stringify(err)}`);
+      // console.log(`Deletion failed!:\n${JSON.stringify(err)}`);
       return false;
     });
 }

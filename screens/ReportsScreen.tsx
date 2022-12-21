@@ -16,8 +16,8 @@ type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
 
 export default function ReportsScreen({ navigation, route }: ScreenProps) {
   const screenWidth = Dimensions.get("window").width;
-  const [expensePieChartData, setExpensePieChartData] = useState<any>();
-  const [incomePieChartData, setIncomePieChartData] = useState<any>();
+  const [expensePieChartData, setExpensePieChartData] = useState<any>([]);
+  const [incomePieChartData, setIncomePieChartData] = useState<any>([]);
   const [balance, setBalance] = useState(0);
   const { theme } = useTheme();
 
@@ -92,7 +92,7 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
           </>
         )}
         <View style={styles.mt2} />
-        {incomePieChartData && (
+        {incomePieChartData.length > 0 && (
           <>
             <Text style={[styles.ms2, styles.mt2]} variant="titleSmall">
               Ingresos según su categoría:

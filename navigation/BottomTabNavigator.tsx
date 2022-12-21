@@ -67,7 +67,7 @@ export default function BottomTabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
-          title: "Home",
+          title: "Inicio",
           unmountOnBlur: true,
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
@@ -80,7 +80,7 @@ export default function BottomTabNavigator() {
         name="TransactionList"
         component={TransactionsListScreen}
         options={{
-          title: "Transactions",
+          title: "Transacciones",
           unmountOnBlur: true,
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
@@ -95,7 +95,7 @@ export default function BottomTabNavigator() {
         name="TransactionForm"
         component={TransactionFormScreen}
         options={({ route }) => ({
-          title: "Add Transaction",
+          title: "Crear Transacción",
           headerTitleAlign: "left",
           tabBarLabel: "",
           tabBarIcon: ({ color }) => (
@@ -108,7 +108,7 @@ export default function BottomTabNavigator() {
         component={BudgetListScreen}
         options={{
           unmountOnBlur: true,
-          title: "Budgets",
+          title: "Presupuestos",
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
@@ -122,7 +122,7 @@ export default function BottomTabNavigator() {
         name="Configuration"
         component={ConfigurationScreen}
         options={{
-          title: "Configuration",
+          title: "Ajustes",
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
@@ -137,7 +137,7 @@ export default function BottomTabNavigator() {
         name="CategorySelect"
         component={CategorySelectScreen}
         options={({ navigation }) => ({
-          title: "Select Category",
+          title: "Seleccionar Categoría",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
@@ -147,7 +147,7 @@ export default function BottomTabNavigator() {
         name="CategoryForm"
         component={CategoryFormScreen}
         options={({ navigation }) => ({
-          title: "Create Category",
+          title: "Crear Categoría",
           unmountOnBlur: true,
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
@@ -159,7 +159,9 @@ export default function BottomTabNavigator() {
         component={BudgetFormScreen}
         options={({ navigation, route }) => ({
           unmountOnBlur: !!route.params?.budgetId,
-          title: route.params?.budgetId ? "Edit Budget" : "Add Budget",
+          title: route.params?.budgetId
+            ? "Editar Presupuesto"
+            : "Crear Presupuesto",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
@@ -170,7 +172,7 @@ export default function BottomTabNavigator() {
         component={TransactionDetailsScreen}
         options={({ navigation }) => ({
           unmountOnBlur: true,
-          title: "Transaction Details",
+          title: "Detalles de Transacción",
           headerLeft: () => (
             <IconButton
               icon="arrow-left"
@@ -186,7 +188,7 @@ export default function BottomTabNavigator() {
         component={BudgetDetailsScreen}
         options={({ navigation }) => ({
           unmountOnBlur: true,
-          title: "Budget details",
+          title: "Detalles de Presupuesto",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
@@ -201,7 +203,7 @@ export default function BottomTabNavigator() {
           return params?.transactionId.toString();
         }}
         options={({ navigation }) => ({
-          title: "Edit Transaction",
+          title: "Editar Transacción",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
