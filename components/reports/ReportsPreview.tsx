@@ -179,7 +179,7 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
         <Button
           onPress={() => {
             navigation.navigate("Root", {
-              screen: "Home",
+              screen: "ReportsScreen",
             });
           }}
         >

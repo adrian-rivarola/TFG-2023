@@ -5,7 +5,13 @@ import config from "../../constants/config";
 import { CategoryType } from "./Category";
 import { Transaction } from "./Transaction";
 
-type CategoryTotalsResult = Array<{ category_id: CategoryType; total: number }>;
+type BalanceTotalsResult = Array<{ category_id: CategoryType; total: number }>;
+
+type CategoryTotalsResult = Array<{
+  category: string;
+  record: number;
+  total: number;
+}>;
 
 type WeekTotalsResult = Array<{ date: string; total: number }>;
 type MonthDataResult = Array<{
@@ -41,7 +47,7 @@ export default class ReportService {
       .executeSql(
         sql`SELECT c."type" as category_id, SUM(amount) as total FROM transactions t JOIN categories c ON t.category_id = c.id GROUP by c."type";`
       )
-      .then(({ rows }: { rows: CategoryTotalsResult }) => {
+      .then(({ rows }: { rows: BalanceTotalsResult }) => {
         rows.forEach((categoryTotal) => {
           this.totalSums[categoryTotal.category_id] = categoryTotal.total;
         });
@@ -95,6 +101,27 @@ export default class ReportService {
         [startDate]
       )
       .then(({ rows }) => rows);
+  }
+
+  getCategoryTotals(catType: CategoryType) {
+    return this.databaseLayer
+      .executeSql(
+        sql`
+        SELECT c.name as category, SUM(t.amount) AS total, COUNT(*) as records
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        WHERE c.type = ?
+        GROUP BY c.id;
+      `,
+        [catType]
+      )
+      .then(({ rows }: { rows: CategoryTotalsResult }) => {
+        return rows;
+      })
+      .catch((err) => {
+        console.log(`Failed to get expenses total: ${JSON.stringify(err)}`);
+        return [];
+      });
   }
 
   async getTransactionsWithCategory(): Promise<TransactionWithCategory[]> {

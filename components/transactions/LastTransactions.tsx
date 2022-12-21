@@ -35,7 +35,6 @@ export default function LastTransactions() {
     <View style={styles.transactionsContainer}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Text style={styles.title}>Últimas transacciones</Text>
-        <IconButton icon="refresh" onPress={getLastTransactions} />
       </View>
       {transactions.length ? (
         transactions.map((transaction) => (

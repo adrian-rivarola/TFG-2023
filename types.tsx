@@ -32,6 +32,7 @@ export type RootTabParamList = {
   BudgetList: undefined;
   Configuration: undefined;
 
+  ReportsScreen: undefined;
   CategorySelect: undefined;
   CategoryForm: undefined;
   TransactionEditForm: {

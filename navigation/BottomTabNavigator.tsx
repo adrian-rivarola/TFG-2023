@@ -15,6 +15,7 @@ import { RootTabParamList } from "../types";
 import BudgetFormScreen from "../screens/BudgetFormScreen";
 import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
 import BudgetDetailsScreen from "../screens/BudgetDetails";
+import ReportsScreen from "../screens/ReportsScreen";
 
 type TabBarIconProps = {
   name: React.ComponentProps<typeof MaterialIcons>["name"];
@@ -201,6 +202,17 @@ export default function BottomTabNavigator() {
         }}
         options={({ navigation }) => ({
           title: "Edit Transaction",
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="ReportsScreen"
+        component={ReportsScreen}
+        options={({ navigation }) => ({
+          title: "Reportes",
+          unmountOnBlur: true,
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),

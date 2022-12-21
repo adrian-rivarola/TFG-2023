@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
@@ -125,7 +126,7 @@ export default function TransactionDetailsScreen({
         <View style={styles.description}>
           <MaterialIcons name="calendar-today" size={24} color={colors.text} />
           <Text variant="bodyLarge" style={styles.ms2}>
-            {transaction.date}
+            {dayjs(transaction.date).format("dddd, D [de] MMMM")}
           </Text>
         </View>
 

@@ -58,9 +58,13 @@ export default function BudgetDetailsScreen({
   });
 
   const durationInfo = () => {
-    const start = dayjs(budget?.start_date).format("MMMM, D");
-    const end = dayjs(budget?.end_date).format("MMMM, D");
-    return `${start} hasta ${end}`;
+    const start = dayjs(budget?.start_date);
+    const end = dayjs(budget?.end_date);
+    // .format("D [de] MMMM");
+
+    if (start.isSame(end, "month")) {
+      return `${start.format("D")} al ${end.format("D [de] MMMM")}`;
+    }
   };
 
   const deleteBudget = () => {
@@ -161,7 +165,7 @@ export default function BudgetDetailsScreen({
             ))
           ) : (
             <Text style={{ padding: 16 }}>
-              Esta categoría no pertenece a ningún presupuesto.
+              No se ha registrado ninguna transacción para este presupuesto.
             </Text>
           )}
         </View>

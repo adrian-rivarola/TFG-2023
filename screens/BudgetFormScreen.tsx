@@ -158,12 +158,25 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
         <View style={styles.inputGroup}>
           <Text>Fecha de fin:</Text>
-          <DatePicker value={endDate} onChange={(val) => setEndDate(val)} />
+          <DatePicker
+            value={endDate}
+            minDate={startDate}
+            onChange={(val) => setEndDate(val)}
+          />
         </View>
 
-        <View style={styles.inputGroup}>
+        <View
+          style={[
+            styles.inputGroup,
+            { flexDirection: "row", alignItems: "center" },
+          ]}
+        >
           <Text>Activado:</Text>
-          <Switch value={isActive} onValueChange={setIsActive} />
+          <Switch
+            value={isActive}
+            onValueChange={setIsActive}
+            style={{ marginStart: 8 }}
+          />
         </View>
 
         <Button
@@ -197,13 +210,15 @@ const styles = StyleSheet.create({
 
 type DatePickerProps = {
   value: Date;
+  minDate?: Date;
   onChange(val: Date): void;
 };
-function DatePicker({ value, onChange }: DatePickerProps) {
+function DatePicker({ value, minDate, onChange }: DatePickerProps) {
   const { theme, themeType } = useTheme();
 
   return Platform.OS === "ios" ? (
     <RNDateTimePicker
+      minimumDate={minDate}
       themeVariant={themeType}
       value={value}
       onChange={(e, newDate) => newDate && onChange(newDate)}
@@ -216,6 +231,7 @@ function DatePicker({ value, onChange }: DatePickerProps) {
       onPress={() => {
         DateTimePickerAndroid.open({
           value,
+          minimumDate: minDate,
           onChange: (e, newDate) => {
             newDate && onChange(newDate);
           },

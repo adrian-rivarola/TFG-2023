@@ -6,7 +6,7 @@ type BalanceProps = { balance: number };
 export default function Balance({ balance }: BalanceProps) {
   return (
     <Card mode="outlined" style={styles.balanceContainer}>
-      <Card.Content>
+      <Card.Content style={{ alignContent: "center" }}>
         <Title>Balance: Gs. {balance.toLocaleString()}</Title>
       </Card.Content>
     </Card>
@@ -16,6 +16,7 @@ export default function Balance({ balance }: BalanceProps) {
 const screenWidth = Dimensions.get("screen").width;
 const styles = StyleSheet.create({
   balanceContainer: {
+    alignSelf: "center",
     paddingVertical: 25,
     alignItems: "center",
     justifyContent: "center",

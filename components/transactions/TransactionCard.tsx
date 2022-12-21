@@ -63,7 +63,7 @@ export default function TransactionCard({
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text variant="bodySmall">
-          {dayjs(transaction.date).format("dddd, MMMM D")}
+          {dayjs(transaction.date).format("dddd, D [de] MMMM")}
         </Text>
         {category && (
           <View style={{ flexDirection: "row", alignItems: "center" }}>
