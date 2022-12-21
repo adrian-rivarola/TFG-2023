@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
-import { ContributionGraph, PieChart } from "react-native-chart-kit";
+import { PieChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { Text } from "react-native-paper";
 import Balance from "../components/Balance";
@@ -14,10 +14,7 @@ import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
 
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
-
 export default function ReportsScreen({ navigation, route }: ScreenProps) {
-  const { categories, activeBudgets, selectCategory } = useMainContext();
   const screenWidth = Dimensions.get("window").width;
   const [expensePieChartData, setExpensePieChartData] = useState<any>();
   const [incomePieChartData, setIncomePieChartData] = useState<any>();

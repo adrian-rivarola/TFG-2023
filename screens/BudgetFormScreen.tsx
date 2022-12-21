@@ -124,6 +124,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           <Text>Monto máximo:</Text>
           <TextInput
             mode="outlined"
+            keyboardType="numeric"
             value={maxAmount}
             onChangeText={(val) => setMaxAmount(val)}
           />

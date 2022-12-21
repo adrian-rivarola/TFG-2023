@@ -175,17 +175,19 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
           fromZero
         />
       </Card>
-      <View>
-        <Button
-          onPress={() => {
-            navigation.navigate("Root", {
-              screen: "ReportsScreen",
-            });
-          }}
-        >
-          Ver más
-        </Button>
-      </View>
+      {reportData.week.datasets[0].data.some((d) => d > 0) && (
+        <View>
+          <Button
+            onPress={() => {
+              navigation.navigate("Root", {
+                screen: "ReportsScreen",
+              });
+            }}
+          >
+            Ver más
+          </Button>
+        </View>
+      )}
     </View>
   );
 }
