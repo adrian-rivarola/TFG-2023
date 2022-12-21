@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import "dayjs/locale/es";
 import { StatusBar } from "expo-status-bar";
 import { AppRegistry } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -26,4 +28,5 @@ export default function App() {
   }
 }
 
+dayjs.locale("es");
 AppRegistry.registerComponent("app", () => App);

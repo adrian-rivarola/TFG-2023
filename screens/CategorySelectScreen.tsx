@@ -87,7 +87,7 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
           style={{ marginTop: 16 }}
           icon="plus"
           onPress={() => {
-            navigation.navigate("CategoryCreate");
+            navigation.navigate("CategoryForm");
           }}
         >
           Agregar nueva categoría

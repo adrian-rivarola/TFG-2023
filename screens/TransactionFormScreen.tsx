@@ -2,6 +2,7 @@ import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   Platform,
@@ -19,15 +20,44 @@ import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
-  "TransactionCreate"
+  "TransactionForm" | "TransactionEditForm"
 >;
 
-export default function CreateTransactionScreen({ navigation }: ScreenProps) {
+export default function TransactionFormScreen({
+  navigation,
+  route,
+}: ScreenProps) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
-  const { transactions, selectedCategory, setTransactions } = useMainContext();
+  const {
+    transactions,
+    selectedCategory,
+    categories,
+    selectCategory,
+    setTransactions,
+  } = useMainContext();
   const { themeType, theme } = useTheme();
+  const transactionId = route.params?.transactionId;
+
+  useEffect(() => {
+    if (transactionId) {
+      const transactionService = new TransactionService();
+      transactionService.getById(transactionId).then((transaction) => {
+        if (!transaction) {
+          navigation.goBack();
+          console.log(`Transaction with id ${transactionId} not found`);
+        } else {
+          setAmount(transaction.amount.toString());
+          setDescription(transaction.description);
+          selectCategory(
+            categories.find((c) => c.id === transaction.category_id)!
+          );
+          setDate(dayjs(transaction.date).toDate());
+        }
+      });
+    }
+  }, [transactionId]);
 
   const datePicker =
     Platform.OS === "ios" ? (
@@ -62,6 +92,40 @@ export default function CreateTransactionScreen({ navigation }: ScreenProps) {
         </Text>
       </TouchableWithoutFeedback>
     );
+
+  const onSubmit = () => {
+    const transactionService = new TransactionService();
+    const transactionData = {
+      date: date.toISOString().split("T")[0],
+      description,
+      amount: parseInt(amount, 10),
+      category_id: selectedCategory!.id,
+    };
+
+    if (transactionId) {
+      transactionService
+        .update(transactionId, transactionData)
+        .then(() => {
+          navigation.goBack();
+        })
+        .catch((err) => {
+          console.log(
+            `Failed to update transaction with id: ${transactionId}`,
+            err
+          );
+        });
+    } else {
+      transactionService
+        .insert(transactionData)
+        .then((newTransaction) => {
+          setTransactions([newTransaction, ...transactions]);
+          navigation.navigate("Home");
+        })
+        .catch((err) => {
+          console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
+        });
+    }
+  };
 
   return (
     <ScrollView>
@@ -114,23 +178,7 @@ export default function CreateTransactionScreen({ navigation }: ScreenProps) {
           mode="contained-tonal"
           style={{ marginTop: 24 }}
           disabled={!amount || !description || !selectedCategory}
-          onPress={() => {
-            const transactionService = new TransactionService();
-            transactionService
-              .insert({
-                date: date.toISOString().split("T")[0],
-                description,
-                amount: parseInt(amount, 10),
-                category_id: selectedCategory!.id,
-              })
-              .then((newTransaction) => {
-                setTransactions([newTransaction, ...transactions]);
-                navigation.navigate("Home");
-              })
-              .catch((err) => {
-                console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
-              });
-          }}
+          onPress={onSubmit}
         >
           Guardar
         </Button>

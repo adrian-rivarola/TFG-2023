@@ -1,8 +1,8 @@
 import React, { Reducer, useContext, useEffect, useReducer } from "react";
-import BudgetService, { Budget, BudgetStatus } from "../data/classes/Budget";
+import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import CategoryService, { Category } from "../data/classes/Category";
 import ReportService from "../data/classes/Report";
-import TransactionService, { Transaction } from "../data/classes/Transaction";
+import { Transaction } from "../data/classes/Transaction";
 
 interface MainContextValue {
   balance: number;
@@ -97,10 +97,6 @@ export const MainContextProvider = ({
     reportService.getData().then(() => {
       setBalance(reportService.balance);
     });
-
-    // reportService.getTransactionsWithCategory();
-    // const transactionService = new TransactionService();
-    // transactionService.getBalance().then(setBalance);
   }, []);
 
   const setBalance = (balance: number) => {

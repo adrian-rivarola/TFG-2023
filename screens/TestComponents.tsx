@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
-import TransactionsList from "../components/transactions/TransactionsList";
+import LastTransactions from "../components/transactions/LastTransactions";
 import { useMainContext } from "../context/MainContext";
 
 export default function TestComponents(props: {}) {
@@ -14,7 +14,7 @@ export default function TestComponents(props: {}) {
         <View style={styles.smallSeparator} />
         <ReportsPreview />
         <View style={styles.smallSeparator} />
-        <TransactionsList />
+        <LastTransactions />
         {/* {testFooter} */}
       </View>
     </ScrollView>

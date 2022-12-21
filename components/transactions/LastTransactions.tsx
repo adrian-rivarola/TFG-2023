@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
@@ -6,14 +8,14 @@ import { useMainContext } from "../../context/MainContext";
 import TransactionService, {
   Transaction,
 } from "../../data/classes/Transaction";
+import { RootTabParamList } from "../../types";
 import TransactionCard from "./TransactionCard";
-
-type TransactionsListProps = {};
 
 const transactionsService = new TransactionService();
 
-export default function TransactionsList(props: TransactionsListProps) {
-  const { transactions, setTransactions } = useMainContext();
+export default function LastTransactions() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     getLastTransactions();

@@ -8,6 +8,8 @@ import {
   sql,
 } from "expo-sqlite-orm";
 import config from "../../constants/config";
+import { Category } from "./Category";
+import dayjs from "dayjs";
 
 export interface Transaction {
   id: number;
@@ -15,9 +17,13 @@ export interface Transaction {
   amount: number;
   category_id: number;
   date: string;
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+export type TransactionDetails = Transaction & {
+  category: Category;
+};
 
 type TransactionCreate = Omit<Transaction, "id" | "createdAt" | "updatedAt">;
 
@@ -47,27 +53,7 @@ export default class TransactionService {
     };
   }
 
-  createTable() {
-    const createStatement: IStatement = {
-      "1671397885342_create_transactions_table": sql`
-        CREATE TABLE transactions (
-          id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-          amount FLOAT NOT NULL,
-          description TEXT NOT NULL,
-          category_id INTEGER NOT NULL,
-          date DATETIME DEFAULT CURRENT_TIMESTAMP,
-          createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (category_id) REFERENCES categories(id)
-        );`,
-    };
-    const migrations = new Migrations(config.DB_NAME, createStatement);
-    return migrations.migrate();
-  }
-
   query(options: IQueryOptions<Transaction> = {}) {
-    // console.log(`Transaction.query.options: ${JSON.stringify(options)}`);
-
     return this.repository.query({
       ...options,
       order: {
@@ -77,6 +63,28 @@ export default class TransactionService {
   }
 
   insert(options: TransactionCreate) {
-    return this.repository.insert(options);
+    const now = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    return this.repository.insert({
+      ...options,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+
+  update(id: number, options: TransactionCreate) {
+    const updatedAt = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    return this.repository.update({
+      ...options,
+      updatedAt,
+      id,
+    });
+  }
+
+  getById(id: number): Promise<Transaction | null> {
+    return this.repository.find(id);
+  }
+
+  delete(id: number) {
+    return this.repository.destroy(id);
   }
 }

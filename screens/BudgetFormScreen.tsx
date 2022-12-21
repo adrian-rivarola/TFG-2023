@@ -2,7 +2,8 @@ import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -17,21 +18,77 @@ import { useTheme } from "../context/ThemeContext";
 import BudgetService from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetCreate">;
+type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
-export default function BudgetCreateScreen({ navigation }: ScreenProps) {
+export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [isActive, setIsActive] = useState(true);
-
   const {
     selectedCategory,
-    allBudgets: budgets,
+    categories,
+    allBudgets,
     setBudgets,
+    selectCategory,
   } = useMainContext();
   const { theme } = useTheme();
+
+  const budgetId = route.params?.budgetId;
+
+  useEffect(() => {
+    if (budgetId) {
+      const budgetService = new BudgetService();
+      budgetService.getById(budgetId).then((budget) => {
+        if (!budget) {
+          navigation.goBack();
+          console.log(`Budget with id ${budgetId} not found`);
+        } else {
+          setDescription(budget.description);
+          setMaxAmount(budget.max_amount.toString());
+          setStartDate(dayjs(budget.start_date).toDate());
+          setEndDate(dayjs(budget.end_date).toDate());
+          setIsActive(budget.is_active);
+          selectCategory(categories.find((c) => c.id === budget.category_id)!);
+        }
+      });
+    }
+  }, [budgetId]);
+
+  const onSubmit = () => {
+    const budgetService = new BudgetService();
+    const budgetData = {
+      description,
+      max_amount: parseInt(maxAmount, 10),
+      category_id: selectedCategory!.id,
+      start_date: startDate.toISOString().split("T")[0],
+      end_date: endDate.toISOString().split("T")[0],
+      is_active: isActive,
+    };
+
+    if (budgetId) {
+      budgetService
+        .update(budgetId, budgetData)
+        .then(() => {
+          navigation.goBack();
+        })
+        .catch((err) => {
+          console.log(`Failed to update budget with id: ${budgetId}`, err);
+        });
+    } else {
+      budgetService
+        .insert(budgetData)
+        .then(async (newBudget) => {
+          const budgetStatus = await budgetService.addStatusToBudget(newBudget);
+          setBudgets([budgetStatus, ...allBudgets]);
+          navigation.navigate("BudgetList");
+        })
+        .catch((err) => {
+          console.log("Failed to create Budget!", err);
+        });
+    }
+  };
 
   return (
     <ScrollView>
@@ -95,29 +152,7 @@ export default function BudgetCreateScreen({ navigation }: ScreenProps) {
           mode="contained-tonal"
           style={{ marginTop: 24 }}
           disabled={!description || !maxAmount || !selectedCategory}
-          onPress={() => {
-            const budgetService = new BudgetService();
-            budgetService
-              .insert({
-                description,
-                max_amount: parseInt(maxAmount, 10),
-                category_id: selectedCategory!.id,
-                start_date: startDate.toISOString().split("T")[0],
-                end_date: endDate.toISOString().split("T")[0],
-                is_active: isActive,
-              })
-              .then(async (newBudget) => {
-                const budgetStatus = await budgetService.addStatusToBudget(
-                  newBudget
-                );
-                setBudgets([budgetStatus, ...budgets]);
-                console.log("Budget created!");
-                navigation.navigate("Planning");
-              })
-              .catch((err) => {
-                console.log("Failed to create Budget!", err);
-              });
-          }}
+          onPress={onSubmit}
         >
           Guardar
         </Button>

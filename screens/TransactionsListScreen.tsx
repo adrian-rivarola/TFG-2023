@@ -1,3 +1,4 @@
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -20,14 +21,16 @@ const transactionsService = new TransactionService();
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
   month: () => <TransactionsByDate range="month" />,
+  before: () => <TransactionsByDate range="before" />,
 });
 
-export default function TransactionsScreen(props: {}) {
+export default function TransactionsListScreen(props: {}) {
   const { theme } = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "week", title: "Esta Semana" },
     { key: "month", title: "Este Mes" },
+    { key: "before", title: "Anteriores" },
   ]);
 
   return (
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
 });
 
 type TransactionsByDateProps = {
-  range: "week" | "month";
+  range: "week" | "month" | "before";
 };
 
 function TransactionsByDate({ range }: TransactionsByDateProps) {
@@ -86,17 +89,14 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
   const getTransactions = () => {
     setLoading(true);
 
-    const minDate = getMinDate();
+    const dateQuery = getDateQuery();
     transactionsService
       .query({
         where: {
-          date: {
-            gte: minDate,
-          },
+          date: dateQuery,
         },
       })
       .then((res) => {
-        // console.log(`Found ${res.length} transactions in range '${range}'`);
         setTransactions(res);
       })
       .catch((err) => {
@@ -110,18 +110,15 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
       });
   };
 
-  const getMinDate = () => {
-    const minDate = new Date();
-    minDate.setHours(0);
-    minDate.setMinutes(0);
+  const getDateQuery = () => {
+    const today = dayjs();
+    const op = range === "before" ? "lt" : "gte";
+    const dateOffset =
+      range === "week" ? today.subtract(7, "days") : today.subtract(1, "month");
 
-    if (range === "week") {
-      minDate.setDate(minDate.getDate() - 7);
-    } else {
-      minDate.setMonth(minDate.getMonth() - 1);
-    }
-
-    return minDate.toISOString().split("T")[0];
+    return {
+      [op]: dateOffset.toISOString(),
+    };
   };
 
   return (

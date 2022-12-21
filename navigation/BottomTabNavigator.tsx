@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 import { Pressable } from "react-native";
@@ -6,27 +6,25 @@ import { IconButton } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
 import CategorySelectScreen from "../screens/CategorySelectScreen";
 import ConfigurationScreen from "../screens/ConfigurationScreen";
-import CategoryCreateScreen from "../screens/CategoryCreateScreen";
-import CreateTransactionScreen from "../screens/TransactionCreateScreen";
-import PlanningScreen from "../screens/PlanningScreen";
+import CategoryFormScreen from "../screens/CategoryFormScreen";
+import TransactionFormScreen from "../screens/TransactionFormScreen";
+import BudgetListScreen from "../screens/BudgetListScreen";
 import TestComponents from "../screens/TestComponents";
-import TransactionsScreen from "../screens/TransactionsScreen";
+import TransactionsListScreen from "../screens/TransactionsListScreen";
 import { RootTabParamList } from "../types";
-import BudgetCreateScreen from "../screens/BudgetCreateScreen";
+import BudgetFormScreen from "../screens/BudgetFormScreen";
+import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
+import BudgetDetailsScreen from "../screens/BudgetDetails";
 
 type TabBarIconProps = {
-  name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+  name: React.ComponentProps<typeof MaterialIcons>["name"];
   color: string;
   size?: number;
 };
 
 function TabBarIcon({ size, ...props }: TabBarIconProps) {
   return (
-    <MaterialCommunityIcons
-      size={size || 30}
-      style={{ marginBottom: -3 }}
-      {...props}
-    />
+    <MaterialIcons size={size || 30} style={{ marginBottom: -3 }} {...props} />
   );
 }
 
@@ -37,18 +35,18 @@ export default function BottomTabNavigator() {
 
   const tabBarItems: Array<keyof RootTabParamList> = [
     "Home",
-    "Transactions",
-    "TransactionCreate",
-    "Planning",
+    "TransactionList",
+    "TransactionForm",
+    "BudgetList",
     "Configuration",
   ];
 
   const headerRight = () => (
     <Pressable onPress={toggleThemeType} style={{ marginEnd: 16 }}>
-      <MaterialCommunityIcons
+      <MaterialIcons
         size={24}
         color={isDarkTheme ? "white" : "black"}
-        name={isDarkTheme ? "lightbulb" : "moon-waxing-crescent"}
+        name={isDarkTheme ? "lightbulb" : "lightbulb-outline"}
       />
     </Pressable>
   );
@@ -72,14 +70,12 @@ export default function BottomTabNavigator() {
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="home-outline" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <BottomTab.Screen
-        name="Transactions"
-        component={TransactionsScreen}
+        name="TransactionList"
+        component={TransactionsListScreen}
         options={{
           title: "Transactions",
           headerTitleAlign: "left",
@@ -87,33 +83,34 @@ export default function BottomTabNavigator() {
             paddingVertical: 8,
           },
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="wallet-outline" color={color} />
+            <TabBarIcon name="compare-arrows" color={color} />
           ),
         }}
       />
       <BottomTab.Screen
-        name="TransactionCreate"
-        component={CreateTransactionScreen}
-        options={{
+        name="TransactionForm"
+        component={TransactionFormScreen}
+        options={({ route }) => ({
           title: "Add Transaction",
           headerTitleAlign: "left",
           tabBarLabel: "",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="plus" size={50} color={color} />
+            <TabBarIcon name="add" size={50} color={color} />
           ),
-        }}
+        })}
       />
       <BottomTab.Screen
-        name="Planning"
-        component={PlanningScreen}
+        name="BudgetList"
+        component={BudgetListScreen}
         options={{
-          title: "Planning",
+          unmountOnBlur: true,
+          title: "Budgets",
           headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="graphql" color={color} />
+            <TabBarIcon name="attach-money" color={color} />
           ),
         }}
       />
@@ -127,7 +124,7 @@ export default function BottomTabNavigator() {
             paddingVertical: 8,
           },
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="account-outline" color={color} />
+            <TabBarIcon name="settings" color={color} />
           ),
         }}
       />
@@ -137,15 +134,14 @@ export default function BottomTabNavigator() {
         component={CategorySelectScreen}
         options={({ navigation }) => ({
           title: "Select Category",
-          unmountOnBlur: true,
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
         })}
       />
       <BottomTab.Screen
-        name="CategoryCreate"
-        component={CategoryCreateScreen}
+        name="CategoryForm"
+        component={CategoryFormScreen}
         options={({ navigation }) => ({
           title: "Create Category",
           unmountOnBlur: true,
@@ -155,10 +151,53 @@ export default function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="BudgetCreate"
-        component={BudgetCreateScreen}
+        name="BudgetForm"
+        component={BudgetFormScreen}
         options={({ navigation, route }) => ({
-          title: "Create a budget",
+          unmountOnBlur: !!route.params?.budgetId,
+          title: route.params?.budgetId ? "Edit Budget" : "Add Budget",
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="TransactionDetails"
+        component={TransactionDetailsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          title: "Transaction Details",
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="BudgetDetails"
+        component={BudgetDetailsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          title: "Budget details",
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="TransactionEditForm"
+        component={TransactionFormScreen}
+        getId={({ params }) => {
+          console.log({ getIdFunc: params?.transactionId.toString() });
+
+          return params?.transactionId.toString();
+        }}
+        options={({ navigation }) => ({
+          title: "Edit Transaction",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),

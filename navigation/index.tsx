@@ -14,12 +14,12 @@ import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import { RootStackParamList } from "../types";
 import BottomTabNavigator from "./BottomTabNavigator";
-import LinkingConfiguration from "./LinkingConfiguration";
+// import LinkingConfiguration from "./LinkingConfiguration";
 
 export default function Navigation() {
   const { theme } = useTheme();
   return (
-    <NavigationContainer linking={LinkingConfiguration} theme={theme}>
+    <NavigationContainer theme={theme}>
       <RootNavigator />
     </NavigationContainer>
   );

@@ -19,7 +19,8 @@ const mockReportData: ReportData = {
     labels: ["L", "M", "M", "J", "V", "S", "D"],
     datasets: [
       {
-        data: [12_500, 8_000, 9_500, 12_000, 18_000, 21_000, 32_000],
+        data: [0, 0, 0, 0, 0, 0, 0],
+        // data: [12_500, 8_000, 9_500, 12_000, 18_000, 21_000, 32_000],
       },
     ],
   },
@@ -88,12 +89,14 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
       >
         <LineChart
           style={{ paddingTop: 12 }}
-          getDotColor={() => theme.colors.text}
+          getDotColor={(dp) =>
+            dp > 0 ? theme.colors.text : theme.colors.backdrop
+          }
           data={reportData[activeSegment]}
           chartConfig={chartConfig}
           width={screenWidth - 50}
           height={250}
-          xLabelsOffset={-4}
+          // xLabelsOffset={-4}
           yAxisLabel="Gs "
           formatYLabel={(n) => {
             let num = parseInt(n);
@@ -104,7 +107,6 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
           }}
           transparent
           fromZero
-          bezier
         />
       </Card>
     </View>

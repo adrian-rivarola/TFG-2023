@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
@@ -7,9 +8,9 @@ import { useTheme } from "../context/ThemeContext";
 import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "Planning">;
+type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 
-export default function PlanningScreen({ navigation }: ScreenProps) {
+export default function BudgetListScreen({ navigation }: ScreenProps) {
   const { activeBudgets, inactiveBudgets, setBudgets } = useMainContext();
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +54,7 @@ export default function PlanningScreen({ navigation }: ScreenProps) {
           style={{ marginTop: 16 }}
           icon="plus"
           onPress={() => {
-            navigation.navigate("BudgetCreate");
+            navigation.navigate("BudgetForm");
           }}
         >
           Agregar nuevo presupuesto
@@ -82,6 +83,7 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
   const {
     theme: { colors },
   } = useTheme();
+  const navigation = useNavigation();
 
   const themedStyles = {
     budgetItem: {
@@ -103,6 +105,14 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
           return (
             <List.Item
               key={budget.id}
+              onPress={() => {
+                navigation.navigate("Root", {
+                  screen: "BudgetDetails",
+                  params: {
+                    budgetId: budget.id,
+                  },
+                });
+              }}
               title={budget.description}
               description={`${budget.start_date} al ${budget.end_date}`
                 .replaceAll("2022-", "")

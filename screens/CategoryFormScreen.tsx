@@ -7,9 +7,9 @@ import { useMainContext } from "../context/MainContext";
 import CategoryService, { CategoryType } from "../data/classes/Category";
 import { RootTabParamList } from "../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryCreate">;
+type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
 
-export default function CategoryCreateScreen({ navigation }: ScreenProps) {
+export default function CategoryFormScreen({ navigation }: ScreenProps) {
   const { categories, setCategories } = useMainContext();
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
@@ -45,6 +45,7 @@ export default function CategoryCreateScreen({ navigation }: ScreenProps) {
         <View style={styles.inputGroup}>
           <Text>Icon:</Text>
           <TextInput
+            autoCapitalize="none"
             mode="outlined"
             value={icon}
             onChangeText={(val) => setIcon(val)}

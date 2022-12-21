@@ -11,10 +11,15 @@ import {
   MD3Theme as PaperTheme,
   Provider as PaperProvider,
 } from "react-native-paper";
+import { MD3Colors } from "react-native-paper/lib/typescript/types";
 
 export type Theme = NavigationTheme &
   PaperTheme & {
     // add here extra theme props
+    colors: MD3Colors & {
+      expenseColor: string;
+      incomeColor: string;
+    };
   };
 
 const lightTheme: Theme = {
@@ -23,6 +28,8 @@ const lightTheme: Theme = {
   colors: {
     ...NavigationDefaultTheme.colors,
     ...PaperDefaultTheme.colors,
+    expenseColor: "rgb(186, 26, 26)",
+    incomeColor: "rgb(1, 110, 33)",
   },
 };
 
@@ -32,6 +39,8 @@ const darkTheme: Theme = {
   colors: {
     ...NavigationDarkTheme.colors,
     ...PaperDarkTheme.colors,
+    expenseColor: "rgb(255, 180, 171)",
+    incomeColor: "rgb(126, 219, 127)",
   },
 };
 
