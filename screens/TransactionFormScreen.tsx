@@ -19,6 +19,8 @@ import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import TransactionService from "../data/classes/Transaction";
 import { RootTabParamList } from "../types";
+import dataSource from "../data/data-source";
+import { Transaction } from "../data/entities/Transaction";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -29,6 +31,7 @@ export default function TransactionFormScreen({
   navigation,
   route,
 }: ScreenProps) {
+  const transactionRepository = dataSource.getRepository(Transaction);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
@@ -39,17 +42,18 @@ export default function TransactionFormScreen({
 
   useEffect(() => {
     if (transactionId) {
-      const transactionService = new TransactionService();
-      transactionService.getById(transactionId).then((transaction) => {
-        if (!transaction) {
-          navigation.goBack();
-          console.log(`Transaction with id ${transactionId} not found`);
-        } else {
-          setAmount(transaction.amount.toString());
-          setDescription(transaction.description);
-          setDate(dayjs(transaction.date).toDate());
-        }
-      });
+      transactionRepository
+        .findOne({ relations: ["category"], where: { id: transactionId } })
+        .then((transaction) => {
+          if (!transaction) {
+            navigation.goBack();
+            console.log(`Transaction with id ${transactionId} not found`);
+          } else {
+            setAmount(transaction.amount.toString());
+            setDescription(transaction.description);
+            setDate(dayjs(transaction.createdAt).toDate());
+          }
+        });
     }
   }, [transactionId]);
 
@@ -95,17 +99,16 @@ export default function TransactionFormScreen({
   };
 
   const onSubmit = () => {
-    const transactionService = new TransactionService();
-    const transactionData = {
-      date: date.toISOString().split("T")[0],
-      description,
-      amount: parseInt(amount, 10),
-      category_id: selectedCategory!.id,
-    };
-
     if (transactionId) {
-      transactionService
-        .update(transactionId, transactionData)
+      transactionRepository
+        .update(
+          { id: transactionId },
+          {
+            description,
+            amount: parseInt(amount, 10),
+            category: selectedCategory!,
+          }
+        )
         .then(() => {
           snackRef.current?.showSnackMessage({
             message: "Transacción actualizada",
@@ -125,8 +128,13 @@ export default function TransactionFormScreen({
           );
         });
     } else {
-      transactionService
-        .insert(transactionData)
+      const transaction = new Transaction();
+      transaction.description = description;
+      transaction.amount = parseInt(amount, 10);
+      transaction.category = selectedCategory!;
+
+      transactionRepository
+        .save(transaction)
         .then(() => {
           snackRef.current?.showSnackMessage({
             message: "Transacción creada correctamente",
@@ -140,7 +148,7 @@ export default function TransactionFormScreen({
             message: "Algo salió mal, intente de nuevo",
             type: "error",
           });
-          console.log(`\n\nQuery failed:\n${JSON.stringify(err)}\n\n`);
+          console.log("Failed to create Transaction!", err);
         });
     }
   };

@@ -5,24 +5,22 @@ import { View } from "react-native";
 import { Card, Text } from "react-native-paper";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
-import { Category, CategoryType } from "../../data/classes/Category";
-import { Transaction } from "../../data/classes/Transaction";
+
+import { Category, CategoryType } from "../../data/entities/Category";
+import { Transaction } from "../../data/entities/Transaction";
 
 type TransactionCardProps = {
   transaction: Transaction;
-  category?: Category;
 };
 
-export default function TransactionCard({
-  transaction,
-  category,
-}: TransactionCardProps) {
+export default function TransactionCard({ transaction }: TransactionCardProps) {
   const navigation = useNavigation();
   const {
     theme: { colors },
   } = useTheme();
+  const { category } = transaction;
   const amountColor =
-    category?.type === CategoryType.expense
+    category.type === CategoryType.expense
       ? colors.expenseColor
       : colors.incomeColor;
 
@@ -63,7 +61,7 @@ export default function TransactionCard({
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text variant="bodySmall">
-          {dayjs(transaction.date).format("dddd, D [de] MMMM")}
+          {dayjs(transaction.createdAt).format("dddd, D [de] MMMM")}
         </Text>
         {category && (
           <View style={{ flexDirection: "row", alignItems: "center" }}>

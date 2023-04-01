@@ -8,6 +8,8 @@ import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
 import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
+import { Budget } from "../data/entities/Budget";
+import dataSource from "../data/data-source";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 
@@ -20,14 +22,8 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
   }, []);
 
   const updateBudgets = () => {
-    const budgetService = new BudgetService();
-
-    budgetService.query().then(async (budgetList) => {
-      const budgets = await Promise.all(
-        budgetList.map((b) => budgetService.addStatusToBudget(b))
-      );
-      setBudgets(budgets);
-    });
+    const budgetRepository = dataSource.getRepository(Budget);
+    budgetRepository.find({ relations: ["category"] }).then(setBudgets);
   };
 
   return (
@@ -82,7 +78,7 @@ const styles = StyleSheet.create({
 
 type BudgetListProps = {
   sectionTitle: string;
-  budgets: BudgetStatus[];
+  budgets: Budget[];
 };
 
 function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
@@ -120,14 +116,15 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
                 });
               }}
               title={budget.description}
-              description={`${dayjs(budget.start_date).format("D")} al ${dayjs(
-                budget.end_date
+              description={`${dayjs(budget.startDate).format("D")} al ${dayjs(
+                budget.endDate
               ).format("D [de] MMMM")}`}
               descriptionStyle={{ marginTop: 4 }}
               right={() => {
                 return (
                   <Text>
-                    {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`}
+                    TODO: add budget total
+                    {/* {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`} */}
                   </Text>
                 );
               }}

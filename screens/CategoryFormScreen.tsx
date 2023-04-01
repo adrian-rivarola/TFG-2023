@@ -5,8 +5,10 @@ import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
-import CategoryService, { CategoryType } from "../data/classes/Category";
+// import CategoryService, { CategoryType } from "../data/classes/Category";
 import { RootTabParamList } from "../types";
+import dataSource from "../data/data-source";
+import { Category, CategoryType } from "../data/entities/Category";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
 
@@ -61,19 +63,20 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
           style={{ marginTop: 24 }}
           disabled={!name || !icon}
           onPress={() => {
-            const categoryService = new CategoryService();
-            categoryService
-              .insert({
-                name,
-                icon,
-                type,
-              })
+            const category = new Category();
+            category.name = name;
+            category.icon = icon;
+            category.type = type;
+
+            dataSource
+              .getRepository(Category)
+              .save(category)
               .then((newCategory) => {
+                setCategories([newCategory, ...categories]);
                 snackRef.current?.showSnackMessage({
                   message: "Categoría creada correctamente",
                   type: "success",
                 });
-                setCategories([newCategory, ...categories]);
                 navigation.goBack();
               })
               .catch((err) => {

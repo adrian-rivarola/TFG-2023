@@ -16,8 +16,10 @@ import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import { BudgetStatus } from "../data/classes/Budget";
 import { CategoryType } from "../data/classes/Category";
-import TransactionService, { Transaction } from "../data/classes/Transaction";
 import { RootTabParamList } from "../types";
+import dataSource from "../data/data-source";
+import { Transaction } from "../data/entities/Transaction";
+import { Budget } from "../data/entities/Budget";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -30,27 +32,32 @@ export default function TransactionDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
+  const transactionRepository = dataSource.getRepository(Transaction);
   const [transaction, setTransaction] = useState<Transaction>();
-  const { categories, activeBudgets, selectCategory } = useMainContext();
+  const { activeBudgets, selectCategory } = useMainContext();
   const { confirmModalRef, snackRef } = useRefContext();
   const {
     theme: { colors },
   } = useTheme();
-  const category = categories.find((c) => c.id === transaction?.category_id);
+  const category = transaction?.category;
   const budgets = activeBudgets.filter(
-    (b) => b.category_id === category?.id && b.is_active
+    (b) => b.category.id === category?.id && b.isActive
   );
 
   useEffect(() => {
-    const transactionService = new TransactionService();
-    transactionService.getById(route.params.transactionId).then((t) => {
-      if (!t) {
-        console.log(`Transaction not found!!!`);
-        navigation.goBack();
-      } else {
-        setTransaction(t);
-      }
-    });
+    transactionRepository
+      .findOne({
+        relations: ["category"],
+        where: { id: route.params.transactionId },
+      })
+      .then((t) => {
+        if (!t) {
+          console.log(`Transaction not found!!!`);
+          navigation.goBack();
+        } else {
+          setTransaction(t);
+        }
+      });
   }, []);
 
   const themedStyles = StyleSheet.create({
@@ -63,11 +70,10 @@ export default function TransactionDetailsScreen({
   const deleteTransaction = () => {
     confirmModalRef.current?.showConfirmationModal({
       onConfirm: () => {
-        const transactionService = new TransactionService();
-        transactionService
-          .delete(route.params.transactionId)
+        transactionRepository
+          .delete({ id: route.params.transactionId })
           .then((deleted) => {
-            if (deleted) {
+            if (deleted.affected === 1) {
               navigation.goBack();
               snackRef.current?.showSnackMessage({
                 message: "La transacción fue eliminada correctamente",
@@ -92,13 +98,9 @@ export default function TransactionDetailsScreen({
     <View style={styles.container}>
       <View style={[styles.transactionInfo, themedStyles.bordered]}>
         <View style={styles.header}>
-          <MaterialIcons
-            name={category.icon.toLowerCase() as MaterialIconName}
-            color={colors.text}
-            size={24}
-          />
-          <Text style={styles.ms2} variant="titleLarge">
-            {category?.name}
+          <MaterialIcons name="short-text" size={24} color={colors.text} />
+          <Text variant="titleLarge" style={styles.ms2}>
+            {transaction.description}
           </Text>
         </View>
 
@@ -117,16 +119,20 @@ export default function TransactionDetailsScreen({
         </View>
 
         <View style={styles.description}>
-          <MaterialIcons name="short-text" size={24} color={colors.text} />
+          <MaterialIcons
+            name={category.icon.toLowerCase() as MaterialIconName}
+            color={colors.text}
+            size={24}
+          />
           <Text variant="bodyLarge" style={styles.ms2}>
-            {transaction.description}
+            {category?.name}
           </Text>
         </View>
 
         <View style={styles.description}>
           <MaterialIcons name="calendar-today" size={24} color={colors.text} />
           <Text variant="bodyLarge" style={styles.ms2}>
-            {dayjs(transaction.date).format("dddd, D [de] MMMM")}
+            {dayjs(transaction.createdAt).format("dddd, D [de] MMMM")}
           </Text>
         </View>
 
@@ -216,7 +222,7 @@ const styles = StyleSheet.create({
 });
 
 type BudgetCardProps = {
-  budget: BudgetStatus;
+  budget: Budget;
   onPress(): void;
 };
 
@@ -239,14 +245,15 @@ function BudgetCard({ budget, onPress }: BudgetCardProps) {
       key={budget.id}
       onPress={onPress}
       title={budget.description}
-      description={`${budget.start_date} al ${budget.end_date}`
+      description={`${budget.startDate} al ${budget.endDate}`
         .replaceAll("2022-", "")
         .replaceAll("-", "/")}
       descriptionStyle={{ marginTop: 4 }}
       right={() => {
         return (
           <Text>
-            {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`}
+            {/* {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`} */}
+            TODO: add budget total
           </Text>
         );
       }}

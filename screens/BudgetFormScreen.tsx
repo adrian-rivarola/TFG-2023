@@ -3,7 +3,6 @@ import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   Platform,
@@ -17,12 +16,16 @@ import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import BudgetService from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
+
+import dataSource from "../data/data-source";
+import { Budget } from "../data/entities/Budget";
+import dayjs from "dayjs";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
+  const budgetRepository = dataSource.getRepository(Budget);
   const { snackRef } = useRefContext();
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
@@ -42,36 +45,36 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
   useEffect(() => {
     if (budgetId) {
-      const budgetService = new BudgetService();
-      budgetService.getById(budgetId).then((budget) => {
-        if (!budget) {
-          navigation.goBack();
-          console.log(`Budget with id ${budgetId} not found`);
-        } else {
-          setDescription(budget.description);
-          setMaxAmount(budget.max_amount.toString());
-          setStartDate(dayjs(budget.start_date).toDate());
-          setEndDate(dayjs(budget.end_date).toDate());
-          setIsActive(budget.is_active);
-          selectCategory(categories.find((c) => c.id === budget.category_id)!);
-        }
-      });
+      budgetRepository
+        .findOne({ relations: ["category"], where: { id: budgetId } })
+        .then((budget) => {
+          if (!budget) {
+            navigation.goBack();
+            console.log(`Budget with id ${budgetId} not found`);
+          } else {
+            setDescription(budget.description);
+            setMaxAmount(budget.maxAmount.toString());
+            setStartDate(dayjs(budget.startDate).toDate());
+            setEndDate(dayjs(budget.endDate).toDate());
+            setIsActive(budget.isActive);
+            selectCategory(budget.category);
+          }
+        });
     }
   }, [budgetId]);
 
   const onSubmit = () => {
-    const budgetService = new BudgetService();
     const budgetData = {
       description,
-      max_amount: parseInt(maxAmount, 10),
-      category_id: selectedCategory!.id,
-      start_date: startDate.toISOString().split("T")[0],
-      end_date: endDate.toISOString().split("T")[0],
-      is_active: isActive,
+      maxAmount: parseInt(maxAmount, 10),
+      category: selectedCategory!,
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+      isActive: isActive,
     };
 
     if (budgetId) {
-      budgetService
+      budgetRepository
         .update(budgetId, budgetData)
         .then(() => {
           snackRef.current?.showSnackMessage({
@@ -89,11 +92,20 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           console.log(`Failed to update budget with id: ${budgetId}`, err);
         });
     } else {
-      budgetService
-        .insert(budgetData)
+      const budget = new Budget();
+      budget.description = description;
+      budget.maxAmount = parseInt(maxAmount, 10);
+      budget.category = selectedCategory!;
+      budget.startDate = startDate.toISOString().split("T")[0];
+      budget.endDate = endDate.toISOString().split("T")[0];
+      budget.isActive = isActive;
+
+      budgetRepository
+        .save(budget)
         .then(async (newBudget) => {
-          const budgetStatus = await budgetService.addStatusToBudget(newBudget);
-          setBudgets([budgetStatus, ...allBudgets]);
+          // const budgetStatus = await budgetService.addStatusToBudget(newBudget);
+          // setBudgets([budgetStatus, ...allBudgets]);
+          console.log(JSON.stringify({ newBudget }, undefined, 2));
           snackRef.current?.showSnackMessage({
             message: "Presupuesto creado correctamente",
             type: "success",

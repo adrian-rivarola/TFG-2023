@@ -5,6 +5,8 @@ import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
 import { useMainContext } from "../context/MainContext";
 import ReportService from "../data/classes/Report";
+import dataSource from "../data/data-source";
+import { Category } from "../data/entities/Category";
 
 export default function HomeScreen(props: {}) {
   const { balance, setBalance } = useMainContext();
@@ -12,6 +14,12 @@ export default function HomeScreen(props: {}) {
   useEffect(() => {
     const reportService = new ReportService();
     reportService.getBalance().then(setBalance);
+
+    // typeORM stuff
+    // const categoryRepository = dataSource.getRepository(Category);
+    // categoryRepository.find().then((res) => {
+    //   console.log(JSON.stringify(res, undefined, 2));
+    // });
   }, []);
 
   return (
@@ -22,7 +30,6 @@ export default function HomeScreen(props: {}) {
         <ReportsPreview />
         <View style={styles.smallSeparator} />
         <LastTransactions />
-        {/* {testFooter} */}
       </View>
     </ScrollView>
   );

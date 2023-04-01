@@ -56,7 +56,7 @@ export default function BottomTabNavigator() {
     <BottomTab.Navigator
       backBehavior="history"
       initialRouteName="Home"
-      screenOptions={({ route }) => ({
+      screenOptions={({ route, navigation }) => ({
         lazy: true,
         tabBarHideOnKeyboard: true,
         headerRight,
@@ -69,7 +69,6 @@ export default function BottomTabNavigator() {
         options={{
           title: "Inicio",
           unmountOnBlur: true,
-          headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -82,7 +81,6 @@ export default function BottomTabNavigator() {
         options={{
           title: "Transacciones",
           unmountOnBlur: true,
-          headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -96,7 +94,6 @@ export default function BottomTabNavigator() {
         component={TransactionFormScreen}
         options={({ route }) => ({
           title: "Crear Transacción",
-          headerTitleAlign: "left",
           tabBarLabel: "",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="add" size={50} color={color} />
@@ -109,7 +106,6 @@ export default function BottomTabNavigator() {
         options={{
           unmountOnBlur: true,
           title: "Presupuestos",
-          headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -123,7 +119,6 @@ export default function BottomTabNavigator() {
         component={ConfigurationScreen}
         options={{
           title: "Ajustes",
-          headerTitleAlign: "left",
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -138,9 +133,13 @@ export default function BottomTabNavigator() {
         component={CategorySelectScreen}
         options={({ navigation }) => ({
           title: "Seleccionar Categoría",
-          headerLeft: () => (
-            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
-          ),
+          headerLeft: () =>
+            navigation.canGoBack() && (
+              <IconButton
+                icon="arrow-left"
+                onPress={() => navigation.goBack()}
+              />
+            ),
         })}
       />
       <BottomTab.Screen
@@ -149,9 +148,13 @@ export default function BottomTabNavigator() {
         options={({ navigation }) => ({
           title: "Crear Categoría",
           unmountOnBlur: true,
-          headerLeft: () => (
-            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
-          ),
+          headerLeft: () =>
+            navigation.canGoBack() && (
+              <IconButton
+                icon="arrow-left"
+                onPress={() => navigation.goBack()}
+              />
+            ),
         })}
       />
       <BottomTab.Screen
@@ -174,12 +177,7 @@ export default function BottomTabNavigator() {
           unmountOnBlur: true,
           title: "Detalles de Transacción",
           headerLeft: () => (
-            <IconButton
-              icon="arrow-left"
-              onPress={() => {
-                navigation.goBack();
-              }}
-            />
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
           ),
         })}
       />
@@ -197,11 +195,7 @@ export default function BottomTabNavigator() {
       <BottomTab.Screen
         name="TransactionEditForm"
         component={TransactionFormScreen}
-        getId={({ params }) => {
-          console.log({ getIdFunc: params?.transactionId.toString() });
-
-          return params?.transactionId.toString();
-        }}
+        getId={({ params }) => params?.transactionId.toString()}
         options={({ navigation }) => ({
           title: "Editar Transacción",
           headerLeft: () => (

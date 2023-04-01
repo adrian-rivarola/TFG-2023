@@ -1,31 +1,25 @@
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { IconButton, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
+import TransactionCard from "./TransactionCard";
+
 import Layout from "../../constants/Layout";
 import { useMainContext } from "../../context/MainContext";
-import TransactionService, {
-  Transaction,
-} from "../../data/classes/Transaction";
-import { RootTabParamList } from "../../types";
-import TransactionCard from "./TransactionCard";
+import dataSource from "../../data/data-source";
+import { Transaction } from "../../data/entities/Transaction";
 
 export default function LastTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { categories } = useMainContext();
 
   useEffect(() => {
     getLastTransactions();
   }, []);
 
   const getLastTransactions = () => {
-    const transactionsService = new TransactionService();
-    transactionsService
-      .query({ limit: 3, page: 1 })
-      .then((res) => {
-        setTransactions(res);
-      })
+    const transactionRepository = dataSource.getRepository(Transaction);
+    transactionRepository
+      .find({ relations: ["category"], take: 3 })
+      .then(setTransactions)
       .catch((err) => {
         console.log(`Failed to get transactions`, err);
       });
@@ -38,11 +32,7 @@ export default function LastTransactions() {
       </View>
       {transactions.length ? (
         transactions.map((transaction) => (
-          <TransactionCard
-            key={transaction.id}
-            transaction={transaction}
-            category={categories.find((c) => c.id === transaction.category_id)}
-          />
+          <TransactionCard key={transaction.id} transaction={transaction} />
         ))
       ) : (
         <Text style={{ paddingVertical: 16 }}>Aún no hay transacciones :(</Text>

@@ -3,20 +3,16 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Dialog,
-  List,
-  Paragraph,
-  Portal,
-  Text,
-} from "react-native-paper";
+import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import BudgetService, { Budget, BudgetStatus } from "../data/classes/Budget";
-import TransactionService, { Transaction } from "../data/classes/Transaction";
+import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
+
+import dataSource from "../data/data-source";
+import { Budget } from "../data/entities/Budget";
+import { Transaction } from "../data/entities/Transaction";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
 
@@ -26,28 +22,32 @@ export default function BudgetDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const [budget, setBudget] = useState<BudgetStatus>();
+  const budgetRepository = dataSource.getRepository(Budget);
+  const [budget, setBudget] = useState<Budget>();
   const [dialogVisible, setDialogVisible] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const { categories } = useMainContext();
   const {
     theme: { colors },
   } = useTheme();
-  const category = categories.find((c) => c.id === budget?.category_id);
+  const category = budget?.category;
 
   useEffect(() => {
-    const budgetService = new BudgetService();
+    budgetRepository
+      .findOne({
+        relations: ["category"],
+        where: { id: route.params.budgetId },
+      })
+      .then((b) => {
+        if (!b) {
+          console.log(`Budget not found!!!`);
+          navigation.goBack();
+        } else {
+          setBudget(b);
+        }
+      });
 
-    budgetService.getById(route.params.budgetId).then((b) => {
-      if (!b) {
-        console.log(`Budget not found!!!`);
-        navigation.goBack();
-      } else {
-        setBudget(b);
-      }
-    });
-
-    budgetService.getTransactions(route.params.budgetId).then(setTransactions);
+    // budgetService.getTransactions(route.params.budgetId).then(setTransactions);
   }, []);
 
   const themedStyles = StyleSheet.create({
@@ -58,8 +58,8 @@ export default function BudgetDetailsScreen({
   });
 
   const durationInfo = () => {
-    const start = dayjs(budget?.start_date);
-    const end = dayjs(budget?.end_date);
+    const start = dayjs(budget?.startDate);
+    const end = dayjs(budget?.endDate);
     // .format("D [de] MMMM");
 
     if (start.isSame(end, "month")) {
@@ -68,9 +68,8 @@ export default function BudgetDetailsScreen({
   };
 
   const deleteBudget = () => {
-    const budgetServicer = new BudgetService();
-    budgetServicer.delete(route.params.budgetId).then((deleted) => {
-      if (deleted) {
+    budgetRepository.delete(route.params.budgetId).then((deleted) => {
+      if (deleted.affected === 1) {
         navigation.goBack();
       } else {
         console.log("Failed to delete budget");
@@ -87,34 +86,35 @@ export default function BudgetDetailsScreen({
       <View style={styles.container}>
         <View style={[styles.transactionInfo, themedStyles.bordered]}>
           <View style={styles.header}>
-            <MaterialIcons
-              name={category.icon.toLowerCase() as MaterialIconName}
-              color={colors.text}
-              size={24}
-            />
-            <Text style={styles.ms2} variant="titleLarge">
-              {category?.name}
+            <MaterialIcons name="short-text" size={24} color={colors.text} />
+            <Text variant="titleLarge" style={styles.ms2}>
+              {budget.description}
             </Text>
           </View>
 
           <View style={styles.amount}>
             <Text>Monto establecido:</Text>
             <Text variant="headlineSmall">
-              Gs. {budget.max_amount.toLocaleString()}
+              Gs. {budget.maxAmount.toLocaleString()}
             </Text>
           </View>
 
           <View style={styles.amount}>
             <Text>Monto utilizado:</Text>
             <Text variant="headlineSmall">
-              Gs. {budget.transactionsTotal.toLocaleString()}
+              {/* Gs. {budget.transactionsTotal.toLocaleString()} */}
+              TODO: add budget total
             </Text>
           </View>
 
           <View style={styles.description}>
-            <MaterialIcons name="short-text" size={24} color={colors.text} />
+            <MaterialIcons
+              name={category.icon.toLowerCase() as MaterialIconName}
+              color={colors.text}
+              size={24}
+            />
             <Text variant="bodyLarge" style={styles.ms2}>
-              {budget.description}
+              {category?.name}
             </Text>
           </View>
 
@@ -161,7 +161,7 @@ export default function BudgetDetailsScreen({
 
           {transactions.length > 0 ? (
             transactions.map((t) => (
-              <TransactionCard key={t.id} transaction={t} category={category} />
+              <TransactionCard key={t.id} transaction={t} />
             ))
           ) : (
             <Text style={{ padding: 16 }}>

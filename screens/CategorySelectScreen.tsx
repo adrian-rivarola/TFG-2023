@@ -5,9 +5,9 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import { Category, CategoryType } from "../data/classes/Category";
 
 import { RootTabParamList } from "../types";
+import { Category, CategoryType } from "../data/entities/Category";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategorySelect">;
 

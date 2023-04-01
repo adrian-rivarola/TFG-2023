@@ -3,6 +3,7 @@ import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import runMigrations from "../data/migrations";
+import dataSource from "../data/data-source";
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -13,7 +14,10 @@ export default function useCachedResources() {
       try {
         SplashScreen.preventAutoHideAsync();
 
-        // run db migrations
+        // initialize db connection (typeorm)
+        await dataSource.initialize();
+
+        // run db migrations (expo-sqlite-orm)
         await runMigrations();
 
         // Load fonts
