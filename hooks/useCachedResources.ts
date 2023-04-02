@@ -3,7 +3,7 @@ import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import runMigrations from "../data/migrations";
-import dataSource from "../data/data-source";
+import { dataSource } from "../data";
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -12,7 +12,7 @@ export default function useCachedResources() {
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
-        SplashScreen.preventAutoHideAsync();
+        await SplashScreen.preventAutoHideAsync();
 
         // initialize db connection (typeorm)
         await dataSource.initialize();

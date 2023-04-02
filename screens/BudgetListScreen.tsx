@@ -4,12 +4,11 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
+
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import BudgetService, { BudgetStatus } from "../data/classes/Budget";
+import { Budget, dataSource } from "../data";
 import { RootTabParamList } from "../types";
-import { Budget } from "../data/entities/Budget";
-import dataSource from "../data/data-source";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 
@@ -22,8 +21,12 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
   }, []);
 
   const updateBudgets = () => {
+    setLoading(true);
     const budgetRepository = dataSource.getRepository(Budget);
-    budgetRepository.find({ relations: ["category"] }).then(setBudgets);
+    budgetRepository
+      .find()
+      .then(setBudgets)
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -116,17 +119,10 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
                 });
               }}
               title={budget.description}
-              description={`${dayjs(budget.startDate).format("D")} al ${dayjs(
-                budget.endDate
-              ).format("D [de] MMMM")}`}
+              description={budget.dateInfo}
               descriptionStyle={{ marginTop: 4 }}
               right={() => {
-                return (
-                  <Text>
-                    TODO: add budget total
-                    {/* {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`} */}
-                  </Text>
-                );
+                return <Text>Gs. {budget.totalSpent.toLocaleString()}</Text>;
               }}
               style={themedStyles.budgetItem}
             />

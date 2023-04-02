@@ -1,12 +1,14 @@
 import {
   BeforeInsert,
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
 } from "typeorm";
-import { Transaction } from "./Transaction";
-import { Budget } from "./Budget";
+import type { Transaction } from "./Transaction";
+import type { Budget } from "./Budget";
 
 export enum CategoryType {
   expense, // ->  0
@@ -27,17 +29,20 @@ export class Category {
   @Column("int")
   type: number;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.category)
-  transactions: Transaction[];
+  @OneToMany("Transaction", "category")
+  transactions: Relation<Transaction>[];
 
-  @OneToMany(() => Budget, (budget) => budget.category)
-  budgets: Budget[];
+  @OneToMany("Budget", "category")
+  budgets: Relation<Budget>[];
 
-  @Column("date")
-  createdAt: string;
+  @CreateDateColumn()
+  createdAt: Date;
 
-  @BeforeInsert()
-  onBeforeInsert() {
-    this.createdAt = new Date().toISOString();
+  get isExpense() {
+    return this.type === CategoryType.expense;
+  }
+
+  get isIncome() {
+    return this.type === CategoryType.income;
   }
 }

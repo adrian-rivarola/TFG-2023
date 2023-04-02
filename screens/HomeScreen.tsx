@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
 import { useMainContext } from "../context/MainContext";
 import ReportService from "../data/classes/Report";
-import dataSource from "../data/data-source";
-import { Category } from "../data/entities/Category";
 
 export default function HomeScreen(props: {}) {
   const { balance, setBalance } = useMainContext();

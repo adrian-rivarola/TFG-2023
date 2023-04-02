@@ -13,14 +13,13 @@ import {
   View,
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
+
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import TransactionService from "../data/classes/Transaction";
+import { Transaction, dataSource } from "../data";
 import { RootTabParamList } from "../types";
-import dataSource from "../data/data-source";
-import { Transaction } from "../data/entities/Transaction";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -43,7 +42,7 @@ export default function TransactionFormScreen({
   useEffect(() => {
     if (transactionId) {
       transactionRepository
-        .findOne({ relations: ["category"], where: { id: transactionId } })
+        .findOne({ where: { id: transactionId } })
         .then((transaction) => {
           if (!transaction) {
             navigation.goBack();
@@ -51,7 +50,7 @@ export default function TransactionFormScreen({
           } else {
             setAmount(transaction.amount.toString());
             setDescription(transaction.description);
-            setDate(dayjs(transaction.createdAt).toDate());
+            setDate(dayjs(transaction.date).toDate());
           }
         });
     }
@@ -132,6 +131,7 @@ export default function TransactionFormScreen({
       transaction.description = description;
       transaction.amount = parseInt(amount, 10);
       transaction.category = selectedCategory!;
+      transaction.date = date.toISOString();
 
       transactionRepository
         .save(transaction)
@@ -157,6 +157,15 @@ export default function TransactionFormScreen({
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.inputGroup}>
+          <Text>Descripción:</Text>
+          <TextInput
+            style={styles.input}
+            mode="outlined"
+            value={description}
+            onChangeText={(val) => setDescription(val)}
+          />
+        </View>
+        <View style={styles.inputGroup}>
           <Text>Monto:</Text>
           <TextInput
             style={styles.input}
@@ -164,15 +173,6 @@ export default function TransactionFormScreen({
             mode="outlined"
             value={amount}
             onChangeText={(val) => setAmount(val)}
-          />
-        </View>
-        <View style={styles.inputGroup}>
-          <Text>Descripción:</Text>
-          <TextInput
-            style={styles.input}
-            mode="outlined"
-            value={description}
-            onChangeText={(val) => setDescription(val)}
           />
         </View>
         <View style={styles.inputGroup}>

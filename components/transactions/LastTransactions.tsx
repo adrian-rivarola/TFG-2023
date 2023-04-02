@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
-import TransactionCard from "./TransactionCard";
 
 import Layout from "../../constants/Layout";
-import { useMainContext } from "../../context/MainContext";
-import dataSource from "../../data/data-source";
-import { Transaction } from "../../data/entities/Transaction";
+import { Transaction, dataSource } from "../../data";
+import TransactionCard from "./TransactionCard";
 
 export default function LastTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -18,7 +16,7 @@ export default function LastTransactions() {
   const getLastTransactions = () => {
     const transactionRepository = dataSource.getRepository(Transaction);
     transactionRepository
-      .find({ relations: ["category"], take: 3 })
+      .find({ take: 3 })
       .then(setTransactions)
       .catch((err) => {
         console.log(`Failed to get transactions`, err);

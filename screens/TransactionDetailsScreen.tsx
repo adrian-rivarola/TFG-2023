@@ -3,23 +3,14 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import {
-  Button,
-  Dialog,
-  List,
-  Paragraph,
-  Portal,
-  Text,
-} from "react-native-paper";
+import { Button, List, Text } from "react-native-paper";
+
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import { BudgetStatus } from "../data/classes/Budget";
-import { CategoryType } from "../data/classes/Category";
+import { Budget, Transaction, dataSource } from "../data";
 import { RootTabParamList } from "../types";
-import dataSource from "../data/data-source";
-import { Transaction } from "../data/entities/Transaction";
-import { Budget } from "../data/entities/Budget";
+import { LessThanOrEqual, MoreThan } from "typeorm";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -34,31 +25,53 @@ export default function TransactionDetailsScreen({
 }: ScreenProps) {
   const transactionRepository = dataSource.getRepository(Transaction);
   const [transaction, setTransaction] = useState<Transaction>();
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const { activeBudgets, selectCategory } = useMainContext();
   const { confirmModalRef, snackRef } = useRefContext();
   const {
     theme: { colors },
   } = useTheme();
+
   const category = transaction?.category;
-  const budgets = activeBudgets.filter(
-    (b) => b.category.id === category?.id && b.isActive
-  );
+  // const budgets = activeBudgets.filter(
+  //   (b) =>
+  //     b.category.id === category?.id &&
+  //     b.isActive &&
+  //     dayjs(transaction?.date).isAfter(b.startDate) &&
+  //     dayjs(transaction?.date).isBefore(b.endDate)
+  // );
 
   useEffect(() => {
-    transactionRepository
-      .findOne({
-        relations: ["category"],
-        where: { id: route.params.transactionId },
-      })
-      .then((t) => {
-        if (!t) {
-          console.log(`Transaction not found!!!`);
-          navigation.goBack();
-        } else {
-          setTransaction(t);
-        }
-      });
+    getTransaction();
   }, []);
+
+  const getTransaction = async () => {
+    const t = await transactionRepository.findOne({
+      where: { id: route.params.transactionId },
+    });
+
+    if (!t) {
+      console.log(`Transaction not found!!!`);
+      navigation.goBack();
+      return;
+    }
+    setTransaction(t);
+
+    dataSource
+      .getRepository(Budget)
+      .find({
+        where: {
+          category: {
+            id: t.category.id,
+          },
+          isActive: true,
+          startDate: LessThanOrEqual(t.date),
+          endDate: MoreThan(t.date),
+        },
+      })
+      .then(setBudgets)
+      .finally(() => {});
+  };
 
   const themedStyles = StyleSheet.create({
     bordered: {
@@ -108,10 +121,9 @@ export default function TransactionDetailsScreen({
           <Text
             variant="headlineSmall"
             style={{
-              color:
-                category.type === CategoryType.expense
-                  ? colors.expenseColor
-                  : colors.incomeColor,
+              color: category.isExpense
+                ? colors.expenseColor
+                : colors.incomeColor,
             }}
           >
             Gs. {transaction.amount.toLocaleString()}
@@ -132,7 +144,7 @@ export default function TransactionDetailsScreen({
         <View style={styles.description}>
           <MaterialIcons name="calendar-today" size={24} color={colors.text} />
           <Text variant="bodyLarge" style={styles.ms2}>
-            {dayjs(transaction.createdAt).format("dddd, D [de] MMMM")}
+            {dayjs(transaction.date).format("dddd, D [de] MMMM")}
           </Text>
         </View>
 
@@ -186,6 +198,40 @@ export default function TransactionDetailsScreen({
   );
 }
 
+type BudgetCardProps = {
+  budget: Budget;
+  onPress(): void;
+};
+
+function BudgetCard({ budget, onPress }: BudgetCardProps) {
+  const {
+    theme: { colors },
+  } = useTheme();
+
+  const themedStyles = {
+    budgetItem: {
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.onSecondary,
+    },
+  };
+
+  return (
+    <List.Item
+      key={budget.id}
+      onPress={onPress}
+      title={budget.description}
+      description={budget.dateInfo}
+      descriptionStyle={{ marginTop: 4 }}
+      right={() => {
+        return <Text>Gs. {budget.totalSpent?.toLocaleString()}</Text>;
+      }}
+      style={themedStyles.budgetItem}
+    />
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -220,44 +266,3 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-
-type BudgetCardProps = {
-  budget: Budget;
-  onPress(): void;
-};
-
-function BudgetCard({ budget, onPress }: BudgetCardProps) {
-  const {
-    theme: { colors },
-  } = useTheme();
-
-  const themedStyles = {
-    budgetItem: {
-      borderTopWidth: 1,
-      borderBottomWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.onSecondary,
-    },
-  };
-
-  return (
-    <List.Item
-      key={budget.id}
-      onPress={onPress}
-      title={budget.description}
-      description={`${budget.startDate} al ${budget.endDate}`
-        .replaceAll("2022-", "")
-        .replaceAll("-", "/")}
-      descriptionStyle={{ marginTop: 4 }}
-      right={() => {
-        return (
-          <Text>
-            {/* {`${budget.transactionsTotal.toLocaleString()} / ${budget.max_amount.toLocaleString()}`} */}
-            TODO: add budget total
-          </Text>
-        );
-      }}
-      style={themedStyles.budgetItem}
-    />
-  );
-}

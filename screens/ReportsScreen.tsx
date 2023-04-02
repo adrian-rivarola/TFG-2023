@@ -1,16 +1,15 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { Text } from "react-native-paper";
+
 import Balance from "../components/Balance";
-import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import { CategoryType } from "../data/classes/Category";
 import ReportService from "../data/classes/Report";
 import { RootTabParamList } from "../types";
+import { CategoryType } from "../data";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
 

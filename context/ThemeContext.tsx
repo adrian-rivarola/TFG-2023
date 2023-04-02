@@ -6,10 +6,10 @@ import {
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import { useColorScheme } from "react-native";
 import {
-  DefaultTheme as PaperDefaultTheme,
   MD3DarkTheme as PaperDarkTheme,
-  MD3Theme as PaperTheme,
+  DefaultTheme as PaperDefaultTheme,
   Provider as PaperProvider,
+  MD3Theme as PaperTheme,
 } from "react-native-paper";
 import { MD3Colors } from "react-native-paper/lib/typescript/types";
 

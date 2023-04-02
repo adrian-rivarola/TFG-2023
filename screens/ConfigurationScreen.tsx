@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import { useRef } from "react";
-import { Platform, StyleSheet, View } from "react-native";
-import { List, Snackbar } from "react-native-paper";
-import ConfirmationModal, { ModalRef } from "../components/ConfirmationModal";
-import SnackbarMessage, { SnackRef } from "../components/SnackbarMessage";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { List } from "react-native-paper";
+
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";

@@ -7,12 +7,10 @@ import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import BudgetService, { BudgetStatus } from "../data/classes/Budget";
 import { RootTabParamList } from "../types";
 
-import dataSource from "../data/data-source";
-import { Budget } from "../data/entities/Budget";
-import { Transaction } from "../data/entities/Transaction";
+import { Budget, Transaction, dataSource } from "../data";
+import { Between, MoreThan } from "typeorm";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
 
@@ -23,31 +21,37 @@ export default function BudgetDetailsScreen({
   route,
 }: ScreenProps) {
   const budgetRepository = dataSource.getRepository(Budget);
-  const [budget, setBudget] = useState<Budget>();
   const [dialogVisible, setDialogVisible] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { categories } = useMainContext();
+  const { allBudgets } = useMainContext();
+  const budget = allBudgets.find(
+    (budget) => budget.id === route.params.budgetId
+  );
+  const category = budget?.category;
   const {
     theme: { colors },
   } = useTheme();
-  const category = budget?.category;
 
   useEffect(() => {
-    budgetRepository
-      .findOne({
-        relations: ["category"],
-        where: { id: route.params.budgetId },
-      })
-      .then((b) => {
-        if (!b) {
-          console.log(`Budget not found!!!`);
-          navigation.goBack();
-        } else {
-          setBudget(b);
-        }
-      });
-
-    // budgetService.getTransactions(route.params.budgetId).then(setTransactions);
+    if (budget) {
+      dataSource
+        .getRepository(Transaction)
+        .find({
+          where: {
+            category: {
+              id: budget.category.id,
+            },
+            date: Between(budget.startDate, budget.endDate),
+          },
+        })
+        .then(setTransactions)
+        .catch((err) => {
+          console.error("Failed to get transactions: ", err);
+        });
+    } else {
+      console.warn("Budget not found!");
+      navigation.goBack();
+    }
   }, []);
 
   const themedStyles = StyleSheet.create({
@@ -56,16 +60,6 @@ export default function BudgetDetailsScreen({
       borderBottomWidth: 1,
     },
   });
-
-  const durationInfo = () => {
-    const start = dayjs(budget?.startDate);
-    const end = dayjs(budget?.endDate);
-    // .format("D [de] MMMM");
-
-    if (start.isSame(end, "month")) {
-      return `${start.format("D")} al ${end.format("D [de] MMMM")}`;
-    }
-  };
 
   const deleteBudget = () => {
     budgetRepository.delete(route.params.budgetId).then((deleted) => {
@@ -102,8 +96,7 @@ export default function BudgetDetailsScreen({
           <View style={styles.amount}>
             <Text>Monto utilizado:</Text>
             <Text variant="headlineSmall">
-              {/* Gs. {budget.transactionsTotal.toLocaleString()} */}
-              TODO: add budget total
+              Gs. {budget.totalSpent.toLocaleString()}
             </Text>
           </View>
 
@@ -125,7 +118,7 @@ export default function BudgetDetailsScreen({
               color={colors.text}
             />
             <Text variant="bodyLarge" style={styles.ms2}>
-              {durationInfo()}
+              {budget.dateInfo}
             </Text>
           </View>
 

@@ -1,10 +1,11 @@
-import React, { Reducer, useContext, useEffect, useReducer } from "react";
-import BudgetService from "../data/classes/Budget";
-import CategoryService from "../data/classes/Category";
-import { Transaction } from "../data/classes/Transaction";
-import dataSource from "../data/data-source";
-import { Category } from "../data/entities/Category";
-import { Budget } from "../data/entities/Budget";
+import React, {
+  Dispatch,
+  Reducer,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
+import { Budget, Category, Transaction, dataSource } from "../data";
 
 interface MainContextValue {
   balance: number;
@@ -92,7 +93,7 @@ export const MainContextProvider = ({
 
     // get budgets
     const budgetRepository = dataSource.getRepository(Budget);
-    budgetRepository.find({ relations: ["category"] }).then(setBudgets);
+    budgetRepository.find().then(setBudgets);
   }, []);
 
   const setBalance = (balance: number) => {
@@ -105,6 +106,7 @@ export const MainContextProvider = ({
 
   const setTransactions = (transactions: Transaction[]) => {
     dispatch({ type: "set-transactions", payload: transactions });
+    updateBudgets();
   };
 
   const setCategories = (categories: Category[]) => {
@@ -116,6 +118,16 @@ export const MainContextProvider = ({
       type: "select-category",
       payload: category,
     });
+  };
+
+  const updateBudgets = async () => {
+    const updatedBudgets = await Promise.all(
+      state.activeBudgets.map(async (budget) => {
+        await budget.getTotalSpent();
+        return budget;
+      })
+    );
+    setBudgets(updatedBudgets);
   };
 
   return (

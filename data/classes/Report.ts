@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
 import { sql } from "expo-sqlite-orm";
 import DatabaseLayer from "expo-sqlite-orm/lib/DatabaseLayer";
+
 import config from "../../constants/config";
-import { CategoryType } from "./Category";
 import { Transaction } from "./Transaction";
+import { CategoryType } from "../entities/Category";
 
 type BalanceTotalsResult = Array<{ category_id: CategoryType; total: number }>;
 

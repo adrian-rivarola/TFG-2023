@@ -1,9 +1,12 @@
 import {
-  BeforeInsert,
   Column,
+  CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
+  UpdateDateColumn,
 } from "typeorm";
 import { Category } from "./Category";
 
@@ -18,18 +21,18 @@ export class Transaction {
   @Column("float")
   amount: number;
 
-  @ManyToOne(() => Category, (category) => category.transactions)
-  category: Category;
-
   @Column("date")
-  createdAt: string;
+  date: Date;
 
-  @Column("date")
-  updatedAt: string;
+  @ManyToOne("Category", "transactions", {
+    eager: true,
+  })
+  @JoinColumn()
+  category: Relation<Category>;
 
-  @BeforeInsert()
-  onBeforeInsert() {
-    this.createdAt = new Date().toISOString();
-    this.updatedAt = new Date().toISOString();
-  }
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

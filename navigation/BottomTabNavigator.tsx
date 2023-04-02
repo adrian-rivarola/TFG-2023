@@ -4,18 +4,22 @@ import * as React from "react";
 import { Pressable } from "react-native";
 import { IconButton } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
-import CategorySelectScreen from "../screens/CategorySelectScreen";
-import ConfigurationScreen from "../screens/ConfigurationScreen";
-import CategoryFormScreen from "../screens/CategoryFormScreen";
-import TransactionFormScreen from "../screens/TransactionFormScreen";
-import BudgetListScreen from "../screens/BudgetListScreen";
-import HomeScreen from "../screens/HomeScreen";
-import TransactionsListScreen from "../screens/TransactionsListScreen";
 import { RootTabParamList } from "../types";
-import BudgetFormScreen from "../screens/BudgetFormScreen";
-import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
-import BudgetDetailsScreen from "../screens/BudgetDetails";
+
+import ConfigurationScreen from "../screens/ConfigurationScreen";
+import HomeScreen from "../screens/HomeScreen";
 import ReportsScreen from "../screens/ReportsScreen";
+
+import BudgetDetailsScreen from "../screens/BudgetDetailsScreen";
+import BudgetFormScreen from "../screens/BudgetFormScreen";
+import BudgetListScreen from "../screens/BudgetListScreen";
+
+import CategoryFormScreen from "../screens/CategoryFormScreen";
+import CategorySelectScreen from "../screens/CategorySelectScreen";
+
+import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
+import TransactionFormScreen from "../screens/TransactionFormScreen";
+import TransactionsListScreen from "../screens/TransactionsListScreen";
 
 type TabBarIconProps = {
   name: React.ComponentProps<typeof MaterialIcons>["name"];

@@ -3,11 +3,11 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
+
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-
 import { RootTabParamList } from "../types";
-import { Category, CategoryType } from "../data/entities/Category";
+import { Category, CategoryType } from "../data";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategorySelect">;
 

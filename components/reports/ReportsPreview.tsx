@@ -2,10 +2,11 @@ import { useNavigation } from "@react-navigation/native";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import { BarChart, LineChart } from "react-native-chart-kit";
+import { LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { ChartData } from "react-native-chart-kit/dist/HelperTypes";
 import { Button, Card, SegmentedButtons, Text } from "react-native-paper";
+
 import { useTheme } from "../../context/ThemeContext";
 import ReportService from "../../data/classes/Report";
 

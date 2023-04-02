@@ -8,10 +8,10 @@ import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { Pressable } from "react-native";
+
 import ConfirmationModal from "../components/ConfirmationModal";
 import SnackbarMessage from "../components/SnackbarMessage";
 import { useRefContext } from "../context/RefContext";
-
 import { useTheme } from "../context/ThemeContext";
 import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";

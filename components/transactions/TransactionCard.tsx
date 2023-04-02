@@ -3,11 +3,10 @@ import { useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import { View } from "react-native";
 import { Card, Text } from "react-native-paper";
+
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
-
-import { Category, CategoryType } from "../../data/entities/Category";
-import { Transaction } from "../../data/entities/Transaction";
+import { Transaction } from "../../data";
 
 type TransactionCardProps = {
   transaction: Transaction;
@@ -19,10 +18,9 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
     theme: { colors },
   } = useTheme();
   const { category } = transaction;
-  const amountColor =
-    category.type === CategoryType.expense
-      ? colors.expenseColor
-      : colors.incomeColor;
+  const amountColor = category.isExpense
+    ? colors.expenseColor
+    : colors.incomeColor;
 
   return (
     <Card
@@ -61,7 +59,7 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text variant="bodySmall">
-          {dayjs(transaction.createdAt).format("dddd, D [de] MMMM")}
+          {dayjs(transaction.date).format("dddd, D [de] MMMM")}
         </Text>
         {category && (
           <View style={{ flexDirection: "row", alignItems: "center" }}>

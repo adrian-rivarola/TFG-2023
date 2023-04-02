@@ -9,12 +9,11 @@ import {
 } from "react-native";
 import { Text } from "react-native-paper";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
+import { LessThan, MoreThanOrEqual } from "typeorm";
+
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useTheme } from "../context/ThemeContext";
-
-import { LessThan, MoreThanOrEqual } from "typeorm";
-import dataSource from "../data/data-source";
-import { Transaction } from "../data/entities/Transaction";
+import { Transaction, dataSource } from "../data";
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
@@ -54,25 +53,13 @@ export default function TransactionsListScreen(props: {}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    marginTop: 14,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-});
-
 type TransactionsByDateProps = {
   range: "week" | "month" | "before";
 };
 
 function TransactionsByDate({ range }: TransactionsByDateProps) {
-  const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getTransactions();
@@ -81,12 +68,11 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
   const getTransactions = () => {
     setLoading(true);
 
-    const transactionsRepository = dataSource.getRepository(Transaction);
-    transactionsRepository
+    dataSource
+      .getRepository(Transaction)
       .find({
-        relations: ["category"],
         where: {
-          createdAt: getDateQuery(),
+          date: getDateQuery(),
         },
       })
       .then((res) => {
@@ -104,10 +90,10 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
   };
 
   const getDateQuery = () => {
+    const operationFn = range === "before" ? LessThan : MoreThanOrEqual;
     const today = dayjs();
     const dateOffset =
       range === "week" ? today.subtract(7, "days") : today.subtract(1, "month");
-    const operationFn = range === "before" ? LessThan : MoreThanOrEqual;
 
     return operationFn(dateOffset.toISOString());
   };
@@ -132,3 +118,15 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: 14,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+});

@@ -3,7 +3,8 @@ import RNDateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -12,15 +13,14 @@ import {
   View,
 } from "react-native";
 import { Button, Switch, Text, TextInput } from "react-native-paper";
-import Layout from "../constants/Layout";
+
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import { RootTabParamList } from "../types";
 
-import dataSource from "../data/data-source";
-import { Budget } from "../data/entities/Budget";
-import dayjs from "dayjs";
+import Layout from "../constants/Layout";
+import { Budget, dataSource } from "../data";
+import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
@@ -32,51 +32,48 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [isActive, setIsActive] = useState(true);
-  const {
-    selectedCategory,
-    categories,
-    allBudgets,
-    setBudgets,
-    selectCategory,
-  } = useMainContext();
+  const { allBudgets, selectedCategory, selectCategory, setBudgets } =
+    useMainContext();
+  const totalSpent = useRef<number>();
   const { theme } = useTheme();
 
   const budgetId = route.params?.budgetId;
 
   useEffect(() => {
     if (budgetId) {
-      budgetRepository
-        .findOne({ relations: ["category"], where: { id: budgetId } })
-        .then((budget) => {
-          if (!budget) {
-            navigation.goBack();
-            console.log(`Budget with id ${budgetId} not found`);
-          } else {
-            setDescription(budget.description);
-            setMaxAmount(budget.maxAmount.toString());
-            setStartDate(dayjs(budget.startDate).toDate());
-            setEndDate(dayjs(budget.endDate).toDate());
-            setIsActive(budget.isActive);
-            selectCategory(budget.category);
-          }
-        });
+      const budget = allBudgets.find((b) => b.id === budgetId);
+      if (budget) {
+        setDescription(budget.description);
+        setMaxAmount(budget.maxAmount.toString());
+        setStartDate(dayjs(budget.startDate).toDate());
+        setEndDate(dayjs(budget.endDate).toDate());
+        setIsActive(budget.isActive);
+        selectCategory(budget.category);
+        totalSpent.current = budget.totalSpent;
+      } else {
+        navigation.goBack();
+        console.log(`Budget with id ${budgetId} not found`);
+      }
     }
   }, [budgetId]);
 
   const onSubmit = () => {
-    const budgetData = {
-      description,
-      maxAmount: parseInt(maxAmount, 10),
-      category: selectedCategory!,
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
-      isActive: isActive,
-    };
+    const budget = new Budget();
+    budget.description = description;
+    budget.maxAmount = parseInt(maxAmount, 10);
+    budget.category = selectedCategory!;
+    budget.startDate = startDate;
+    budget.endDate = endDate;
+    budget.isActive = isActive;
 
     if (budgetId) {
+      budget.id = budgetId;
       budgetRepository
-        .update(budgetId, budgetData)
+        .update(budgetId, budget)
         .then(() => {
+          budget.totalSpent = totalSpent.current || 0;
+          setBudgets(allBudgets.map((b) => (b.id === budgetId ? budget : b)));
+
           snackRef.current?.showSnackMessage({
             message: "Presupuesto actualizado correctamente",
             type: "success",
@@ -92,20 +89,12 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           console.log(`Failed to update budget with id: ${budgetId}`, err);
         });
     } else {
-      const budget = new Budget();
-      budget.description = description;
-      budget.maxAmount = parseInt(maxAmount, 10);
-      budget.category = selectedCategory!;
-      budget.startDate = startDate.toISOString().split("T")[0];
-      budget.endDate = endDate.toISOString().split("T")[0];
-      budget.isActive = isActive;
-
       budgetRepository
         .save(budget)
         .then(async (newBudget) => {
-          // const budgetStatus = await budgetService.addStatusToBudget(newBudget);
-          // setBudgets([budgetStatus, ...allBudgets]);
-          console.log(JSON.stringify({ newBudget }, undefined, 2));
+          // TODO: fix budgets exploding here
+          setBudgets([newBudget, ...allBudgets]);
+
           snackRef.current?.showSnackMessage({
             message: "Presupuesto creado correctamente",
             type: "success",
