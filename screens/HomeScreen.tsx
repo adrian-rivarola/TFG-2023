@@ -1,25 +1,12 @@
-import { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
 import { useMainContext } from "../context/MainContext";
-import ReportService from "../data/classes/Report";
 
 export default function HomeScreen(props: {}) {
-  const { balance, setBalance } = useMainContext();
-
-  useEffect(() => {
-    const reportService = new ReportService();
-    reportService.getBalance().then(setBalance);
-
-    // typeORM stuff
-    // const categoryRepository = dataSource.getRepository(Category);
-    // categoryRepository.find().then((res) => {
-    //   console.log(JSON.stringify(res, undefined, 2));
-    // });
-  }, []);
+  const { balance } = useMainContext();
 
   return (
     <ScrollView>

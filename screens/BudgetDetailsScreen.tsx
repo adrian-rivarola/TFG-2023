@@ -1,16 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
+
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useMainContext } from "../context/MainContext";
+import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
+import { Transaction } from "../data";
+import * as budgetService from "../services/budgetService";
+import * as transactionsService from "../services/transactionsService";
 import { RootTabParamList } from "../types";
-
-import { Budget, Transaction, dataSource } from "../data";
-import { Between, MoreThan } from "typeorm";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
 
@@ -20,30 +21,27 @@ export default function BudgetDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const budgetRepository = dataSource.getRepository(Budget);
-  const [dialogVisible, setDialogVisible] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { allBudgets } = useMainContext();
-  const budget = allBudgets.find(
-    (budget) => budget.id === route.params.budgetId
-  );
-  const category = budget?.category;
+  const { allBudgets, setBudgets } = useMainContext();
+  const { confirmModalRef, snackRef } = useRefContext();
   const {
     theme: { colors },
   } = useTheme();
 
+  const budget = allBudgets.find(
+    (budget) => budget.id === route.params.budgetId
+  );
+  const category = budget?.category;
+
   useEffect(() => {
     if (budget) {
-      dataSource
-        .getRepository(Transaction)
-        .find({
-          where: {
-            category: {
-              id: budget.category.id,
-            },
-            date: Between(budget.startDate, budget.endDate),
-          },
-        })
+      budget.getTotalSpent();
+      transactionsService
+        .getTransactionsByCategory(
+          budget.category.id,
+          budget.startDate,
+          budget.endDate
+        )
         .then(setTransactions)
         .catch((err) => {
           console.error("Failed to get transactions: ", err);
@@ -54,22 +52,34 @@ export default function BudgetDetailsScreen({
     }
   }, []);
 
+  const deleteBudget = () => {
+    confirmModalRef.current?.showConfirmationModal({
+      onConfirm: () => {
+        budgetService.deleteBudget(budget!.id).then((deleted) => {
+          if (deleted) {
+            setBudgets(allBudgets.filter((b) => b.id !== budget!.id));
+            navigation.goBack();
+            snackRef.current?.showSnackMessage({
+              message: "La transacción fue eliminada correctamente",
+              type: "success",
+            });
+          } else {
+            snackRef.current?.showSnackMessage({
+              message: "Algo salío mal, intente nuevamente más tarde",
+              type: "error",
+            });
+          }
+        });
+      },
+    });
+  };
+
   const themedStyles = StyleSheet.create({
     bordered: {
       borderBottomColor: colors.border,
       borderBottomWidth: 1,
     },
   });
-
-  const deleteBudget = () => {
-    budgetRepository.delete(route.params.budgetId).then((deleted) => {
-      if (deleted.affected === 1) {
-        navigation.goBack();
-      } else {
-        console.log("Failed to delete budget");
-      }
-    });
-  };
 
   if (!budget || !category) {
     return null;
@@ -135,9 +145,7 @@ export default function BudgetDetailsScreen({
               Editar
             </Button>
             <Button
-              onPress={() => {
-                setDialogVisible(true);
-              }}
+              onPress={deleteBudget}
               style={styles.ms2}
               mode="contained-tonal"
               icon="delete"
@@ -162,12 +170,6 @@ export default function BudgetDetailsScreen({
             </Text>
           )}
         </View>
-
-        <DeleteDialog
-          onDelete={deleteBudget}
-          visible={dialogVisible}
-          hideDialog={() => setDialogVisible(false)}
-        />
       </View>
     </ScrollView>
   );

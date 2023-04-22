@@ -9,7 +9,10 @@ import { Platform } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as DocumentPicker from "expo-document-picker";
 
-export function convertToCSV<T>(objectsList: T[], keys: Array<keyof T>) {
+export function convertToCSV<T extends Record<string, string | number>>(
+  objectsList: T[],
+  keys: Array<keyof T>
+) {
   const csvContent = [
     keys.join(","),
     ...objectsList.map((obj) => keys.map((key) => obj[key]).join(",")),

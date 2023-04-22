@@ -13,7 +13,9 @@ import { LessThan, MoreThanOrEqual } from "typeorm";
 
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useTheme } from "../context/ThemeContext";
-import { Transaction, dataSource } from "../data";
+import { Transaction } from "../data";
+import * as transactionsService from "../services/transactionsService";
+import { useIsFocused } from "@react-navigation/native";
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
@@ -58,23 +60,21 @@ type TransactionsByDateProps = {
 };
 
 function TransactionsByDate({ range }: TransactionsByDateProps) {
+  const isFocused = useIsFocused();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getTransactions();
-  }, []);
+    if (isFocused) {
+      getTransactions();
+    }
+  }, [isFocused]);
 
   const getTransactions = () => {
     setLoading(true);
 
-    dataSource
-      .getRepository(Transaction)
-      .find({
-        where: {
-          date: getDateQuery(),
-        },
-      })
+    transactionsService
+      .getTransactionByDate(range)
       .then((res) => {
         setTransactions(res);
       })
@@ -87,15 +87,6 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
       .finally(() => {
         setLoading(false);
       });
-  };
-
-  const getDateQuery = () => {
-    const operationFn = range === "before" ? LessThan : MoreThanOrEqual;
-    const today = dayjs();
-    const dateOffset =
-      range === "week" ? today.subtract(7, "days") : today.subtract(1, "month");
-
-    return operationFn(dateOffset.toISOString());
   };
 
   return (

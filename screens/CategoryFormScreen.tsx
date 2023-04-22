@@ -6,7 +6,8 @@ import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
-import { Category, CategoryType, dataSource } from "../data";
+import { Category, CategoryType } from "../data";
+import * as categoryService from "../services/categoryService";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
@@ -18,6 +19,30 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
   const [icon, setIcon] = useState("");
   const [type, setType] = useState(CategoryType.expense);
 
+  const saveCategory = () => {
+    const category = new Category();
+    category.name = name;
+    category.icon = icon;
+    category.type = type;
+
+    categoryService
+      .createCategory(category)
+      .then((newCategory) => {
+        setCategories([newCategory, ...categories]);
+        snackRef.current?.showSnackMessage({
+          message: "Categoría creada correctamente",
+          type: "success",
+        });
+        navigation.goBack();
+      })
+      .catch((err) => {
+        snackRef.current?.showSnackMessage({
+          message: "Algo salió mal, intente de nuevo",
+          type: "error",
+        });
+        console.log("Failed to create Category!", err);
+      });
+  };
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -61,31 +86,7 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
           mode="contained-tonal"
           style={{ marginTop: 24 }}
           disabled={!name || !icon}
-          onPress={() => {
-            const category = new Category();
-            category.name = name;
-            category.icon = icon;
-            category.type = type;
-
-            dataSource
-              .getRepository(Category)
-              .save(category)
-              .then((newCategory) => {
-                setCategories([newCategory, ...categories]);
-                snackRef.current?.showSnackMessage({
-                  message: "Categoría creada correctamente",
-                  type: "success",
-                });
-                navigation.goBack();
-              })
-              .catch((err) => {
-                snackRef.current?.showSnackMessage({
-                  message: "Algo salió mal, intente de nuevo",
-                  type: "error",
-                });
-                console.log("Failed to create Category!", err);
-              });
-          }}
+          onPress={saveCategory}
         >
           Guardar
         </Button>

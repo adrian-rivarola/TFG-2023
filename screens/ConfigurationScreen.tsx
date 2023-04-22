@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { List } from "react-native-paper";
@@ -5,19 +6,13 @@ import { List } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import ReportService from "../data/classes/Report";
 import { clearAllData } from "../data/migrations";
 import { convertToCSV, saveCSV } from "../data/utils";
-
-type SnackOptions = {
-  visible: boolean;
-  message: string;
-  type: "error" | "success";
-};
+import * as transactionsService from "../services/transactionsService";
 
 const ConfigurationScreen = () => {
   const { confirmModalRef, snackRef } = useRefContext();
-  const { setCategories } = useMainContext();
+  const { resetState } = useMainContext();
   const {
     theme: { colors },
   } = useTheme();
@@ -31,10 +26,16 @@ const ConfigurationScreen = () => {
   });
 
   const exportCSV = async () => {
-    const reportService = new ReportService();
-    const transactions = await reportService.getTransactionsWithCategory();
+    const transactions = await transactionsService.getTransactions();
+    const cleanedTransactions = transactions.map((t) => ({
+      description: t.description,
+      amount: t.amount,
+      type: t.category.isExpense ? "Expense" : "Income",
+      category: t.category.name,
+      date: dayjs(t.date).format("YYYY-MM-DD"),
+    }));
 
-    const csvData = convertToCSV(transactions, [
+    const csvData = convertToCSV(cleanedTransactions, [
       "description",
       "amount",
       "type",
@@ -72,7 +73,7 @@ const ConfigurationScreen = () => {
       onConfirm: () => {
         clearAllData().then((deleted) => {
           if (deleted) {
-            setCategories([]);
+            resetState();
             snackRef.current?.showSnackMessage({
               message: "Los datos fueron eliminados correctamente",
               type: "success",
@@ -105,5 +106,3 @@ const ConfigurationScreen = () => {
 };
 
 export default ConfigurationScreen;
-
-const styles = StyleSheet.create({});

@@ -1,25 +1,22 @@
-import React, {
-  Dispatch,
-  Reducer,
-  useContext,
-  useEffect,
-  useReducer,
-} from "react";
-import { Budget, Category, Transaction, dataSource } from "../data";
+import React, { Reducer, useContext, useEffect, useReducer } from "react";
+
+import { Budget, Category, Transaction } from "../data";
+import * as budgetService from "../services/budgetService";
+import * as categoryService from "../services/categoryService";
+import * as reportService from "../services/reportService";
 
 interface MainContextValue {
   balance: number;
   allBudgets: Budget[];
   activeBudgets: Budget[];
   inactiveBudgets: Budget[];
-  transactions: Transaction[];
   categories: Category[];
   selectedCategory?: Category;
   setBalance(balance: number): void;
   selectCategory(category?: Category): void;
   setBudgets(budgets: Budget[]): void;
   setCategories(categories: Category[]): void;
-  setTransactions(transactions: Transaction[]): void;
+  resetState(): void;
 }
 
 const initialValue: MainContextValue = {
@@ -27,13 +24,12 @@ const initialValue: MainContextValue = {
   allBudgets: [],
   activeBudgets: [],
   inactiveBudgets: [],
-  transactions: [],
   categories: [],
+  resetState() {},
   setBalance() {},
   setBudgets() {},
   setCategories() {},
   selectCategory() {},
-  setTransactions() {},
 };
 
 export const MainContext = React.createContext(initialValue);
@@ -41,9 +37,9 @@ export const MainContext = React.createContext(initialValue);
 export const useMainContext = () => useContext(MainContext);
 
 type ActionType =
+  | { type: "reset-state" }
   | { type: "set-balance"; payload: number }
   | { type: "set-budgets"; payload: Budget[] }
-  | { type: "set-transactions"; payload: Transaction[] }
   | { type: "select-category"; payload: Category | undefined }
   | { type: "set-categories"; payload: Category[] };
 
@@ -61,11 +57,6 @@ const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
         activeBudgets: action.payload.filter((budget) => budget.isActive),
         inactiveBudgets: action.payload.filter((budget) => !budget.isActive),
       };
-    case "set-transactions":
-      return {
-        ...state,
-        transactions: action.payload,
-      };
     case "set-categories":
       return {
         ...state,
@@ -75,6 +66,17 @@ const mainReducer: Reducer<MainContextValue, ActionType> = (state, action) => {
       return {
         ...state,
         selectedCategory: action.payload,
+      };
+    case "reset-state":
+      return {
+        ...state,
+        balance: 0,
+        allBudgets: [],
+        activeBudgets: [],
+        inactiveBudgets: [],
+        transactions: [],
+        categories: [],
+        selectedCategory: undefined,
       };
   }
 };
@@ -87,13 +89,9 @@ export const MainContextProvider = ({
   const [state, dispatch] = useReducer(mainReducer, initialValue);
 
   useEffect(() => {
-    // get categories
-    const categoryRepository = dataSource.getRepository(Category);
-    categoryRepository.find().then(setCategories);
-
-    // get budgets
-    const budgetRepository = dataSource.getRepository(Budget);
-    budgetRepository.find().then(setBudgets);
+    categoryService.getCategories().then(setCategories);
+    budgetService.getBudgets().then(setBudgets);
+    reportService.getBalance().then(setBalance);
   }, []);
 
   const setBalance = (balance: number) => {
@@ -104,13 +102,12 @@ export const MainContextProvider = ({
     dispatch({ type: "set-budgets", payload: budgets });
   };
 
-  const setTransactions = (transactions: Transaction[]) => {
-    dispatch({ type: "set-transactions", payload: transactions });
-    updateBudgets();
-  };
-
   const setCategories = (categories: Category[]) => {
     dispatch({ type: "set-categories", payload: categories });
+  };
+
+  const resetState = () => {
+    dispatch({ type: "reset-state" });
   };
 
   const selectCategory = (category?: Category) => {
@@ -120,25 +117,15 @@ export const MainContextProvider = ({
     });
   };
 
-  const updateBudgets = async () => {
-    const updatedBudgets = await Promise.all(
-      state.activeBudgets.map(async (budget) => {
-        await budget.getTotalSpent();
-        return budget;
-      })
-    );
-    setBudgets(updatedBudgets);
-  };
-
   return (
     <MainContext.Provider
       value={{
         ...state,
-        setTransactions,
         setBudgets,
         setCategories,
         selectCategory,
         setBalance,
+        resetState,
       }}
     >
       {children}

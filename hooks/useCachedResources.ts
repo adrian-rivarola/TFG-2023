@@ -2,7 +2,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import runMigrations from "../data/migrations";
 import { dataSource } from "../data";
 
 export default function useCachedResources() {
@@ -16,9 +15,6 @@ export default function useCachedResources() {
 
         // initialize db connection (typeorm)
         await dataSource.initialize();
-
-        // run db migrations (expo-sqlite-orm)
-        await runMigrations();
 
         // Load fonts
         await Font.loadAsync({

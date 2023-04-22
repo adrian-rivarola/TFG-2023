@@ -14,28 +14,27 @@ import {
 } from "react-native";
 import { Button, Switch, Text, TextInput } from "react-native-paper";
 
+import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-
-import Layout from "../constants/Layout";
-import { Budget, dataSource } from "../data";
+import { Budget } from "../data";
+import * as budgetService from "../services/budgetService";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
-  const budgetRepository = dataSource.getRepository(Budget);
   const { snackRef } = useRefContext();
+  const { allBudgets, selectedCategory, selectCategory, setBudgets } =
+    useMainContext();
+  const { theme } = useTheme();
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [isActive, setIsActive] = useState(true);
-  const { allBudgets, selectedCategory, selectCategory, setBudgets } =
-    useMainContext();
-  const totalSpent = useRef<number>();
-  const { theme } = useTheme();
+  const totalSpent = useRef(0);
 
   const budgetId = route.params?.budgetId;
 
@@ -68,10 +67,10 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
     if (budgetId) {
       budget.id = budgetId;
-      budgetRepository
-        .update(budgetId, budget)
+      budgetService
+        .updateBudget(budgetId, budget)
         .then(() => {
-          budget.totalSpent = totalSpent.current || 0;
+          budget.totalSpent = totalSpent.current;
           setBudgets(allBudgets.map((b) => (b.id === budgetId ? budget : b)));
 
           snackRef.current?.showSnackMessage({
@@ -89,11 +88,10 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           console.log(`Failed to update budget with id: ${budgetId}`, err);
         });
     } else {
-      budgetRepository
-        .save(budget)
+      budgetService
+        .createBudget(budget)
         .then(async (newBudget) => {
-          // TODO: fix budgets exploding here
-          setBudgets([newBudget, ...allBudgets]);
+          setBudgets([...allBudgets, budget]);
 
           snackRef.current?.showSnackMessage({
             message: "Presupuesto creado correctamente",
@@ -156,20 +154,21 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
                 flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 4,
-                paddingVertical: 14,
+                paddingVertical: 10,
               }}
             >
               {selectedCategory?.id && (
                 <MaterialIcons
                   name={selectedCategory.icon.toLowerCase() as any}
                   color={theme.colors.text}
-                  size={16}
-                  style={{ marginStart: 16 }}
+                  size={24}
+                  style={{ marginStart: 8 }}
                 />
               )}
               <Text
                 style={{
-                  marginStart: 16,
+                  alignSelf: "center",
+                  marginStart: selectedCategory ? 8 : 16,
                   color: selectedCategory
                     ? theme.colors.text
                     : theme.colors.outline,

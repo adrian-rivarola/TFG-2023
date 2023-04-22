@@ -5,6 +5,7 @@ import {
   Entity,
   EntitySubscriberInterface,
   EventSubscriber,
+  InsertEvent,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,7 +13,7 @@ import {
 } from "typeorm";
 
 import { dataSource } from "../data-source";
-import { Category } from "./Category";
+import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
 
 @Entity("Budget")
@@ -85,8 +86,7 @@ export class BudgetSubscriber implements EntitySubscriberInterface<Budget> {
   listenTo() {
     return Budget;
   }
-
-  async afterLoad(budget: Budget): Promise<any | void> {
-    return budget.getTotalSpent();
+  async afterLoad(budget: any): Promise<any | void> {
+    await budget?.getTotalSpent?.();
   }
 }

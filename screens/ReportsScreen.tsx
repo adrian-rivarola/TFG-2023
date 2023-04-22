@@ -7,17 +7,29 @@ import { Text } from "react-native-paper";
 
 import Balance from "../components/Balance";
 import { useTheme } from "../context/ThemeContext";
-import ReportService from "../data/classes/Report";
 import { RootTabParamList } from "../types";
 import { CategoryType } from "../data";
+import * as reportService from "../services/reportService";
+import { useMainContext } from "../context/MainContext";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
+type CategotyChartData = {
+  name: string;
+  total: number;
+  color: string;
+  legendFontColor: string;
+  legendFontSize: number;
+};
 
 export default function ReportsScreen({ navigation, route }: ScreenProps) {
   const screenWidth = Dimensions.get("window").width;
-  const [expensePieChartData, setExpensePieChartData] = useState<any>([]);
-  const [incomePieChartData, setIncomePieChartData] = useState<any>([]);
-  const [balance, setBalance] = useState(0);
+  const [expensePieChartData, setExpensePieChartData] = useState<
+    CategotyChartData[]
+  >([]);
+  const [incomePieChartData, setIncomePieChartData] = useState<
+    CategotyChartData[]
+  >([]);
+  const { balance } = useMainContext();
   const { theme } = useTheme();
 
   const expenseColors = [
@@ -42,15 +54,13 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
   };
 
   useEffect(() => {
-    const reportService = new ReportService();
-    reportService.getBalance().then(setBalance);
     reportService.getCategoryTotals(CategoryType.expense).then((data) => {
       setExpensePieChartData(
         data.map((d, i) => ({
           name: d.category,
           total: d.total,
           color: expenseColors[i],
-          legendFontColor: "#7F7F7F",
+          legendFontColor: theme.colors.text,
           legendFontSize: 14,
         }))
       );
@@ -61,7 +71,7 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
           name: d.category,
           total: d.total,
           color: incomeColors[i],
-          legendFontColor: "#7F7F7F",
+          legendFontColor: theme.colors.text,
           legendFontSize: 14,
         }))
       );
@@ -88,6 +98,15 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
                 paddingLeft={"0"}
               />
             </View>
+            <Text
+              style={{ alignSelf: "center", marginTop: 5 }}
+              variant="bodyMedium"
+            >
+              Total de egresos: Gs.{" "}
+              {expensePieChartData
+                .reduce((a, b) => a + b.total, 0)
+                .toLocaleString()}
+            </Text>
           </>
         )}
         <View style={styles.mt2} />
@@ -107,6 +126,15 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
                 paddingLeft={"0"}
               />
             </View>
+            <Text
+              style={{ alignSelf: "center", marginTop: 5 }}
+              variant="bodyMedium"
+            >
+              Total de ingresos: Gs.{" "}
+              {incomePieChartData
+                .reduce((a, b) => a + b.total, 0)
+                .toLocaleString()}
+            </Text>
           </>
         )}
       </View>

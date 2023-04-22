@@ -84,7 +84,6 @@ export default function BottomTabNavigator() {
         component={TransactionsListScreen}
         options={{
           title: "Transacciones",
-          unmountOnBlur: true,
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -108,7 +107,6 @@ export default function BottomTabNavigator() {
         name="BudgetList"
         component={BudgetListScreen}
         options={{
-          unmountOnBlur: true,
           title: "Presupuestos",
           headerTitleContainerStyle: {
             paddingVertical: 8,

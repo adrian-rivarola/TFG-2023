@@ -51,7 +51,7 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
           <MaterialIcons
             name={cat.icon.toLowerCase() as any}
             color={colors.text}
-            size={16}
+            size={24}
             style={{ marginStart: 16 }}
           />
         )}
@@ -63,31 +63,38 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        {incomeCategories.length === 0 && expenseCategories.length === 0 && (
-          <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
-            Aún no tienes ninguna categoría
-          </Text>
-        )}
-        {expenseCategories.length > 0 && (
-          <List.Section
-            title="Egresos"
-            titleStyle={{
-              fontWeight: "bold",
-            }}
-          >
-            {expenseCategories.map(renderCategoryItem)}
-          </List.Section>
-        )}
-        {incomeCategories.length > 0 && (
-          <List.Section
-            title="Ingresos"
-            titleStyle={{
-              fontWeight: "bold",
-            }}
-          >
-            {incomeCategories.map(renderCategoryItem)}
-          </List.Section>
-        )}
+        <View
+          style={{
+            width: "100%",
+          }}
+        >
+          {incomeCategories.length === 0 && expenseCategories.length === 0 && (
+            <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+              Aún no tienes ninguna categoría
+            </Text>
+          )}
+          {expenseCategories.length > 0 && (
+            <List.Section
+              title="Egresos"
+              titleStyle={{
+                fontWeight: "bold",
+              }}
+            >
+              {expenseCategories.map(renderCategoryItem)}
+            </List.Section>
+          )}
+          {incomeCategories.length > 0 && (
+            <List.Section
+              title="Ingresos"
+              titleStyle={{
+                fontWeight: "bold",
+              }}
+            >
+              {incomeCategories.map(renderCategoryItem)}
+            </List.Section>
+          )}
+        </View>
+
         <Button
           mode="contained-tonal"
           style={{ marginTop: 16 }}
@@ -106,6 +113,6 @@ export default function CategorySelectScreen({ navigation }: ScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
+    alignItems: "center",
   },
 });

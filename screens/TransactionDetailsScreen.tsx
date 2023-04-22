@@ -8,9 +8,11 @@ import { Button, List, Text } from "react-native-paper";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import { Budget, Transaction, dataSource } from "../data";
+
+import { Budget, Transaction } from "../data";
+import * as budgetService from "../services/budgetService";
+import * as transactionsService from "../services/transactionsService";
 import { RootTabParamList } from "../types";
-import { LessThanOrEqual, MoreThan } from "typeorm";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -23,7 +25,6 @@ export default function TransactionDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const transactionRepository = dataSource.getRepository(Transaction);
   const [transaction, setTransaction] = useState<Transaction>();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const { activeBudgets, selectCategory } = useMainContext();
@@ -32,6 +33,7 @@ export default function TransactionDetailsScreen({
     theme: { colors },
   } = useTheme();
 
+  const { transactionId } = route.params;
   const category = transaction?.category;
   // const budgets = activeBudgets.filter(
   //   (b) =>
@@ -46,9 +48,7 @@ export default function TransactionDetailsScreen({
   }, []);
 
   const getTransaction = async () => {
-    const t = await transactionRepository.findOne({
-      where: { id: route.params.transactionId },
-    });
+    const t = await transactionsService.getTransactionById(transactionId);
 
     if (!t) {
       console.log(`Transaction not found!!!`);
@@ -57,18 +57,8 @@ export default function TransactionDetailsScreen({
     }
     setTransaction(t);
 
-    dataSource
-      .getRepository(Budget)
-      .find({
-        where: {
-          category: {
-            id: t.category.id,
-          },
-          isActive: true,
-          startDate: LessThanOrEqual(t.date),
-          endDate: MoreThan(t.date),
-        },
-      })
+    budgetService
+      .getBudgetsForTransaction(t.category.id, t.date)
       .then(setBudgets)
       .finally(() => {});
   };
@@ -83,22 +73,20 @@ export default function TransactionDetailsScreen({
   const deleteTransaction = () => {
     confirmModalRef.current?.showConfirmationModal({
       onConfirm: () => {
-        transactionRepository
-          .delete({ id: route.params.transactionId })
-          .then((deleted) => {
-            if (deleted.affected === 1) {
-              navigation.goBack();
-              snackRef.current?.showSnackMessage({
-                message: "La transacción fue eliminada correctamente",
-                type: "success",
-              });
-            } else {
-              snackRef.current?.showSnackMessage({
-                message: "Algo salío mal, intente nuevamente más tarde",
-                type: "error",
-              });
-            }
-          });
+        transactionsService.deleteTransaction(transactionId).then((deleted) => {
+          if (deleted) {
+            navigation.goBack();
+            snackRef.current?.showSnackMessage({
+              message: "La transacción fue eliminada correctamente",
+              type: "success",
+            });
+          } else {
+            snackRef.current?.showSnackMessage({
+              message: "Algo salío mal, intente nuevamente más tarde",
+              type: "error",
+            });
+          }
+        });
       },
     });
   };

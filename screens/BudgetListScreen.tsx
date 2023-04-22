@@ -1,13 +1,13 @@
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
 import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
-import { Budget, dataSource } from "../data";
+import { Budget } from "../data";
+import * as budgetService from "../services/budgetService";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
@@ -15,16 +15,18 @@ type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 export default function BudgetListScreen({ navigation }: ScreenProps) {
   const { activeBudgets, inactiveBudgets, setBudgets } = useMainContext();
   const [loading, setLoading] = useState(false);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    updateBudgets();
-  }, []);
+    if (isFocused) {
+      updateBudgets();
+    }
+  }, [isFocused]);
 
   const updateBudgets = () => {
     setLoading(true);
-    const budgetRepository = dataSource.getRepository(Budget);
-    budgetRepository
-      .find()
+    budgetService
+      .getBudgets()
       .then(setBudgets)
       .finally(() => setLoading(false));
   };
@@ -36,23 +38,30 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
       }
     >
       <View style={styles.container}>
-        {activeBudgets.length === 0 && inactiveBudgets.length === 0 && (
-          <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
-            Aún no tienes ningún presupuesto
-          </Text>
-        )}
-        {activeBudgets.length > 0 && (
-          <BudgetList
-            budgets={activeBudgets}
-            sectionTitle="Presupuestos activos"
-          />
-        )}
-        {inactiveBudgets.length > 0 && (
-          <BudgetList
-            budgets={inactiveBudgets}
-            sectionTitle="Presupuestos inactivos"
-          />
-        )}
+        <View
+          style={{
+            width: "100%",
+          }}
+        >
+          {activeBudgets.length === 0 && inactiveBudgets.length === 0 && (
+            <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+              Aún no tienes ningún presupuesto
+            </Text>
+          )}
+          {activeBudgets.length > 0 && (
+            <BudgetList
+              budgets={activeBudgets}
+              sectionTitle="Presupuestos activos"
+            />
+          )}
+          {inactiveBudgets.length > 0 && (
+            <BudgetList
+              budgets={inactiveBudgets}
+              sectionTitle="Presupuestos inactivos"
+            />
+          )}
+        </View>
+
         <Button
           mode="contained-tonal"
           style={{ marginTop: 16 }}
@@ -72,7 +81,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 14,
-    // alignItems: "center",
+    alignItems: "center",
   },
   header: {
     marginStart: 14,

@@ -8,7 +8,7 @@ import {
   Relation,
   UpdateDateColumn,
 } from "typeorm";
-import { Category } from "./Category";
+import type { Category } from "./Category";
 
 @Entity("Transaction")
 export class Transaction {

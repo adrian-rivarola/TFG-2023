@@ -1,5 +1,4 @@
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,12 +6,12 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from "typeorm";
-import type { Transaction } from "./Transaction";
 import type { Budget } from "./Budget";
+import type { Transaction } from "./Transaction";
 
 export enum CategoryType {
-  expense, // ->  0
-  income, //  ->  1
+  expense,
+  income,
 }
 
 @Entity("Category")

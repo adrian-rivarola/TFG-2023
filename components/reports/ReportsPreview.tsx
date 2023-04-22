@@ -8,7 +8,7 @@ import { ChartData } from "react-native-chart-kit/dist/HelperTypes";
 import { Button, Card, SegmentedButtons, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
-import ReportService from "../../data/classes/Report";
+import * as reportService from "../../services/reportService";
 
 type ReportsPreviewProps = {};
 type ReportOption = "week" | "month";
@@ -61,7 +61,6 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   };
 
   const getWeekData = async () => {
-    const reportService = new ReportService();
     const weekStart = dayjs().startOf("week");
     const weekDates: string[] = [];
 
@@ -88,7 +87,6 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   };
 
   const getMonthData = async () => {
-    const reportService = new ReportService();
     let monthStart = dayjs().startOf("month");
 
     // get first monday
@@ -101,13 +99,13 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
     for (let i = 0; i < 4; i++) {
       monthDates.push(monthStart.add(i, "weeks"));
     }
-    const monthData = await reportService.getSomething(
+    const monthData = await reportService.getMonthlyTotals(
       monthDates[0].format("YYYY-MM-DD")
     );
     const monthReportData = monthDates.map(
       (d) =>
         monthData.find((md) => md.weekStart === d.format("YYYY-MM-DD"))
-          ?.total_transactions || 0
+          ?.totalTransactions || 0
     );
     return {
       month: {

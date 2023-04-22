@@ -18,7 +18,8 @@ import Layout from "../constants/Layout";
 import { useMainContext } from "../context/MainContext";
 import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import { Transaction, dataSource } from "../data";
+import { Transaction } from "../data";
+import * as transactionsService from "../services/transactionsService";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<
@@ -30,7 +31,6 @@ export default function TransactionFormScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const transactionRepository = dataSource.getRepository(Transaction);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
@@ -41,8 +41,8 @@ export default function TransactionFormScreen({
 
   useEffect(() => {
     if (transactionId) {
-      transactionRepository
-        .findOne({ where: { id: transactionId } })
+      transactionsService
+        .getTransactionById(transactionId)
         .then((transaction) => {
           if (!transaction) {
             navigation.goBack();
@@ -98,16 +98,15 @@ export default function TransactionFormScreen({
   };
 
   const onSubmit = () => {
+    const transaction = new Transaction();
+    transaction.description = description;
+    transaction.amount = parseInt(amount, 10);
+    transaction.category = selectedCategory!;
+    transaction.date = date;
+
     if (transactionId) {
-      transactionRepository
-        .update(
-          { id: transactionId },
-          {
-            description,
-            amount: parseInt(amount, 10),
-            category: selectedCategory!,
-          }
-        )
+      transactionsService
+        .updateTransaction(transactionId, transaction)
         .then(() => {
           snackRef.current?.showSnackMessage({
             message: "Transacción actualizada",
@@ -127,14 +126,8 @@ export default function TransactionFormScreen({
           );
         });
     } else {
-      const transaction = new Transaction();
-      transaction.description = description;
-      transaction.amount = parseInt(amount, 10);
-      transaction.category = selectedCategory!;
-      transaction.date = date.toISOString();
-
-      transactionRepository
-        .save(transaction)
+      transactionsService
+        .createTransaction(transaction)
         .then(() => {
           snackRef.current?.showSnackMessage({
             message: "Transacción creada correctamente",
@@ -188,20 +181,21 @@ export default function TransactionFormScreen({
                 flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 4,
-                paddingVertical: 14,
+                paddingVertical: 10,
               }}
             >
               {selectedCategory?.id && (
                 <MaterialIcons
                   name={selectedCategory.icon.toLowerCase() as any}
                   color={theme.colors.text}
-                  size={16}
-                  style={{ marginStart: 16 }}
+                  size={24}
+                  style={{ marginStart: 8 }}
                 />
               )}
               <Text
                 style={{
-                  marginStart: 16,
+                  alignSelf: "center",
+                  marginStart: selectedCategory ? 8 : 16,
                   color: selectedCategory
                     ? theme.colors.text
                     : theme.colors.outline,
@@ -241,7 +235,6 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     flex: 1,
-    // alignSelf: "center",
     paddingVertical: 16,
     alignContent: "center",
     width: screenWidth - 100,
