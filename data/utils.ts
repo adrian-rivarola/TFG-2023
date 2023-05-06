@@ -1,13 +1,26 @@
+import * as DocumentPicker from "expo-document-picker";
 import {
   documentDirectory,
-  getContentUriAsync,
   readAsStringAsync,
   writeAsStringAsync,
 } from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 import { shareAsync } from "expo-sharing";
 import { Platform } from "react-native";
-import * as MediaLibrary from "expo-media-library";
-import * as DocumentPicker from "expo-document-picker";
+
+import { Budget, Category, Transaction } from "./index";
+
+export async function clearAllData() {
+  try {
+    await Budget.clear();
+    await Transaction.clear();
+    await Category.clear();
+    return true;
+  } catch (error) {
+    console.log("Failed to clear all data", error);
+    return false;
+  }
+}
 
 export function convertToCSV<T extends Record<string, string | number>>(
   objectsList: T[],

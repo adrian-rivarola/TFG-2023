@@ -1,13 +1,19 @@
 import { Dimensions, StyleSheet } from "react-native";
 import { Card, Title } from "react-native-paper";
 
-type BalanceProps = { balance: number };
+import { useGetBalance } from "../hooks/Report/useGetBalance";
 
-export default function Balance({ balance }: BalanceProps) {
+export default function Balance() {
+  const { data: balance, isLoading } = useGetBalance();
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <Card mode="outlined" style={styles.balanceContainer}>
       <Card.Content style={{ alignContent: "center" }}>
-        <Title>Balance: Gs. {balance.toLocaleString()}</Title>
+        <Title>Balance: {balance?.toLocaleString()} Gs.</Title>
       </Card.Content>
     </Card>
   );

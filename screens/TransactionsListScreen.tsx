@@ -1,5 +1,4 @@
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Dimensions,
   RefreshControl,
@@ -9,13 +8,11 @@ import {
 } from "react-native";
 import { Text } from "react-native-paper";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
-import { LessThan, MoreThanOrEqual } from "typeorm";
 
 import TransactionCard from "../components/transactions/TransactionCard";
 import { useTheme } from "../context/ThemeContext";
-import { Transaction } from "../data";
-import * as transactionsService from "../services/transactionsService";
-import { useIsFocused } from "@react-navigation/native";
+import { useGetTransactions } from "../hooks/Transaction/useGetTransactions";
+import { getDatesFromRange } from "../utils/dateUtils";
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
@@ -60,39 +57,24 @@ type TransactionsByDateProps = {
 };
 
 function TransactionsByDate({ range }: TransactionsByDateProps) {
-  const isFocused = useIsFocused();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const date = useMemo(() => getDatesFromRange(range), [range]);
+  const {
+    data: transactions,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetTransactions({
+    where: { date },
+  });
 
-  useEffect(() => {
-    if (isFocused) {
-      getTransactions();
-    }
-  }, [isFocused]);
-
-  const getTransactions = () => {
-    setLoading(true);
-
-    transactionsService
-      .getTransactionByDate(range)
-      .then((res) => {
-        setTransactions(res);
-      })
-      .catch((err) => {
-        setTransactions([]);
-        console.log(
-          `Failed to get transactions in range ${range}: ${JSON.stringify(err)}`
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  if (isError || !transactions) {
+    return null;
+  }
 
   return (
     <ScrollView
       refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={getTransactions} />
+        <RefreshControl refreshing={isFetching} onRefresh={refetch} />
       }
     >
       <View style={styles.container}>

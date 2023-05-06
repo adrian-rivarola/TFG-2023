@@ -11,23 +11,23 @@ import { Pressable } from "react-native";
 
 import ConfirmationModal from "../components/ConfirmationModal";
 import SnackbarMessage from "../components/SnackbarMessage";
-import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import ModalScreen from "../screens/ModalScreen";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import { RootStackParamList } from "../types";
 import BottomTabNavigator from "./BottomTabNavigator";
+import BudgetDetailsScreen from "../screens/BudgetDetailsScreen";
+import { IconButton } from "react-native-paper";
 // import LinkingConfiguration from "./LinkingConfiguration";
 
 export default function Navigation() {
   const { theme } = useTheme();
-  const { confirmModalRef, snackRef } = useRefContext();
 
   return (
     <NavigationContainer theme={theme}>
       <RootNavigator />
-      <ConfirmationModal ref={confirmModalRef} />
-      <SnackbarMessage ref={snackRef} />
+      <ConfirmationModal />
+      <SnackbarMessage />
     </NavigationContainer>
   );
 }

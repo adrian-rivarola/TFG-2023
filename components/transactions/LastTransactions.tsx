@@ -1,27 +1,16 @@
-import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
 import Layout from "../../constants/Layout";
-import { Transaction } from "../../data";
-import * as transactionsService from "../../services/transactionsService";
+import { useGetTransactions } from "../../hooks/Transaction/useGetTransactions";
 import TransactionCard from "./TransactionCard";
 
 export default function LastTransactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { data: transactions, isLoading } = useGetTransactions({ take: 3 });
 
-  useEffect(() => {
-    getLastTransactions();
-  }, []);
-
-  const getLastTransactions = () => {
-    transactionsService
-      .getTransactions({ take: 3 })
-      .then(setTransactions)
-      .catch((err) => {
-        console.log(`Failed to get transactions`, err);
-      });
-  };
+  if (isLoading || !transactions) {
+    return null;
+  }
 
   return (
     <View style={styles.transactionsContainer}>

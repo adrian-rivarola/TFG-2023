@@ -3,46 +3,48 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 
+import { MaterialIcons } from "@expo/vector-icons";
 import Layout from "../constants/Layout";
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
 import { Category, CategoryType } from "../data";
-import * as categoryService from "../services/categoryService";
+import { useCreateCategory } from "../hooks/Category/useCreateCategory";
+import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
 
 export default function CategoryFormScreen({ navigation }: ScreenProps) {
-  const { categories, setCategories } = useMainContext();
-  const { snackRef } = useRefContext();
+  const { mutateAsync } = useCreateCategory();
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [type, setType] = useState(CategoryType.expense);
 
   const saveCategory = () => {
-    const category = new Category();
-    category.name = name;
-    category.icon = icon;
-    category.type = type;
+    const category = Category.create({
+      name,
+      icon,
+      type,
+    });
 
-    categoryService
-      .createCategory(category)
-      .then((newCategory) => {
-        setCategories([newCategory, ...categories]);
-        snackRef.current?.showSnackMessage({
+    mutateAsync(category)
+      .then(() => {
+        showSnackMessage({
           message: "Categoría creada correctamente",
           type: "success",
         });
+
         navigation.goBack();
       })
       .catch((err) => {
-        snackRef.current?.showSnackMessage({
+        showSnackMessage({
           message: "Algo salió mal, intente de nuevo",
           type: "error",
         });
         console.log("Failed to create Category!", err);
       });
   };
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -80,10 +82,15 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
               onChangeText={(val) => setIcon(val)}
             />
           </View>
+          {icon.length > 0 && (
+            <View style={{ marginTop: 8 }}>
+              <MaterialIcons name={icon as any} size={24} color="black" />
+            </View>
+          )}
         </View>
 
         <Button
-          mode="contained-tonal"
+          mode="contained"
           style={{ marginTop: 24 }}
           disabled={!name || !icon}
           onPress={saveCategory}

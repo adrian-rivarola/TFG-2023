@@ -1,4 +1,6 @@
 import {
+  BaseEntity,
+  Between,
   Column,
   CreateDateColumn,
   Entity,
@@ -6,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from "typeorm";
-import type { Budget } from "./Budget";
 import type { Transaction } from "./Transaction";
 
 export enum CategoryType {
@@ -15,24 +16,26 @@ export enum CategoryType {
 }
 
 @Entity("Category")
-export class Category {
+export class Category extends BaseEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
-  @Column("varchar")
+  @Column("varchar", {
+    unique: true,
+    nullable: false,
+  })
   name: string;
 
   @Column("varchar")
   icon: string;
 
-  @Column("int")
+  @Column("int", {
+    nullable: false,
+  })
   type: number;
 
   @OneToMany("Transaction", "category")
   transactions: Relation<Transaction>[];
-
-  @OneToMany("Budget", "category")
-  budgets: Relation<Budget>[];
 
   @CreateDateColumn()
   createdAt: Date;

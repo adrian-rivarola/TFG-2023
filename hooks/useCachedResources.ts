@@ -1,11 +1,15 @@
 import { FontAwesome } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
-import { dataSource } from "../data";
+import { useEffect, useRef, useState } from "react";
+import { initiDB } from "../data";
+import { DataSource } from "typeorm";
+
+const DB_NAME = "mydb-orm-test.db";
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
+  const dataSource = useRef<DataSource | null>(null);
 
   // Load any resources or data that we need prior to rendering the app
   useEffect(() => {
@@ -13,8 +17,10 @@ export default function useCachedResources() {
       try {
         await SplashScreen.preventAutoHideAsync();
 
-        // initialize db connection (typeorm)
-        await dataSource.initialize();
+        // initialize db connection
+        if (!dataSource.current) {
+          dataSource.current = await initiDB(DB_NAME);
+        }
 
         // Load fonts
         await Font.loadAsync({

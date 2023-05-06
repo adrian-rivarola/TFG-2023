@@ -3,16 +3,23 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { List } from "react-native-paper";
 
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useQueryClient } from "react-query";
 import { useTheme } from "../context/ThemeContext";
-import { clearAllData } from "../data/migrations";
-import { convertToCSV, saveCSV } from "../data/utils";
-import * as transactionsService from "../services/transactionsService";
+import { Transaction } from "../data";
+import { clearAllData, convertToCSV, saveCSV } from "../data/utils";
+import { useModalStore } from "../store/modalStore";
+import { RootTabParamList } from "../types";
 
-const ConfigurationScreen = () => {
-  const { confirmModalRef, snackRef } = useRefContext();
-  const { resetState } = useMainContext();
+type ScreenProps = NativeStackScreenProps<RootTabParamList, "Configuration">;
+
+const ConfigurationScreen = ({ navigation }: ScreenProps) => {
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const showConfirmationModal = useModalStore(
+    (state) => state.showConfirmationModal
+  );
+  const queryClient = useQueryClient();
+
   const {
     theme: { colors },
   } = useTheme();
@@ -26,7 +33,7 @@ const ConfigurationScreen = () => {
   });
 
   const exportCSV = async () => {
-    const transactions = await transactionsService.getTransactions();
+    const transactions = await Transaction.find();
     const cleanedTransactions = transactions.map((t) => ({
       description: t.description,
       amount: t.amount,
@@ -47,18 +54,18 @@ const ConfigurationScreen = () => {
       const saved = await saveCSV("transactions.csv", csvData);
       if (saved) {
         // TODO: don't show this on iOS if share is canceled
-        snackRef.current?.showSnackMessage({
+        showSnackMessage({
           message: "El archivo fue exportado correctamente",
           type: "success",
         });
       } else {
-        snackRef.current?.showSnackMessage({
+        showSnackMessage({
           message: "No se pudo guardar el archivo",
           type: "error",
         });
       }
     } catch (err) {
-      snackRef.current?.showSnackMessage({
+      showSnackMessage({
         message: "Algo salió mal, por favor intente nuevamente",
         type: "error",
       });
@@ -66,20 +73,20 @@ const ConfigurationScreen = () => {
   };
 
   const clearData = async () => {
-    confirmModalRef.current?.showConfirmationModal({
+    showConfirmationModal({
       content:
         "Está seguro que quiere eliminar todos los datos registrados en esta aplicación?",
       confirmText: "Eliminar todo",
       onConfirm: () => {
         clearAllData().then((deleted) => {
           if (deleted) {
-            resetState();
-            snackRef.current?.showSnackMessage({
+            queryClient.resetQueries();
+            showSnackMessage({
               message: "Los datos fueron eliminados correctamente",
               type: "success",
             });
           } else {
-            snackRef.current?.showSnackMessage({
+            showSnackMessage({
               message: "Algo salío mal, intente nuevamente más tarde",
               type: "error",
             });
@@ -91,6 +98,13 @@ const ConfigurationScreen = () => {
 
   return (
     <View style={{ marginVertical: 8 }}>
+      <List.Item
+        title="TestComponents"
+        style={themedStyles.categoryItem}
+        onPress={() => {
+          navigation.navigate("TestComponents");
+        }}
+      />
       <List.Item
         title="Exportar datos a CSV"
         style={themedStyles.categoryItem}

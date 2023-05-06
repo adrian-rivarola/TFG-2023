@@ -1,74 +1,45 @@
 import React, { useImperativeHandle, useState } from "react";
 import { Button, Dialog, Paragraph, Portal } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
+import { useModalStore } from "../store/modalStore";
 
-type ModalOptions = {
-  content: string;
-  confirmText: string;
-  cancelText: string;
-  onConfirm?(): void;
-};
+export default function ConfirmationModal() {
+  const modalOptions = useModalStore((state) => state.modalOptions);
+  const closeConfirmationModal = useModalStore(
+    (state) => state.closeConfirmationModal
+  );
 
-export type ModalRef = {
-  showConfirmationModal(opts: Partial<ModalOptions>): void;
-};
-
-const ConfirmationModal: React.ForwardRefRenderFunction<ModalRef, {}> = (
-  props,
-  ref
-) => {
-  useImperativeHandle(ref, () => ({
-    showConfirmationModal,
-  }));
-
-  const initialModalOptions: ModalOptions = {
-    content: "Está seguro que desea eliminar este elemento?",
-    confirmText: "Eliminar",
-    cancelText: "Cancelar",
-  };
-
-  const [visible, setVisible] = useState(false);
-  const [modalOptions, setModalOptions] = useState(initialModalOptions);
   const {
     theme: { colors },
   } = useTheme();
 
-  const hideDialog = () => setVisible(false);
-  const showConfirmationModal = (modalOptions: Partial<ModalOptions>) => {
-    setModalOptions({
-      ...initialModalOptions,
-      ...modalOptions,
-    });
-    setVisible(true);
-  };
-
   return (
     <Portal>
-      <Dialog visible={visible} onDismiss={hideDialog}>
+      <Dialog
+        visible={!!modalOptions.visible}
+        onDismiss={closeConfirmationModal}
+      >
         <Dialog.Content>
-          <Paragraph>{modalOptions.content}</Paragraph>
+          <Paragraph>
+            {modalOptions.content ||
+              "Está seguro que desea eliminar este elemento"}
+          </Paragraph>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button
-            onPress={() => {
-              hideDialog();
-            }}
-          >
-            {modalOptions.cancelText}
+          <Button onPress={closeConfirmationModal}>
+            {modalOptions.cancelText || "Cancelar"}
           </Button>
           <Button
             textColor={colors.error}
             onPress={() => {
-              hideDialog();
+              closeConfirmationModal();
               modalOptions.onConfirm?.();
             }}
           >
-            {modalOptions.confirmText}
+            {modalOptions.confirmText || "Confirmar"}
           </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
   );
-};
-
-export default React.forwardRef(ConfirmationModal);
+}

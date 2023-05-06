@@ -17,17 +17,16 @@ import BudgetListScreen from "../screens/BudgetListScreen";
 import CategoryFormScreen from "../screens/CategoryFormScreen";
 import CategorySelectScreen from "../screens/CategorySelectScreen";
 
+import TestComponents from "../screens/TestComponents";
 import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
 import TransactionFormScreen from "../screens/TransactionFormScreen";
 import TransactionsListScreen from "../screens/TransactionsListScreen";
+import { useQueryClient } from "react-query";
 
-type TabBarIconProps = {
-  name: React.ComponentProps<typeof MaterialIcons>["name"];
-  color: string;
-  size?: number;
-};
-
-function TabBarIcon({ size, ...props }: TabBarIconProps) {
+function TabBarIcon({
+  size,
+  ...props
+}: React.ComponentProps<typeof MaterialIcons>) {
   return (
     <MaterialIcons size={size || 30} style={{ marginBottom: -3 }} {...props} />
   );
@@ -36,6 +35,7 @@ function TabBarIcon({ size, ...props }: TabBarIconProps) {
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 export default function BottomTabNavigator() {
+  const queryClient = useQueryClient();
   const { isDarkTheme, toggleThemeType } = useTheme();
 
   const tabBarItems: Array<keyof RootTabParamList> = [
@@ -47,7 +47,18 @@ export default function BottomTabNavigator() {
   ];
 
   const headerRight = () => (
-    <Pressable onPress={toggleThemeType} style={{ marginEnd: 16 }}>
+    <Pressable
+      style={{ marginEnd: 16 }}
+      onPress={() => {
+        // toggleThemeType();
+
+        // List all active react-query caches
+        const queryCache = queryClient.getQueryCache();
+        const liveQueriesOnScreen = queryCache.findAll();
+        const queryKeys = liveQueriesOnScreen.map((query) => query.queryKey);
+        console.log(queryKeys.map((q) => JSON.stringify(q)).join("\n"));
+      }}
+    >
       <MaterialIcons
         size={24}
         color={isDarkTheme ? "white" : "black"}
@@ -72,7 +83,6 @@ export default function BottomTabNavigator() {
         component={HomeScreen}
         options={{
           title: "Inicio",
-          unmountOnBlur: true,
           headerTitleContainerStyle: {
             paddingVertical: 8,
           },
@@ -187,7 +197,6 @@ export default function BottomTabNavigator() {
         name="BudgetDetails"
         component={BudgetDetailsScreen}
         options={({ navigation }) => ({
-          unmountOnBlur: true,
           title: "Detalles de Presupuesto",
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
@@ -197,7 +206,7 @@ export default function BottomTabNavigator() {
       <BottomTab.Screen
         name="TransactionEditForm"
         component={TransactionFormScreen}
-        getId={({ params }) => params?.transactionId.toString()}
+        getId={({ params }) => params?.transactionId?.toString()}
         options={({ navigation }) => ({
           title: "Editar Transacción",
           headerLeft: () => (
@@ -210,6 +219,17 @@ export default function BottomTabNavigator() {
         component={ReportsScreen}
         options={({ navigation }) => ({
           title: "Reportes",
+          unmountOnBlur: true,
+          headerLeft: () => (
+            <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          ),
+        })}
+      />
+      <BottomTab.Screen
+        name="TestComponents"
+        component={TestComponents}
+        options={({ navigation }) => ({
+          title: "Test",
           unmountOnBlur: true,
           headerLeft: () => (
             <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />

@@ -1,17 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-
-import { Budget, Transaction } from "../data";
-import * as budgetService from "../services/budgetService";
-import * as transactionsService from "../services/transactionsService";
+import { Budget } from "../data";
+import { useGetTransactionById } from "../hooks/Transaction/UseGetTransactionById";
+import { useDeleteTransaction } from "../hooks/Transaction/useDeleteTransaction";
+import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<
@@ -25,43 +23,20 @@ export default function TransactionDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const [transaction, setTransaction] = useState<Transaction>();
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const { activeBudgets, selectCategory } = useMainContext();
-  const { confirmModalRef, snackRef } = useRefContext();
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const showConfirmationModal = useModalStore(
+    (state) => state.showConfirmationModal
+  );
+  const { transactionId } = route.params;
+  const { data: transaction } = useGetTransactionById(transactionId);
+  const { mutateAsync } = useDeleteTransaction();
+
+  const category = transaction?.category;
+  const budgets = transaction?.budgets ?? [];
+
   const {
     theme: { colors },
   } = useTheme();
-
-  const { transactionId } = route.params;
-  const category = transaction?.category;
-  // const budgets = activeBudgets.filter(
-  //   (b) =>
-  //     b.category.id === category?.id &&
-  //     b.isActive &&
-  //     dayjs(transaction?.date).isAfter(b.startDate) &&
-  //     dayjs(transaction?.date).isBefore(b.endDate)
-  // );
-
-  useEffect(() => {
-    getTransaction();
-  }, []);
-
-  const getTransaction = async () => {
-    const t = await transactionsService.getTransactionById(transactionId);
-
-    if (!t) {
-      console.log(`Transaction not found!!!`);
-      navigation.goBack();
-      return;
-    }
-    setTransaction(t);
-
-    budgetService
-      .getBudgetsForTransaction(t.category.id, t.date)
-      .then(setBudgets)
-      .finally(() => {});
-  };
 
   const themedStyles = StyleSheet.create({
     bordered: {
@@ -71,17 +46,17 @@ export default function TransactionDetailsScreen({
   });
 
   const deleteTransaction = () => {
-    confirmModalRef.current?.showConfirmationModal({
+    showConfirmationModal({
       onConfirm: () => {
-        transactionsService.deleteTransaction(transactionId).then((deleted) => {
+        mutateAsync(transactionId).then((deleted) => {
           if (deleted) {
             navigation.goBack();
-            snackRef.current?.showSnackMessage({
+            showSnackMessage({
               message: "La transacción fue eliminada correctamente",
               type: "success",
             });
           } else {
-            snackRef.current?.showSnackMessage({
+            showSnackMessage({
               message: "Algo salío mal, intente nuevamente más tarde",
               type: "error",
             });
@@ -109,9 +84,7 @@ export default function TransactionDetailsScreen({
           <Text
             variant="headlineSmall"
             style={{
-              color: category.isExpense
-                ? colors.expenseColor
-                : colors.incomeColor,
+              color: category.isExpense ? colors.expense : colors.income,
             }}
           >
             Gs. {transaction.amount.toLocaleString()}
@@ -139,12 +112,11 @@ export default function TransactionDetailsScreen({
         <View style={styles.description}>
           <Button
             onPress={() => {
-              selectCategory(category);
               navigation.navigate("TransactionEditForm", {
                 transactionId: transaction.id,
               });
             }}
-            mode="contained-tonal"
+            mode="contained"
             icon="pencil"
           >
             Editar
@@ -152,7 +124,7 @@ export default function TransactionDetailsScreen({
           <Button
             onPress={deleteTransaction}
             style={styles.ms2}
-            mode="contained-tonal"
+            mode="contained"
             icon="delete"
           >
             Eliminar
@@ -160,28 +132,30 @@ export default function TransactionDetailsScreen({
         </View>
       </View>
 
-      <View style={styles.budgetInfo}>
-        <Text style={[styles.ms2, styles.mb2]} variant="titleMedium">
-          Presupuestos:
-        </Text>
-        {budgets.length > 0 ? (
-          budgets.map((b) => (
-            <BudgetCard
-              key={b.id}
-              budget={b}
-              onPress={() => {
-                navigation.navigate("BudgetDetails", {
-                  budgetId: b.id,
-                });
-              }}
-            />
-          ))
-        ) : (
-          <Text style={{ padding: 16 }}>
-            Esta categoría no pertenece a ningún presupuesto.
+      {transaction.category.isExpense && (
+        <View style={styles.budgetInfo}>
+          <Text style={[styles.ms2, styles.mb2]} variant="titleMedium">
+            Presupuestos:
           </Text>
-        )}
-      </View>
+          {budgets.length > 0 ? (
+            budgets.map((b) => (
+              <BudgetCard
+                key={b.id}
+                budget={b}
+                onPress={() => {
+                  navigation.navigate("BudgetDetails", {
+                    budgetId: b.id,
+                  });
+                }}
+              />
+            ))
+          ) : (
+            <Text style={{ padding: 16 }}>
+              Esta categoría no pertenece a ningún presupuesto.
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 }

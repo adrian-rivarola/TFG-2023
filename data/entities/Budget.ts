@@ -1,46 +1,52 @@
 import dayjs from "dayjs";
 import {
+  BaseEntity,
+  Between,
   Column,
   CreateDateColumn,
   Entity,
   EntitySubscriberInterface,
   EventSubscriber,
-  InsertEvent,
-  JoinColumn,
-  ManyToOne,
+  In,
+  JoinTable,
+  LessThanOrEqual,
+  ManyToMany,
+  MoreThan,
   PrimaryGeneratedColumn,
-  Relation,
 } from "typeorm";
 
-import { dataSource } from "../data-source";
 import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
 
 @Entity("Budget")
-export class Budget {
+export class Budget extends BaseEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
   @Column("varchar")
   description: string;
 
-  @Column("float")
+  @Column("float", {
+    nullable: false,
+  })
   maxAmount: number;
 
-  @Column("date")
+  @Column("date", {
+    nullable: false,
+  })
   startDate: Date;
 
-  @Column("date")
+  @Column("date", {
+    nullable: false,
+  })
   endDate: Date;
 
-  @Column("boolean")
-  isActive: boolean;
-
-  @ManyToOne("Category", "budgets", {
+  @ManyToMany("Category", {
     eager: true,
+    nullable: false,
   })
-  @JoinColumn()
-  category: Relation<Category>;
+  @JoinTable({ name: "BudgetCategories" })
+  categories: Category[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -49,6 +55,7 @@ export class Budget {
   updatedAt: Date;
 
   totalSpent: number;
+  transactions?: Transaction[];
 
   get dateInfo() {
     const start = dayjs(this.startDate);
@@ -61,23 +68,57 @@ export class Budget {
     }
   }
 
-  async getTotalSpent() {
-    const { category, startDate, endDate } = this;
+  static async findTransactions(budget: Budget): Promise<Transaction[]> {
+    const { categories, startDate, endDate } = budget;
+
+    return Transaction.find({
+      relations: ["category"],
+      order: {
+        date: "DESC",
+      },
+      where: {
+        category: {
+          id: In(categories.map((c) => c.id)),
+        },
+        date: Between(startDate, endDate),
+      },
+    });
+  }
+
+  static findBudgetsForTransaction(transaction: Transaction) {
+    const { category, date } = transaction;
+
+    return Budget.find({
+      where: {
+        categories: {
+          id: In([category.id]),
+        },
+        startDate: LessThanOrEqual(date),
+        endDate: MoreThan(date),
+      },
+    });
+  }
+
+  static async getTotalSpent(budget: Budget): Promise<number> {
+    const { categories, startDate, endDate } = budget;
+
+    if (categories === undefined) return 0;
+
     try {
-      const { totalSpent } = await dataSource
-        .createQueryBuilder(Transaction, "Transaction")
+      const { totalSpent } = await Transaction.createQueryBuilder("transaction")
         .select("SUM(amount)", "totalSpent")
-        .where("categoryId = :id", { id: category.id })
+        .where("categoryId IN (:...ids)", { ids: categories.map((c) => c.id) })
         .andWhere("date BETWEEN :startDate AND :endDate", {
           startDate,
           endDate,
         })
         .getRawOne();
 
-      this.totalSpent = totalSpent || 0;
+      return totalSpent || 0;
     } catch (err) {
-      console.log("Failed to get total spend of budget: ", this.id);
+      console.log("Failed to get total spend of budget:", err);
     }
+    return 0;
   }
 }
 
@@ -86,7 +127,9 @@ export class BudgetSubscriber implements EntitySubscriberInterface<Budget> {
   listenTo() {
     return Budget;
   }
-  async afterLoad(budget: any): Promise<any | void> {
-    await budget?.getTotalSpent?.();
+
+  async afterLoad(budget: Budget): Promise<any | void> {
+    budget.totalSpent = await Budget.getTotalSpent(budget);
+    // console.log("afterLoad", { ...budget, totalSpent: budget.totalSpent });
   }
 }

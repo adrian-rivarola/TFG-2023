@@ -13,3 +13,28 @@ export const dataSource = new DataSource({
   entities: [Category, Budget, Transaction],
   subscribers: [BudgetSubscriber],
 });
+
+/**
+ * initialize the database
+ */
+export function initiDB(dbName: string) {
+  const dataSource = new DataSource({
+    type: "expo",
+    database: dbName,
+    driver: require("expo-sqlite"),
+    logging: false,
+    synchronize: true,
+    entities: [Category, Budget, Transaction],
+    subscribers: [BudgetSubscriber],
+  });
+
+  return dataSource.initialize();
+}
+
+/**
+ * close the database, optionally removing the file
+ */
+export async function closeDB(dataSource: DataSource, removeFile = false) {
+  await dataSource.dropDatabase();
+  return await dataSource.destroy();
+}

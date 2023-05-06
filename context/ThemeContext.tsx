@@ -17,8 +17,8 @@ export type Theme = NavigationTheme &
   PaperTheme & {
     // add here extra theme props
     colors: MD3Colors & {
-      expenseColor: string;
-      incomeColor: string;
+      expense: string;
+      income: string;
     };
   };
 
@@ -28,8 +28,8 @@ const lightTheme: Theme = {
   colors: {
     ...NavigationDefaultTheme.colors,
     ...PaperDefaultTheme.colors,
-    expenseColor: "rgb(186, 26, 26)",
-    incomeColor: "rgb(1, 110, 33)",
+    expense: "rgb(186, 26, 26)",
+    income: "rgb(1, 110, 33)",
   },
 };
 
@@ -39,8 +39,8 @@ const darkTheme: Theme = {
   colors: {
     ...NavigationDarkTheme.colors,
     ...PaperDarkTheme.colors,
-    expenseColor: "rgb(255, 180, 171)",
-    incomeColor: "rgb(126, 219, 127)",
+    expense: "rgb(255, 180, 171)",
+    income: "rgb(126, 219, 127)",
   },
 };
 

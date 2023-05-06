@@ -1,12 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import RNDateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -14,12 +10,14 @@ import {
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
+import { useQueryClient } from "react-query";
+import { DatePicker } from "../components/DatePicker";
 import Layout from "../constants/Layout";
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import { Transaction } from "../data";
-import * as transactionsService from "../services/transactionsService";
+import { useCreateTransaction } from "../hooks/Transaction/useCreateTransaction";
+import { useCategoryStore } from "../store";
+import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<
@@ -31,119 +29,70 @@ export default function TransactionFormScreen({
   navigation,
   route,
 }: ScreenProps) {
+  const queryClient = useQueryClient();
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const [selectedCategories, setSelectedCategories] = useCategoryStore(
+    (state) => [state.selectedCategories, state.setSelectedCategories]
+  );
+  const { mutateAsync: createTransaction } = useCreateTransaction();
+
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
-  const { selectedCategory, selectCategory } = useMainContext();
-  const { snackRef } = useRefContext();
-  const { themeType, theme } = useTheme();
+
+  const { theme } = useTheme();
   const transactionId = route.params?.transactionId;
 
   useEffect(() => {
     if (transactionId) {
-      transactionsService
-        .getTransactionById(transactionId)
-        .then((transaction) => {
-          if (!transaction) {
-            navigation.goBack();
-            console.log(`Transaction with id ${transactionId} not found`);
-          } else {
-            setAmount(transaction.amount.toString());
-            setDescription(transaction.description);
-            setDate(dayjs(transaction.date).toDate());
-          }
-        });
+      Transaction.findOneByOrFail({ id: transactionId! }).then(onSuccess);
     }
-  }, [transactionId]);
+  }, [route]);
 
-  const datePicker =
-    Platform.OS === "ios" ? (
-      <RNDateTimePicker
-        themeVariant={themeType}
-        value={date}
-        onChange={(e, newDate) => newDate && setDate(newDate)}
-        style={{
-          alignSelf: "flex-start",
-        }}
-      />
-    ) : (
-      <TouchableWithoutFeedback
-        onPress={() => {
-          DateTimePickerAndroid.open({
-            value: date,
-            onChange: (e, newDate) => {
-              newDate && setDate(newDate);
-            },
-          });
-        }}
-      >
-        <Text
-          style={{
-            borderColor: theme.colors.secondary,
-            borderWidth: 1,
-            borderRadius: 4,
-            padding: 14,
-          }}
-        >
-          {date.toDateString()}
-        </Text>
-      </TouchableWithoutFeedback>
-    );
+  function onSuccess({ amount, description, date, category }: Transaction) {
+    setAmount(amount.toString());
+    setDate(dayjs(date).toDate());
+    setDescription(description);
+    setSelectedCategories([category]);
+  }
 
   const resetFields = () => {
     setAmount("");
     setDescription("");
-    selectCategory(undefined);
+    setSelectedCategories([]);
     setDate(new Date());
   };
 
   const onSubmit = () => {
-    const transaction = new Transaction();
-    transaction.description = description;
-    transaction.amount = parseInt(amount, 10);
-    transaction.category = selectedCategory!;
-    transaction.date = date;
+    const transaction = Transaction.create({
+      id: transactionId,
+      description,
+      amount: parseInt(amount, 10),
+      category: selectedCategories[0],
+      date: date,
+    });
 
-    if (transactionId) {
-      transactionsService
-        .updateTransaction(transactionId, transaction)
-        .then(() => {
-          snackRef.current?.showSnackMessage({
-            message: "Transacción actualizada",
-            type: "success",
-          });
-          navigation.goBack();
-          resetFields();
-        })
-        .catch((err) => {
-          snackRef.current?.showSnackMessage({
-            message: "Algo salió mal, intente de nuevo",
-            type: "error",
-          });
-          console.log(
-            `Failed to update transaction with id: ${transactionId}`,
-            err
-          );
+    createTransaction(transaction)
+      .then((t) => {
+        const message = transactionId
+          ? "Transacción actualizada"
+          : "Transacción creada";
+        showSnackMessage({
+          message,
+          type: "success",
         });
-    } else {
-      transactionsService
-        .createTransaction(transaction)
-        .then(() => {
-          snackRef.current?.showSnackMessage({
-            message: "Transacción creada correctamente",
-            type: "success",
-          });
-          navigation.navigate("TransactionList");
-          resetFields();
-        })
-        .catch((err) => {
-          snackRef.current?.showSnackMessage({
-            message: "Algo salió mal, intente de nuevo",
-            type: "error",
-          });
-          console.log("Failed to create Transaction!", err);
+
+        resetFields();
+        navigation.navigate("TransactionDetails", {
+          transactionId: t.id,
         });
-    }
+      })
+      .catch((err) => {
+        showSnackMessage({
+          message: "Error al guardar la transacción",
+          type: "error",
+        });
+      });
   };
 
   return (
@@ -184,9 +133,9 @@ export default function TransactionFormScreen({
                 paddingVertical: 10,
               }}
             >
-              {selectedCategory?.id && (
+              {selectedCategories.length > 0 && (
                 <MaterialIcons
-                  name={selectedCategory.icon.toLowerCase() as any}
+                  name={selectedCategories[0].icon.toLowerCase() as any}
                   color={theme.colors.text}
                   size={24}
                   style={{ marginStart: 8 }}
@@ -195,28 +144,29 @@ export default function TransactionFormScreen({
               <Text
                 style={{
                   alignSelf: "center",
-                  marginStart: selectedCategory ? 8 : 16,
-                  color: selectedCategory
+                  marginStart: selectedCategories.length ? 8 : 16,
+                  color: selectedCategories.length
                     ? theme.colors.text
                     : theme.colors.outline,
                 }}
               >
-                {!selectedCategory
+                {!selectedCategories.length
                   ? "Seleccionar categoría"
-                  : selectedCategory.name}
+                  : selectedCategories[0].name}
               </Text>
             </View>
           </TouchableWithoutFeedback>
         </View>
+
         <View style={styles.inputGroup}>
           <Text style={{ marginBottom: 8 }}>Fecha:</Text>
-          {datePicker}
+          <DatePicker date={date} onChange={setDate} />
         </View>
 
         <Button
-          mode="contained-tonal"
+          mode="contained"
           style={{ marginTop: 24 }}
-          disabled={!amount || !description || !selectedCategory}
+          disabled={!amount || !description || !selectedCategories.length}
           onPress={onSubmit}
         >
           Guardar

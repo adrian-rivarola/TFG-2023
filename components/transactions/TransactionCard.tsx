@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import dayjs from "dayjs";
 import { View } from "react-native";
 import { Card, Text } from "react-native-paper";
@@ -18,9 +18,7 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
     theme: { colors },
   } = useTheme();
   const { category } = transaction;
-  const amountColor = category.isExpense
-    ? colors.expenseColor
-    : colors.incomeColor;
+  const amountColor = category.isExpense ? colors.expense : colors.income;
 
   return (
     <Card

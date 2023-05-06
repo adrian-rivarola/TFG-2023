@@ -1,16 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 
 import TransactionCard from "../components/transactions/TransactionCard";
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
-import { Transaction } from "../data";
-import * as budgetService from "../services/budgetService";
-import * as transactionsService from "../services/transactionsService";
+import { useDeleteBudget } from "../hooks/Budget/useDeleteBudget";
+import { useGetBudgetsById } from "../hooks/Budget/useGetBudgetById";
+import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
@@ -21,50 +19,31 @@ export default function BudgetDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const { allBudgets, setBudgets } = useMainContext();
-  const { confirmModalRef, snackRef } = useRefContext();
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const showConfirmationModal = useModalStore(
+    (state) => state.showConfirmationModal
+  );
   const {
     theme: { colors },
   } = useTheme();
 
-  const budget = allBudgets.find(
-    (budget) => budget.id === route.params.budgetId
-  );
-  const category = budget?.category;
-
-  useEffect(() => {
-    if (budget) {
-      budget.getTotalSpent();
-      transactionsService
-        .getTransactionsByCategory(
-          budget.category.id,
-          budget.startDate,
-          budget.endDate
-        )
-        .then(setTransactions)
-        .catch((err) => {
-          console.error("Failed to get transactions: ", err);
-        });
-    } else {
-      console.warn("Budget not found!");
-      navigation.goBack();
-    }
-  }, []);
+  const { mutateAsync } = useDeleteBudget();
+  const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
+  const { categories = [], transactions = [] } = budget || {};
 
   const deleteBudget = () => {
-    confirmModalRef.current?.showConfirmationModal({
+    showConfirmationModal({
       onConfirm: () => {
-        budgetService.deleteBudget(budget!.id).then((deleted) => {
+        mutateAsync(budget!.id).then((deleted) => {
           if (deleted) {
-            setBudgets(allBudgets.filter((b) => b.id !== budget!.id));
-            navigation.goBack();
-            snackRef.current?.showSnackMessage({
-              message: "La transacción fue eliminada correctamente",
+            showSnackMessage({
+              message: "El presupuesto fue eliminada correctamente",
               type: "success",
             });
+
+            navigation.goBack();
           } else {
-            snackRef.current?.showSnackMessage({
+            showSnackMessage({
               message: "Algo salío mal, intente nuevamente más tarde",
               type: "error",
             });
@@ -81,7 +60,7 @@ export default function BudgetDetailsScreen({
     },
   });
 
-  if (!budget || !category) {
+  if (isLoading || !budget) {
     return null;
   }
 
@@ -110,15 +89,19 @@ export default function BudgetDetailsScreen({
             </Text>
           </View>
 
-          <View style={styles.description}>
-            <MaterialIcons
-              name={category.icon.toLowerCase() as MaterialIconName}
-              color={colors.text}
-              size={24}
-            />
-            <Text variant="bodyLarge" style={styles.ms2}>
-              {category?.name}
-            </Text>
+          <View style={styles.categoriesContainer}>
+            {categories.map((category) => (
+              <View style={styles.description} key={category.id}>
+                <MaterialIcons
+                  name={category.icon.toLowerCase() as MaterialIconName}
+                  color={colors.text}
+                  size={24}
+                />
+                <Text variant="bodyLarge" style={styles.ms2}>
+                  {category?.name}
+                </Text>
+              </View>
+            ))}
           </View>
 
           <View style={styles.description}>
@@ -135,11 +118,9 @@ export default function BudgetDetailsScreen({
           <View style={styles.description}>
             <Button
               onPress={() => {
-                navigation.navigate("BudgetForm", {
-                  budgetId: budget.id,
-                });
+                navigation.navigate("BudgetForm", { budgetId: budget.id });
               }}
-              mode="contained-tonal"
+              mode="contained"
               icon="pencil"
             >
               Editar
@@ -147,7 +128,7 @@ export default function BudgetDetailsScreen({
             <Button
               onPress={deleteBudget}
               style={styles.ms2}
-              mode="contained-tonal"
+              mode="contained"
               icon="delete"
             >
               Eliminar
@@ -160,7 +141,7 @@ export default function BudgetDetailsScreen({
             Transacciones incluidas en este presupuesto:
           </Text>
 
-          {transactions.length > 0 ? (
+          {transactions && transactions.length > 0 ? (
             transactions.map((t) => (
               <TransactionCard key={t.id} transaction={t} />
             ))
@@ -207,6 +188,12 @@ const styles = StyleSheet.create({
   },
   budgetCard: {
     marginTop: 16,
+  },
+  categoriesContainer: {
+    marginVertical: 16,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    paddingBottom: 16,
   },
 });
 

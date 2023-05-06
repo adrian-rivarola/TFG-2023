@@ -1,48 +1,14 @@
-import React, { useImperativeHandle, useState } from "react";
-import {
-  Button,
-  Dialog,
-  Paragraph,
-  Portal,
-  Snackbar,
-} from "react-native-paper";
+import { Snackbar } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
+import { useModalStore } from "../store/modalStore";
 
-type SnackOptions = {
-  confirmText?: string;
-  message: string;
-  type: "success" | "error";
-};
+export default function SnackbarMessage() {
+  const snackOptions = useModalStore((state) => state.snackOptions);
+  const hideSnackMessage = useModalStore((state) => state.hideSnackMessage);
 
-export type SnackRef = {
-  showSnackMessage(opts: SnackOptions): void;
-};
-
-const SnackbarMessage: React.ForwardRefRenderFunction<SnackRef, {}> = (
-  props,
-  ref
-) => {
-  useImperativeHandle(ref, () => ({
-    showSnackMessage,
-  }));
-
-  const initialSnackOptions: SnackOptions = {
-    message: "Está seguro que desea eliminar este elemento?",
-    confirmText: "Ok",
-    type: "success",
-  };
-
-  const [visible, setVisible] = useState(false);
-  const [snackOptions, setSnackOptions] = useState(initialSnackOptions);
   const {
     theme: { colors },
   } = useTheme();
-
-  const hideSnack = () => setVisible(false);
-  const showSnackMessage = (snackOptions: SnackOptions) => {
-    setSnackOptions(snackOptions);
-    setVisible(true);
-  };
 
   return (
     <Snackbar
@@ -50,18 +16,16 @@ const SnackbarMessage: React.ForwardRefRenderFunction<SnackRef, {}> = (
         backgroundColor:
           snackOptions.type === "error" ? colors.error : colors.onSurface,
       }}
-      visible={visible}
-      onDismiss={() => setVisible(false)}
+      visible={!!snackOptions.visible}
+      onDismiss={hideSnackMessage}
       theme={{ colors: { inversePrimary: colors.onPrimary } }}
       duration={4000}
       action={{
         label: "OK",
-        onPress: hideSnack,
+        onPress: hideSnackMessage,
       }}
     >
       {snackOptions.message}
     </Snackbar>
   );
-};
-
-export default React.forwardRef(SnackbarMessage);
+}

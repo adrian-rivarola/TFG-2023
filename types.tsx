@@ -9,6 +9,7 @@ import {
   NavigatorScreenParams,
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { Budget } from "./data";
 
 declare global {
   namespace ReactNavigation {
@@ -20,6 +21,9 @@ export type RootStackParamList = {
   Root: NavigatorScreenParams<RootTabParamList> | undefined;
   Modal: undefined;
   NotFound: undefined;
+  BudgetDetails: {
+    budgetId: number;
+  };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
@@ -33,10 +37,14 @@ export type RootTabParamList = {
   Configuration: undefined;
 
   ReportsScreen: undefined;
-  CategorySelect: undefined;
+  CategorySelect:
+    | {
+        multiple: boolean;
+      }
+    | undefined;
   CategoryForm: undefined;
   TransactionEditForm: {
-    transactionId: number;
+    transactionId: number | undefined;
   };
   BudgetForm:
     | undefined
@@ -49,6 +57,7 @@ export type RootTabParamList = {
   BudgetDetails: {
     budgetId: number;
   };
+  TestComponents: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> =

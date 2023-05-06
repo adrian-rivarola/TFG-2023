@@ -7,10 +7,9 @@ import { Text } from "react-native-paper";
 
 import Balance from "../components/Balance";
 import { useTheme } from "../context/ThemeContext";
-import { RootTabParamList } from "../types";
-import { CategoryType } from "../data";
+import { CategoryType, Transaction } from "../data";
 import * as reportService from "../services/reportService";
-import { useMainContext } from "../context/MainContext";
+import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
 type CategotyChartData = {
@@ -22,14 +21,12 @@ type CategotyChartData = {
 };
 
 export default function ReportsScreen({ navigation, route }: ScreenProps) {
-  const screenWidth = Dimensions.get("window").width;
   const [expensePieChartData, setExpensePieChartData] = useState<
     CategotyChartData[]
   >([]);
   const [incomePieChartData, setIncomePieChartData] = useState<
     CategotyChartData[]
   >([]);
-  const { balance } = useMainContext();
   const { theme } = useTheme();
 
   const expenseColors = [
@@ -52,9 +49,14 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
     labelColor: () => theme.colors.text,
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
+  const screenWidth = Dimensions.get("window").width;
 
   useEffect(() => {
-    reportService.getCategoryTotals(CategoryType.expense).then((data) => {
+    Transaction.getTotalsByCategoryType(
+      CategoryType.expense,
+      "2023-01-01",
+      "2023-12-31"
+    ).then((data) => {
       setExpensePieChartData(
         data.map((d, i) => ({
           name: d.category,
@@ -65,7 +67,11 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
         }))
       );
     });
-    reportService.getCategoryTotals(CategoryType.income).then((data) => {
+    Transaction.getTotalsByCategoryType(
+      CategoryType.income,
+      "2023-01-01",
+      "2023-12-31"
+    ).then((data) => {
       setIncomePieChartData(
         data.map((d, i) => ({
           name: d.category,
@@ -81,7 +87,7 @@ export default function ReportsScreen({ navigation, route }: ScreenProps) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Balance balance={balance} />
+        <Balance />
         {expensePieChartData && (
           <>
             <Text style={[styles.ms2, styles.mt2]} variant="titleSmall">

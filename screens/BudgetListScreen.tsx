@@ -1,40 +1,27 @@
-import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
-import { useMainContext } from "../context/MainContext";
 import { useTheme } from "../context/ThemeContext";
 import { Budget } from "../data";
-import * as budgetService from "../services/budgetService";
+import { useGetBudgets } from "../hooks/Budget/useGetBudgets";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 
 export default function BudgetListScreen({ navigation }: ScreenProps) {
-  const { activeBudgets, inactiveBudgets, setBudgets } = useMainContext();
-  const [loading, setLoading] = useState(false);
-  const isFocused = useIsFocused();
+  const { data: budgets, isLoading, isError, refetch } = useGetBudgets();
 
-  useEffect(() => {
-    if (isFocused) {
-      updateBudgets();
-    }
-  }, [isFocused]);
-
-  const updateBudgets = () => {
-    setLoading(true);
-    budgetService
-      .getBudgets()
-      .then(setBudgets)
-      .finally(() => setLoading(false));
-  };
+  if (isError || !budgets) {
+    return null;
+  }
 
   return (
     <ScrollView
       refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={updateBudgets} />
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
     >
       <View style={styles.container}>
@@ -43,27 +30,17 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
             width: "100%",
           }}
         >
-          {activeBudgets.length === 0 && inactiveBudgets.length === 0 && (
+          {budgets.length === 0 ? (
             <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
               Aún no tienes ningún presupuesto
             </Text>
-          )}
-          {activeBudgets.length > 0 && (
-            <BudgetList
-              budgets={activeBudgets}
-              sectionTitle="Presupuestos activos"
-            />
-          )}
-          {inactiveBudgets.length > 0 && (
-            <BudgetList
-              budgets={inactiveBudgets}
-              sectionTitle="Presupuestos inactivos"
-            />
+          ) : (
+            <BudgetList budgets={budgets} sectionTitle="Presupuestos activos" />
           )}
         </View>
 
         <Button
-          mode="contained-tonal"
+          mode="contained"
           style={{ marginTop: 16 }}
           icon="plus"
           onPress={() => {
@@ -114,34 +91,25 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
         fontWeight: "bold",
       }}
     >
-      {budgets.length > 0 ? (
-        budgets.map((budget) => {
-          return (
-            <List.Item
-              key={budget.id}
-              onPress={() => {
-                navigation.navigate("Root", {
-                  screen: "BudgetDetails",
-                  params: {
-                    budgetId: budget.id,
-                  },
-                });
-              }}
-              title={budget.description}
-              description={budget.dateInfo}
-              descriptionStyle={{ marginTop: 4 }}
-              right={() => {
-                return <Text>Gs. {budget.totalSpent.toLocaleString()}</Text>;
-              }}
-              style={themedStyles.budgetItem}
-            />
-          );
-        })
-      ) : (
-        <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
-          No hay presupuestos activos :(
-        </Text>
-      )}
+      {budgets.map((budget) => {
+        return (
+          <List.Item
+            key={budget.id}
+            onPress={() => {
+              navigation.navigate("BudgetDetails", {
+                budgetId: budget.id,
+              });
+            }}
+            title={budget.description}
+            description={budget.dateInfo}
+            descriptionStyle={{ marginTop: 4 }}
+            right={() => {
+              return <Text>Gs. {budget.totalSpent.toLocaleString()}</Text>;
+            }}
+            style={themedStyles.budgetItem}
+          />
+        );
+      })}
     </List.Section>
   );
 }

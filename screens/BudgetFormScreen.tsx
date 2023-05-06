@@ -1,113 +1,92 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import RNDateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, Switch, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 
+import { DatePicker } from "../components/DatePicker";
 import Layout from "../constants/Layout";
-import { useMainContext } from "../context/MainContext";
-import { useRefContext } from "../context/RefContext";
 import { useTheme } from "../context/ThemeContext";
 import { Budget } from "../data";
-import * as budgetService from "../services/budgetService";
+import { useCreateBudget } from "../hooks/Budget/useCreateBudget";
+import { useCategoryStore } from "../store";
+import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
+import { useQuery } from "react-query";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
-  const { snackRef } = useRefContext();
-  const { allBudgets, selectedCategory, selectCategory, setBudgets } =
-    useMainContext();
   const { theme } = useTheme();
+  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const [selectedCategories, setSelectedCategories] = useCategoryStore(
+    (state) => [state.selectedCategories, state.setSelectedCategories]
+  );
+
+  const { mutateAsync } = useCreateBudget();
+
+  const budgetId = route.params?.budgetId;
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [isActive, setIsActive] = useState(true);
-  const totalSpent = useRef(0);
 
-  const budgetId = route.params?.budgetId;
-
-  useEffect(() => {
-    if (budgetId) {
-      const budget = allBudgets.find((b) => b.id === budgetId);
-      if (budget) {
-        setDescription(budget.description);
-        setMaxAmount(budget.maxAmount.toString());
-        setStartDate(dayjs(budget.startDate).toDate());
-        setEndDate(dayjs(budget.endDate).toDate());
-        setIsActive(budget.isActive);
-        selectCategory(budget.category);
-        totalSpent.current = budget.totalSpent;
-      } else {
+  useQuery(
+    ["budgets-edit", budgetId],
+    () => Budget.findOneByOrFail({ id: budgetId }),
+    {
+      enabled: !!budgetId,
+      onSuccess,
+      onError: (err) => {
+        console.log(`Transaction with id ${budgetId} not found`);
         navigation.goBack();
-        console.log(`Budget with id ${budgetId} not found`);
-      }
+      },
     }
-  }, [budgetId]);
+  );
+
+  function onSuccess(budget: Budget) {
+    setDescription(budget.description);
+    setMaxAmount(budget.maxAmount.toString());
+    setStartDate(dayjs(budget.startDate).toDate());
+    setEndDate(dayjs(budget.endDate).toDate());
+    setSelectedCategories(budget.categories);
+  }
 
   const onSubmit = () => {
-    const budget = new Budget();
-    budget.description = description;
-    budget.maxAmount = parseInt(maxAmount, 10);
-    budget.category = selectedCategory!;
-    budget.startDate = startDate;
-    budget.endDate = endDate;
-    budget.isActive = isActive;
-
-    if (budgetId) {
-      budget.id = budgetId;
-      budgetService
-        .updateBudget(budgetId, budget)
-        .then(() => {
-          budget.totalSpent = totalSpent.current;
-          setBudgets(allBudgets.map((b) => (b.id === budgetId ? budget : b)));
-
-          snackRef.current?.showSnackMessage({
-            message: "Presupuesto actualizado correctamente",
-            type: "success",
-          });
-          navigation.goBack();
-          resetForm();
-        })
-        .catch((err) => {
-          snackRef.current?.showSnackMessage({
-            message: "Algo salió mal, intente de nuevo",
-            type: "error",
-          });
-          console.log(`Failed to update budget with id: ${budgetId}`, err);
+    const budget = Budget.create({
+      description: description,
+      maxAmount: parseInt(maxAmount, 10),
+      categories: selectedCategories,
+      startDate: startDate,
+      endDate: endDate,
+      id: budgetId,
+    });
+    mutateAsync(budget)
+      .then(() => {
+        const message = budgetId
+          ? "Presupuesto actualizado correctamente"
+          : "Presupuesto creado correctamente";
+        showSnackMessage({
+          message,
+          type: "success",
         });
-    } else {
-      budgetService
-        .createBudget(budget)
-        .then(async (newBudget) => {
-          setBudgets([...allBudgets, budget]);
 
-          snackRef.current?.showSnackMessage({
-            message: "Presupuesto creado correctamente",
-            type: "success",
-          });
-          navigation.navigate("BudgetList");
-          resetForm();
-        })
-        .catch((err) => {
-          snackRef.current?.showSnackMessage({
-            message: "Algo salió mal, intente de nuevo",
-            type: "error",
-          });
-          console.log("Failed to create Budget!", err);
+        navigation.goBack();
+        resetForm();
+      })
+      .catch((err) => {
+        showSnackMessage({
+          message: "Algo salió mal, intente de nuevo",
+          type: "error",
         });
-    }
+        console.error(err);
+      });
   };
 
   const resetForm = () => {
@@ -115,8 +94,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
     setMaxAmount("");
     setStartDate(new Date());
     setEndDate(new Date());
-    setIsActive(true);
-    selectCategory(undefined);
+    setSelectedCategories([]);
   };
 
   return (
@@ -143,9 +121,12 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
         <View style={styles.inputGroup}>
           <Text>Categoría:</Text>
+          {/* TODO: move to it's own component */}
           <TouchableWithoutFeedback
             onPress={() => {
-              navigation.navigate("CategorySelect");
+              navigation.navigate("CategorySelect", {
+                multiple: true,
+              });
             }}
           >
             <View
@@ -157,9 +138,9 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
                 paddingVertical: 10,
               }}
             >
-              {selectedCategory?.id && (
+              {selectedCategories.length === 1 && (
                 <MaterialIcons
-                  name={selectedCategory.icon.toLowerCase() as any}
+                  name={selectedCategories[0].icon.toLowerCase() as any}
                   color={theme.colors.text}
                   size={24}
                   style={{ marginStart: 8 }}
@@ -168,15 +149,17 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
               <Text
                 style={{
                   alignSelf: "center",
-                  marginStart: selectedCategory ? 8 : 16,
-                  color: selectedCategory
+                  marginStart: selectedCategories.length ? 8 : 16,
+                  color: selectedCategories.length
                     ? theme.colors.text
                     : theme.colors.outline,
                 }}
               >
-                {!selectedCategory
+                {selectedCategories.length === 0
                   ? "Seleccionar categoría"
-                  : selectedCategory.name}
+                  : selectedCategories.length === 1
+                  ? selectedCategories[0].name
+                  : `${selectedCategories.map((c) => c.name).join(", ")}`}
               </Text>
             </View>
           </TouchableWithoutFeedback>
@@ -184,36 +167,26 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
         <View style={styles.inputGroup}>
           <Text>Fecha de inicio:</Text>
-          <DatePicker value={startDate} onChange={(val) => setStartDate(val)} />
+          <DatePicker
+            // maxDate={endDate}
+            date={startDate}
+            onChange={(val) => setStartDate(val)}
+          />
         </View>
 
         <View style={styles.inputGroup}>
           <Text>Fecha de fin:</Text>
           <DatePicker
-            value={endDate}
-            minDate={startDate}
+            date={endDate}
+            // minDate={startDate}
             onChange={(val) => setEndDate(val)}
           />
         </View>
 
-        <View
-          style={[
-            styles.inputGroup,
-            { flexDirection: "row", alignItems: "center" },
-          ]}
-        >
-          <Text>Activado:</Text>
-          <Switch
-            value={isActive}
-            onValueChange={setIsActive}
-            style={{ marginStart: 8 }}
-          />
-        </View>
-
         <Button
-          mode="contained-tonal"
+          mode="contained"
           style={{ marginTop: 24 }}
-          disabled={!description || !maxAmount || !selectedCategory}
+          disabled={!description || !maxAmount || !selectedCategories.length}
           onPress={onSubmit}
         >
           Guardar
@@ -238,47 +211,3 @@ const styles = StyleSheet.create({
     width: screenWidth - 100,
   },
 });
-
-type DatePickerProps = {
-  value: Date;
-  minDate?: Date;
-  onChange(val: Date): void;
-};
-function DatePicker({ value, minDate, onChange }: DatePickerProps) {
-  const { theme, themeType } = useTheme();
-
-  return Platform.OS === "ios" ? (
-    <RNDateTimePicker
-      minimumDate={minDate}
-      themeVariant={themeType}
-      value={value}
-      onChange={(e, newDate) => newDate && onChange(newDate)}
-      style={{
-        alignSelf: "flex-start",
-      }}
-    />
-  ) : (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        DateTimePickerAndroid.open({
-          value,
-          minimumDate: minDate,
-          onChange: (e, newDate) => {
-            newDate && onChange(newDate);
-          },
-        });
-      }}
-    >
-      <Text
-        style={{
-          borderColor: theme.colors.secondary,
-          borderWidth: 1,
-          borderRadius: 4,
-          padding: 14,
-        }}
-      >
-        {value.toDateString()}
-      </Text>
-    </TouchableWithoutFeedback>
-  );
-}
