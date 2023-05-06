@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import { Budget } from "../../data";
+import { TRANSACTIONS_QUERY_KEY } from "../transaction/useGetTransactions";
 import { BUDGETS_QUERY_KEY } from "./useGetBudgets";
-import { TRANSACTIONS_QUERY_KEY } from "../Transaction/useGetTransactions";
 
 export function useDeleteBudget() {
   const queryCache = useQueryClient();

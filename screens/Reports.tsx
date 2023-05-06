@@ -8,7 +8,6 @@ import { Text } from "react-native-paper";
 import Balance from "../components/Balance";
 import { useTheme } from "../context/ThemeContext";
 import { CategoryType, Transaction } from "../data";
-import * as reportService from "../services/reportService";
 import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
@@ -20,7 +19,7 @@ type CategotyChartData = {
   legendFontSize: number;
 };
 
-export default function ReportsScreen({ navigation, route }: ScreenProps) {
+export default function Reports({ navigation, route }: ScreenProps) {
   const [expensePieChartData, setExpensePieChartData] = useState<
     CategotyChartData[]
   >([]);

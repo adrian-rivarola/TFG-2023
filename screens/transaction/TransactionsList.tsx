@@ -9,10 +9,10 @@ import {
 import { Text } from "react-native-paper";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 
-import TransactionCard from "../components/transactions/TransactionCard";
-import { useTheme } from "../context/ThemeContext";
-import { useGetTransactions } from "../hooks/Transaction/useGetTransactions";
-import { getDatesFromRange } from "../utils/dateUtils";
+import TransactionCard from "../../components/transactions/TransactionCard";
+import { useTheme } from "../../context/ThemeContext";
+import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
+import { getDatesFromRange } from "../../utils/dateUtils";
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,

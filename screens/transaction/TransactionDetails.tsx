@@ -5,12 +5,12 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
-import { useTheme } from "../context/ThemeContext";
-import { Budget } from "../data";
-import { useGetTransactionById } from "../hooks/Transaction/UseGetTransactionById";
-import { useDeleteTransaction } from "../hooks/Transaction/useDeleteTransaction";
-import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
+import { useTheme } from "../../context/ThemeContext";
+import { Budget } from "../../data";
+import { useGetTransactionById } from "../../hooks/transaction/UseGetTransactionById";
+import { useDeleteTransaction } from "../../hooks/transaction/useDeleteTransaction";
+import { useModalStore } from "../../store/modalStore";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,

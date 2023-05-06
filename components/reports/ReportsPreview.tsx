@@ -6,8 +6,8 @@ import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { Button, Card, SegmentedButtons, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
-import { useMonthTotals } from "../../hooks/Report/useMonthTotals";
-import { useWeekTotals } from "../../hooks/Report/useWeekTotals";
+import { useMonthTotals } from "../../hooks/report/useMonthTotals";
+import { useWeekTotals } from "../../hooks/report/useWeekTotals";
 
 type ReportsPreviewProps = {};
 type ReportOption = "week" | "month";

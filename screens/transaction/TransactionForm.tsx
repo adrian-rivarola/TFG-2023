@@ -10,15 +10,14 @@ import {
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
-import { useQueryClient } from "react-query";
-import { DatePicker } from "../components/DatePicker";
-import Layout from "../constants/Layout";
-import { useTheme } from "../context/ThemeContext";
-import { Transaction } from "../data";
-import { useCreateTransaction } from "../hooks/Transaction/useCreateTransaction";
-import { useCategoryStore } from "../store";
-import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
+import { DatePicker } from "../../components/DatePicker";
+import Layout from "../../constants/Layout";
+import { useTheme } from "../../context/ThemeContext";
+import { Transaction } from "../../data";
+import { useSaveTransaction } from "../../hooks/transaction/useSaveTransaction";
+import { useCategoryStore } from "../../store";
+import { useModalStore } from "../../store/modalStore";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<
   RootTabParamList,
@@ -29,27 +28,33 @@ export default function TransactionFormScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const queryClient = useQueryClient();
+  const { theme } = useTheme();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
   const [selectedCategories, setSelectedCategories] = useCategoryStore(
     (state) => [state.selectedCategories, state.setSelectedCategories]
   );
-  const { mutateAsync: createTransaction } = useCreateTransaction();
+  const { mutateAsync: saveTransaction } = useSaveTransaction();
 
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
 
-  const { theme } = useTheme();
   const transactionId = route.params?.transactionId;
 
   useEffect(() => {
     if (transactionId) {
-      Transaction.findOneByOrFail({ id: transactionId! }).then(onSuccess);
+      Transaction.findOneByOrFail({ id: transactionId! }).then(
+        onTransactionLoad
+      );
     }
   }, [route]);
 
-  function onSuccess({ amount, description, date, category }: Transaction) {
+  function onTransactionLoad({
+    amount,
+    description,
+    date,
+    category,
+  }: Transaction) {
     setAmount(amount.toString());
     setDate(dayjs(date).toDate());
     setDescription(description);
@@ -72,7 +77,7 @@ export default function TransactionFormScreen({
       date: date,
     });
 
-    createTransaction(transaction)
+    saveTransaction(transaction)
       .then((t) => {
         const message = transactionId
           ? "Transacción actualizada"

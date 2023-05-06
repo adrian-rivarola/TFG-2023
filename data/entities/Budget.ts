@@ -105,14 +105,10 @@ export class Budget extends BaseEntity {
     if (categories === undefined) return 0;
 
     try {
-      const { totalSpent } = await Transaction.createQueryBuilder("transaction")
-        .select("SUM(amount)", "totalSpent")
-        .where("categoryId IN (:...ids)", { ids: categories.map((c) => c.id) })
-        .andWhere("date BETWEEN :startDate AND :endDate", {
-          startDate,
-          endDate,
-        })
-        .getRawOne();
+      const totalSpent = await Transaction.sum("amount", {
+        category: In(categories.map((c) => c.id)),
+        date: Between(startDate, endDate),
+      });
 
       return totalSpent || 0;
     } catch (err) {

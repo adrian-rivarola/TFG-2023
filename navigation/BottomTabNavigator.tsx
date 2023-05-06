@@ -3,25 +3,26 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 import { Pressable } from "react-native";
 import { IconButton } from "react-native-paper";
+import { useQueryClient } from "react-query";
 import { useTheme } from "../context/ThemeContext";
 import { RootTabParamList } from "../types";
 
-import ConfigurationScreen from "../screens/ConfigurationScreen";
-import HomeScreen from "../screens/HomeScreen";
-import ReportsScreen from "../screens/ReportsScreen";
+import ConfigurationScreen from "../screens/Configuration";
+import Home from "../screens/Home";
+import Reports from "../screens/Reports";
 
-import BudgetDetailsScreen from "../screens/BudgetDetailsScreen";
-import BudgetFormScreen from "../screens/BudgetFormScreen";
-import BudgetListScreen from "../screens/BudgetListScreen";
+import BudgetDetailsScreen from "../screens/budget/BudgetDetails";
+import BudgetFormScreen from "../screens/budget/BudgetForm";
+import BudgetListScreen from "../screens/budget/BudgetList";
 
-import CategoryFormScreen from "../screens/CategoryFormScreen";
-import CategorySelectScreen from "../screens/CategorySelectScreen";
+import CategoryForm from "../screens/category/CategoryForm";
+import CategorySelect from "../screens/category/CategorySelect";
+
+import TransactionDetailsScreen from "../screens/transaction/TransactionDetails";
+import TransactionFormScreen from "../screens/transaction/TransactionForm";
+import TransactionsListScreen from "../screens/transaction/TransactionsList";
 
 import TestComponents from "../screens/TestComponents";
-import TransactionDetailsScreen from "../screens/TransactionDetailsScreen";
-import TransactionFormScreen from "../screens/TransactionFormScreen";
-import TransactionsListScreen from "../screens/TransactionsListScreen";
-import { useQueryClient } from "react-query";
 
 function TabBarIcon({
   size,
@@ -80,7 +81,7 @@ export default function BottomTabNavigator() {
     >
       <BottomTab.Screen
         name="Home"
-        component={HomeScreen}
+        component={Home}
         options={{
           title: "Inicio",
           headerTitleContainerStyle: {
@@ -142,7 +143,7 @@ export default function BottomTabNavigator() {
       {/* Don't show on bottom tab */}
       <BottomTab.Screen
         name="CategorySelect"
-        component={CategorySelectScreen}
+        component={CategorySelect}
         options={({ navigation }) => ({
           title: "Seleccionar Categoría",
           headerLeft: () =>
@@ -156,7 +157,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="CategoryForm"
-        component={CategoryFormScreen}
+        component={CategoryForm}
         options={({ navigation }) => ({
           title: "Crear Categoría",
           unmountOnBlur: true,
@@ -216,7 +217,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="ReportsScreen"
-        component={ReportsScreen}
+        component={Reports}
         options={({ navigation }) => ({
           title: "Reportes",
           unmountOnBlur: true,

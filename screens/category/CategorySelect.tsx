@@ -4,18 +4,15 @@ import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Checkbox, List, Text } from "react-native-paper";
 
-import { useTheme } from "../context/ThemeContext";
-import { Category } from "../data";
-import { useGetCategories } from "../hooks/Category/useGetCategories";
-import { useCategoryStore } from "../store";
-import { RootTabParamList } from "../types";
+import { useTheme } from "../../context/ThemeContext";
+import { Category } from "../../data";
+import { useCategoryStore } from "../../store";
+import { RootTabParamList } from "../../types";
+import { useGetCategories } from "../../hooks/category/useGetCategories";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategorySelect">;
 
-export default function CategorySelectScreen({
-  navigation,
-  route,
-}: ScreenProps) {
+export default function CategorySelect({ navigation, route }: ScreenProps) {
   const { data: categories, isLoading } = useGetCategories();
   const [selectedCategories, setSelectedCategories] = useCategoryStore(
     (state) => [state.selectedCategories, state.setSelectedCategories]

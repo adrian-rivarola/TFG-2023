@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
 import Layout from "../../constants/Layout";
-import { useGetTransactions } from "../../hooks/Transaction/useGetTransactions";
+import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
 import TransactionCard from "./TransactionCard";
 
 export default function LastTransactions() {

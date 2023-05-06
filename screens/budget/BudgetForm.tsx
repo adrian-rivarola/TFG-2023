@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -10,15 +10,15 @@ import {
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
-import { DatePicker } from "../components/DatePicker";
-import Layout from "../constants/Layout";
-import { useTheme } from "../context/ThemeContext";
-import { Budget } from "../data";
-import { useCreateBudget } from "../hooks/Budget/useCreateBudget";
-import { useCategoryStore } from "../store";
-import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
 import { useQuery } from "react-query";
+import { DatePicker } from "../../components/DatePicker";
+import Layout from "../../constants/Layout";
+import { useTheme } from "../../context/ThemeContext";
+import { Budget } from "../../data";
+import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
+import { useCategoryStore } from "../../store";
+import { useModalStore } from "../../store/modalStore";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
 
@@ -29,7 +29,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
     (state) => [state.selectedCategories, state.setSelectedCategories]
   );
 
-  const { mutateAsync } = useCreateBudget();
+  const { mutateAsync: saveBudget } = useSaveBudget();
 
   const budgetId = route.params?.budgetId;
   const [description, setDescription] = useState("");
@@ -42,7 +42,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
     () => Budget.findOneByOrFail({ id: budgetId }),
     {
       enabled: !!budgetId,
-      onSuccess,
+      onSuccess: onBudgetLoad,
       onError: (err) => {
         console.log(`Transaction with id ${budgetId} not found`);
         navigation.goBack();
@@ -50,7 +50,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
     }
   );
 
-  function onSuccess(budget: Budget) {
+  function onBudgetLoad(budget: Budget) {
     setDescription(budget.description);
     setMaxAmount(budget.maxAmount.toString());
     setStartDate(dayjs(budget.startDate).toDate());
@@ -67,7 +67,8 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
       endDate: endDate,
       id: budgetId,
     });
-    mutateAsync(budget)
+
+    saveBudget(budget)
       .then(() => {
         const message = budgetId
           ? "Presupuesto actualizado correctamente"

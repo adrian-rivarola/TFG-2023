@@ -1,33 +1,33 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, RadioButton, Text, TextInput } from "react-native-paper";
 
-import { MaterialIcons } from "@expo/vector-icons";
-import Layout from "../constants/Layout";
-import { Category, CategoryType } from "../data";
-import { useCreateCategory } from "../hooks/Category/useCreateCategory";
-import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
+import Layout from "../../constants/Layout";
+import { Category, CategoryType } from "../../data";
+import { useSaveCategory } from "../../hooks/category/useSaveCategory";
+import { useModalStore } from "../../store/modalStore";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
 
-export default function CategoryFormScreen({ navigation }: ScreenProps) {
-  const { mutateAsync } = useCreateCategory();
+export default function CategoryForm({ navigation }: ScreenProps) {
+  const { mutateAsync: saveCategory } = useSaveCategory();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [type, setType] = useState(CategoryType.expense);
 
-  const saveCategory = () => {
+  const onSubmit = () => {
     const category = Category.create({
       name,
       icon,
       type,
     });
 
-    mutateAsync(category)
+    saveCategory(category)
       .then(() => {
         showSnackMessage({
           message: "Categoría creada correctamente",
@@ -93,7 +93,7 @@ export default function CategoryFormScreen({ navigation }: ScreenProps) {
           mode="contained"
           style={{ marginTop: 24 }}
           disabled={!name || !icon}
-          onPress={saveCategory}
+          onPress={onSubmit}
         >
           Guardar
         </Button>

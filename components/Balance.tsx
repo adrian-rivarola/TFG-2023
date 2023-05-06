@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet } from "react-native";
 import { Card, Title } from "react-native-paper";
 
-import { useGetBalance } from "../hooks/Report/useGetBalance";
+import { useGetBalance } from "../hooks/report/useGetBalance";
 
 export default function Balance() {
   const { data: balance, isLoading } = useGetBalance();

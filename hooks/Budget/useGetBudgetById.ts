@@ -3,8 +3,6 @@ import { Budget } from "../../data";
 import { BUDGETS_QUERY_KEY } from "./useGetBudgets";
 
 async function getBudgetById(budgetId: number) {
-  console.log(`getBudgetById(${budgetId})`);
-
   const budget = await Budget.findOneByOrFail({
     id: budgetId,
   });

@@ -8,7 +8,7 @@ import { RootTabParamList } from "../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "Home">;
 
-export default function HomeScreen({ navigation }: ScreenProps) {
+export default function Home({ navigation }: ScreenProps) {
   return (
     <ScrollView>
       <View style={styles.container}>

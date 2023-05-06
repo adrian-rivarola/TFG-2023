@@ -4,12 +4,12 @@ import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 
-import TransactionCard from "../components/transactions/TransactionCard";
-import { useTheme } from "../context/ThemeContext";
-import { useDeleteBudget } from "../hooks/Budget/useDeleteBudget";
-import { useGetBudgetsById } from "../hooks/Budget/useGetBudgetById";
-import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
+import TransactionCard from "../../components/transactions/TransactionCard";
+import { useTheme } from "../../context/ThemeContext";
+import { useDeleteBudget } from "../../hooks/budget/useDeleteBudget";
+import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
+import { useModalStore } from "../../store/modalStore";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
 

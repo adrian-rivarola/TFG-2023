@@ -1,13 +1,13 @@
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
-import { useTheme } from "../context/ThemeContext";
-import { Budget } from "../data";
-import { useGetBudgets } from "../hooks/Budget/useGetBudgets";
-import { RootTabParamList } from "../types";
+import { useTheme } from "../../context/ThemeContext";
+import { Budget } from "../../data";
+import { useGetBudgets } from "../../hooks/budget/useGetBudgets";
+import { RootTabParamList } from "../../types";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
 

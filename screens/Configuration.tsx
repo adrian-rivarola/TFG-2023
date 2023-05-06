@@ -6,10 +6,10 @@ import { List } from "react-native-paper";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useQueryClient } from "react-query";
 import { useTheme } from "../context/ThemeContext";
-import { Transaction } from "../data";
-import { clearAllData, convertToCSV, saveCSV } from "../data/utils";
+import { Transaction, dropDB } from "../data";
 import { useModalStore } from "../store/modalStore";
 import { RootTabParamList } from "../types";
+import { convertToCSV, saveCSV } from "../utils/csvUtils";
 
 type ScreenProps = NativeStackScreenProps<RootTabParamList, "Configuration">;
 
@@ -78,19 +78,12 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         "Está seguro que quiere eliminar todos los datos registrados en esta aplicación?",
       confirmText: "Eliminar todo",
       onConfirm: () => {
-        clearAllData().then((deleted) => {
-          if (deleted) {
-            queryClient.resetQueries();
-            showSnackMessage({
-              message: "Los datos fueron eliminados correctamente",
-              type: "success",
-            });
-          } else {
-            showSnackMessage({
-              message: "Algo salío mal, intente nuevamente más tarde",
-              type: "error",
-            });
-          }
+        dropDB().then(() => {
+          queryClient.resetQueries();
+          showSnackMessage({
+            message: "Los datos fueron eliminados correctamente",
+            type: "success",
+          });
         });
       },
     });
