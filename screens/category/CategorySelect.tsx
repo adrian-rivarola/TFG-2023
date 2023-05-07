@@ -1,16 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Checkbox, List, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
 import { Category } from "../../data";
-import { useCategoryStore } from "../../store";
-import { RootTabParamList } from "../../types";
 import { useGetCategories } from "../../hooks/category/useGetCategories";
+import { useCategoryStore } from "../../store";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategorySelect">;
+type ScreenProps = RootStackScreenProps<"CategorySelect">;
 
 export default function CategorySelect({ navigation, route }: ScreenProps) {
   const { data: categories, isLoading } = useGetCategories();
@@ -18,6 +17,7 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
     (state) => [state.selectedCategories, state.setSelectedCategories]
   );
 
+  const multiple = route.params?.multiple || false;
   const expenseCategories = useMemo(
     () => categories?.filter((c) => c.isExpense) ?? [],
     [categories]
@@ -27,10 +27,10 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
     [categories]
   );
 
-  const multiple = route.params?.multiple || false;
   const {
     theme: { colors },
   } = useTheme();
+
   const themedStyles = {
     categoryItem: {
       borderBottomWidth: 1,

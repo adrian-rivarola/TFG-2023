@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,12 +16,9 @@ import { Transaction } from "../../data";
 import { useSaveTransaction } from "../../hooks/transaction/useSaveTransaction";
 import { useCategoryStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
-import { RootTabParamList } from "../../types";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<
-  RootTabParamList,
-  "TransactionForm" | "TransactionEditForm"
->;
+type ScreenProps = RootStackScreenProps<"TransactionForm">;
 
 export default function TransactionFormScreen({
   navigation,
@@ -88,7 +84,7 @@ export default function TransactionFormScreen({
         });
 
         resetFields();
-        navigation.navigate("TransactionDetails", {
+        navigation.replace("TransactionDetails", {
           transactionId: t.id,
         });
       })

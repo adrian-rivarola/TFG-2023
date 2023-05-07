@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -10,12 +9,9 @@ import { Budget } from "../../data";
 import { useGetTransactionById } from "../../hooks/transaction/UseGetTransactionById";
 import { useDeleteTransaction } from "../../hooks/transaction/useDeleteTransaction";
 import { useModalStore } from "../../store/modalStore";
-import { RootTabParamList } from "../../types";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<
-  RootTabParamList,
-  "TransactionDetails"
->;
+type ScreenProps = RootStackScreenProps<"TransactionDetails">;
 
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
 
@@ -112,7 +108,7 @@ export default function TransactionDetailsScreen({
         <View style={styles.description}>
           <Button
             onPress={() => {
-              navigation.navigate("TransactionEditForm", {
+              navigation.navigate("TransactionForm", {
                 transactionId: transaction.id,
               });
             }}

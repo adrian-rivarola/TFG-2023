@@ -1,6 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 
@@ -9,9 +8,9 @@ import { useTheme } from "../../context/ThemeContext";
 import { useDeleteBudget } from "../../hooks/budget/useDeleteBudget";
 import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
 import { useModalStore } from "../../store/modalStore";
-import { RootTabParamList } from "../../types";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetDetails">;
+type ScreenProps = RootStackScreenProps<"BudgetDetails">;
 
 type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
 

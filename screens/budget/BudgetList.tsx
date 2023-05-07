@@ -1,15 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
-import { Button, List, Text } from "react-native-paper";
+import { List, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
 import { Budget } from "../../data";
 import { useGetBudgets } from "../../hooks/budget/useGetBudgets";
-import { RootTabParamList } from "../../types";
+import { RootTabScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetList">;
+type ScreenProps = RootTabScreenProps<"BudgetList">;
 
 export default function BudgetListScreen({ navigation }: ScreenProps) {
   const { data: budgets, isLoading, isError, refetch } = useGetBudgets();
@@ -38,17 +37,6 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
             <BudgetList budgets={budgets} sectionTitle="Presupuestos activos" />
           )}
         </View>
-
-        <Button
-          mode="contained"
-          style={{ marginTop: 16 }}
-          icon="plus"
-          onPress={() => {
-            navigation.navigate("BudgetForm");
-          }}
-        >
-          Agregar nuevo presupuesto
-        </Button>
       </View>
     </ScrollView>
   );

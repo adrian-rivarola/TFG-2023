@@ -1,4 +1,3 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import { PieChart } from "react-native-chart-kit";
@@ -8,9 +7,9 @@ import { Text } from "react-native-paper";
 import Balance from "../components/Balance";
 import { useTheme } from "../context/ThemeContext";
 import { CategoryType, Transaction } from "../data";
-import { RootTabParamList } from "../types";
+import { RootTabScreenProps } from "../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "ReportsScreen">;
+type ScreenProps = RootTabScreenProps<"ReportsScreen">;
 type CategotyChartData = {
   name: string;
   total: number;

@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import {
@@ -18,9 +17,9 @@ import { Budget } from "../../data";
 import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
 import { useCategoryStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
-import { RootTabParamList } from "../../types";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "BudgetForm">;
+type ScreenProps = RootStackScreenProps<"BudgetForm">;
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
@@ -37,6 +36,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
 
+  // TODO: improve this
   useQuery(
     ["budgets-edit", budgetId],
     () => Budget.findOneByOrFail({ id: budgetId }),

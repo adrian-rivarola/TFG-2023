@@ -9,7 +9,6 @@ import {
   NavigatorScreenParams,
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { Budget } from "./data";
 
 declare global {
   namespace ReactNavigation {
@@ -18,48 +17,47 @@ declare global {
 }
 
 export type RootStackParamList = {
-  Root: NavigatorScreenParams<RootTabParamList> | undefined;
-  BudgetDetails: {
-    budgetId: number;
-  };
-};
-
-export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, Screen>;
-
-export type RootTabParamList = {
-  Home: undefined;
-  TransactionList: undefined;
-  TransactionForm: undefined;
-  BudgetList: undefined;
-  Configuration: undefined;
-
-  ReportsScreen: undefined;
+  BottomTab: NavigatorScreenParams<BottomTabParamList>;
+  TransactionForm:
+    | {
+        transactionId: number;
+      }
+    | undefined;
+  BudgetForm:
+    | undefined
+    | {
+        budgetId: number;
+      };
   CategorySelect:
     | {
         multiple: boolean;
       }
     | undefined;
   CategoryForm: undefined;
-  TransactionEditForm: {
-    transactionId: number | undefined;
-  };
-  BudgetForm:
-    | undefined
-    | {
-        budgetId: number;
-      };
   TransactionDetails: {
     transactionId: number;
   };
   BudgetDetails: {
     budgetId: number;
   };
+  ReportsScreen: undefined;
   TestComponents: undefined;
+  Configuration: undefined;
 };
 
-export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
+export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
+  NativeStackScreenProps<RootStackParamList, Screen>;
+
+export type BottomTabParamList = {
+  Home: undefined;
+  TransactionList: undefined;
+  BudgetList: undefined;
+  Configuration: undefined;
+  ReportsScreen: undefined;
+};
+
+export type RootTabScreenProps<Screen extends keyof BottomTabParamList> =
   CompositeScreenProps<
-    BottomTabScreenProps<RootTabParamList, Screen>,
+    BottomTabScreenProps<BottomTabParamList, Screen>,
     NativeStackScreenProps<RootStackParamList>
   >;

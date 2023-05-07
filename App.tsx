@@ -3,9 +3,11 @@ import "dayjs/locale/es";
 import { StatusBar } from "expo-status-bar";
 import { AppRegistry, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClient, QueryClientProvider } from "react-query";
 import "reflect-metadata";
 
-import { QueryClient, QueryClientProvider } from "react-query";
+import ConfirmationModal from "./components/ConfirmationModal";
+import SnackbarMessage from "./components/SnackbarMessage";
 import { ThemeContextProvider } from "./context/ThemeContext";
 import useCachedResources from "./hooks/useCachedResources";
 import Navigation from "./navigation";
@@ -20,18 +22,20 @@ export default function App() {
 
   if (!isLoadingComplete) {
     return null;
-  } else {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ThemeContextProvider>
-          <SafeAreaProvider>
-            <Navigation />
-            <StatusBar />
-          </SafeAreaProvider>
-        </ThemeContextProvider>
-      </QueryClientProvider>
-    );
   }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeContextProvider>
+        <SafeAreaProvider>
+          <Navigation />
+          <StatusBar />
+        </SafeAreaProvider>
+        <ConfirmationModal />
+        <SnackbarMessage />
+      </ThemeContextProvider>
+    </QueryClientProvider>
+  );
 }
 
 dayjs.locale("es");

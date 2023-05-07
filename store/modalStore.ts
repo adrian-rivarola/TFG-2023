@@ -30,7 +30,7 @@ const DEFAULT_MODAL_OPTS = {
   onConfirm: () => {},
 };
 
-export const useModalStore = create<ModalStore>((set) => ({
+export const useModalStore = create<ModalStore>((set, get) => ({
   snackOptions: {
     visible: false,
     message: "",
@@ -48,9 +48,8 @@ export const useModalStore = create<ModalStore>((set) => ({
   hideSnackMessage: () => {
     set({
       snackOptions: {
+        ...get().snackOptions,
         visible: false,
-        message: "",
-        type: "success",
       },
     });
   },
@@ -64,7 +63,10 @@ export const useModalStore = create<ModalStore>((set) => ({
   },
   closeConfirmationModal: () => {
     set({
-      modalOptions: DEFAULT_MODAL_OPTS,
+      modalOptions: {
+        ...get().modalOptions,
+        visible: false,
+      },
     });
   },
 }));

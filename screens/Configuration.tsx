@@ -2,16 +2,15 @@ import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { List } from "react-native-paper";
-
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useQueryClient } from "react-query";
+
 import { useTheme } from "../context/ThemeContext";
 import { Transaction, dropDB } from "../data";
 import { useModalStore } from "../store/modalStore";
-import { RootTabParamList } from "../types";
+import { RootTabScreenProps } from "../types";
 import { convertToCSV, saveCSV } from "../utils/csvUtils";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "Configuration">;
+type ScreenProps = RootTabScreenProps<"Configuration">;
 
 const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);

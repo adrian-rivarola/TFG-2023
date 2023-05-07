@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, RadioButton, Text, TextInput } from "react-native-paper";
@@ -8,9 +7,9 @@ import Layout from "../../constants/Layout";
 import { Category, CategoryType } from "../../data";
 import { useSaveCategory } from "../../hooks/category/useSaveCategory";
 import { useModalStore } from "../../store/modalStore";
-import { RootTabParamList } from "../../types";
+import { RootStackScreenProps } from "../../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "CategoryForm">;
+type ScreenProps = RootStackScreenProps<"CategoryForm">;
 
 export default function CategoryForm({ navigation }: ScreenProps) {
   const { mutateAsync: saveCategory } = useSaveCategory();

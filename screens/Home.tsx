@@ -1,12 +1,12 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React from "react";
 import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
-import { RootTabParamList } from "../types";
+import { RootTabScreenProps } from "../types";
 
-type ScreenProps = NativeStackScreenProps<RootTabParamList, "Home">;
+type ScreenProps = RootTabScreenProps<"Home">;
 
 export default function Home({ navigation }: ScreenProps) {
   return (

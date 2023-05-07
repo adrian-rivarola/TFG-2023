@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useState } from "react";
+import React from "react";
 import { Button, Dialog, Paragraph, Portal } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
 import { useModalStore } from "../store/modalStore";

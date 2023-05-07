@@ -12,7 +12,10 @@ import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import TransactionCard from "../../components/transactions/TransactionCard";
 import { useTheme } from "../../context/ThemeContext";
 import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
+import { RootTabScreenProps } from "../../types";
 import { getDatesFromRange } from "../../utils/dateUtils";
+
+type ScreenProps = RootTabScreenProps<"TransactionList">;
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
@@ -20,7 +23,7 @@ const renderScene = SceneMap({
   before: () => <TransactionsByDate range="before" />,
 });
 
-export default function TransactionsListScreen(props: {}) {
+export default function TransactionsListScreen({}: ScreenProps) {
   const { theme } = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([

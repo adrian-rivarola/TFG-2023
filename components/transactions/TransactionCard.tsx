@@ -29,11 +29,8 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
         alignSelf: "center",
       }}
       onPress={() => {
-        navigation.navigate("Root", {
-          screen: "TransactionDetails",
-          params: {
-            transactionId: transaction.id,
-          },
+        navigation.navigate("TransactionDetails", {
+          transactionId: transaction.id,
         });
       }}
       key={transaction.id}
