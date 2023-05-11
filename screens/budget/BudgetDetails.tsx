@@ -9,6 +9,7 @@ import { useDeleteBudget } from "../../hooks/budget/useDeleteBudget";
 import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
+import { formatCurrency } from "../../utils/numberFormatter";
 
 type ScreenProps = RootStackScreenProps<"BudgetDetails">;
 
@@ -77,14 +78,14 @@ export default function BudgetDetailsScreen({
           <View style={styles.amount}>
             <Text>Monto establecido:</Text>
             <Text variant="headlineSmall">
-              Gs. {budget.maxAmount.toLocaleString()}
+              {formatCurrency(budget.maxAmount)}
             </Text>
           </View>
 
           <View style={styles.amount}>
             <Text>Monto utilizado:</Text>
             <Text variant="headlineSmall">
-              Gs. {budget.totalSpent.toLocaleString()}
+              {formatCurrency(budget.totalSpent)}
             </Text>
           </View>
 

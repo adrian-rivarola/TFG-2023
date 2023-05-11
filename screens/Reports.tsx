@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
-import { Text } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
 
 import Balance from "../components/Balance";
 import { useTheme } from "../context/ThemeContext";
 import { CategoryType, Transaction } from "../data";
 import { RootTabScreenProps } from "../types";
+import ReportsPreview from "../components/reports/ReportsPreview";
 
 type ScreenProps = RootTabScreenProps<"ReportsScreen">;
 type CategotyChartData = {
@@ -86,6 +87,7 @@ export default function Reports({ navigation, route }: ScreenProps) {
     <ScrollView>
       <View style={styles.container}>
         <Balance />
+
         {expensePieChartData && (
           <>
             <Text style={[styles.ms2, styles.mt2]} variant="titleSmall">
@@ -113,7 +115,8 @@ export default function Reports({ navigation, route }: ScreenProps) {
             </Text>
           </>
         )}
-        <View style={styles.mt2} />
+
+        {/* <View style={styles.mt2} />
         {incomePieChartData.length > 0 && (
           <>
             <Text style={[styles.ms2, styles.mt2]} variant="titleSmall">
@@ -140,7 +143,7 @@ export default function Reports({ navigation, route }: ScreenProps) {
                 .toLocaleString()}
             </Text>
           </>
-        )}
+        )} */}
       </View>
     </ScrollView>
   );
@@ -152,6 +155,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    alignItems: "center",
+  },
+  smallSeparator: {
+    marginVertical: 10,
   },
   transactionInfo: {
     paddingVertical: 24,

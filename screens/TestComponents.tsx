@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Divider } from "react-native-paper";
+import { useTheme } from "../context/ThemeContext";
 import { useModalStore } from "../store/modalStore";
 
 export default function TestComponents() {
@@ -7,6 +8,9 @@ export default function TestComponents() {
   const showConfirmationModal = useModalStore(
     (state) => state.showConfirmationModal
   );
+  const {
+    theme: { colors },
+  } = useTheme();
 
   return (
     <View style={styles.container}>

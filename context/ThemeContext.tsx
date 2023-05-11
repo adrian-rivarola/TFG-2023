@@ -3,7 +3,13 @@ import {
   DefaultTheme as NavigationDefaultTheme,
   Theme as NavigationTheme,
 } from "@react-navigation/native";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useColorScheme } from "react-native";
 import {
   MD3DarkTheme as PaperDarkTheme,
@@ -83,6 +89,10 @@ export const ThemeContextProvider = ({
     () => (isDarkTheme ? darkTheme : lightTheme),
     [isDarkTheme]
   );
+
+  useEffect(() => {
+    setThemeType(colorScheme || themeType);
+  }, [colorScheme]);
 
   return (
     <PaperProvider theme={theme}>

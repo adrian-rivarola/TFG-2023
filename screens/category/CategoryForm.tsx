@@ -8,10 +8,14 @@ import { Category, CategoryType } from "../../data";
 import { useSaveCategory } from "../../hooks/category/useSaveCategory";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
+import { useTheme } from "../../context/ThemeContext";
 
 type ScreenProps = RootStackScreenProps<"CategoryForm">;
 
 export default function CategoryForm({ navigation }: ScreenProps) {
+  const {
+    theme: { colors },
+  } = useTheme();
   const { mutateAsync: saveCategory } = useSaveCategory();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
 
@@ -83,7 +87,7 @@ export default function CategoryForm({ navigation }: ScreenProps) {
           </View>
           {icon.length > 0 && (
             <View style={{ marginTop: 8 }}>
-              <MaterialIcons name={icon as any} size={24} color="black" />
+              <MaterialIcons name={icon as any} size={24} color={colors.text} />
             </View>
           )}
         </View>

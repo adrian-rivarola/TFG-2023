@@ -17,7 +17,8 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
     (state) => [state.selectedCategories, state.setSelectedCategories]
   );
 
-  const multiple = route.params?.multiple || false;
+  // const multiple = route.params?.multiple || false;
+  const multiple = false;
   const expenseCategories = useMemo(
     () => categories?.filter((c) => c.isExpense) ?? [],
     [categories]
@@ -72,7 +73,9 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
             style={{ marginStart: 16 }}
           />
         )}
-        right={() => <Checkbox status={checked ? "checked" : "unchecked"} />}
+        right={() =>
+          multiple && <Checkbox status={checked ? "checked" : "unchecked"} />
+        }
         onPress={() => onCategoryPress(cat, checked)}
       />
     );

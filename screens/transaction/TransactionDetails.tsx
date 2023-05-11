@@ -10,6 +10,7 @@ import { useGetTransactionById } from "../../hooks/transaction/UseGetTransaction
 import { useDeleteTransaction } from "../../hooks/transaction/useDeleteTransaction";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
+import { formatCurrency } from "../../utils/numberFormatter";
 
 type ScreenProps = RootStackScreenProps<"TransactionDetails">;
 
@@ -68,24 +69,26 @@ export default function TransactionDetailsScreen({
 
   return (
     <View style={styles.container}>
-      <View style={[styles.transactionInfo, themedStyles.bordered]}>
-        <View style={styles.header}>
-          <MaterialIcons name="short-text" size={24} color={colors.text} />
-          <Text variant="titleLarge" style={styles.ms2}>
-            {transaction.description}
-          </Text>
-        </View>
-
+      <View style={themedStyles.bordered}>
         <View style={styles.amount}>
           <Text
-            variant="headlineSmall"
+            variant="headlineMedium"
             style={{
               color: category.isExpense ? colors.expense : colors.income,
             }}
           >
-            Gs. {transaction.amount.toLocaleString()}
+            {formatCurrency(transaction.amount)}
           </Text>
         </View>
+
+        {transaction.description && (
+          <View style={styles.header}>
+            <MaterialIcons name="short-text" size={24} color={colors.text} />
+            <Text variant="titleLarge" style={styles.ms2}>
+              {transaction.description}
+            </Text>
+          </View>
+        )}
 
         <View style={styles.description}>
           <MaterialIcons
@@ -105,7 +108,7 @@ export default function TransactionDetailsScreen({
           </Text>
         </View>
 
-        <View style={styles.description}>
+        <View style={[styles.description, styles.mb2]}>
           <Button
             onPress={() => {
               navigation.navigate("TransactionForm", {
@@ -194,19 +197,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  transactionInfo: {
-    paddingVertical: 24,
-  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
   },
   ms2: {
-    marginStart: 16,
+    marginStart: 15,
   },
   mb2: {
-    marginBottom: 16,
+    marginBottom: 15,
   },
   amount: {
     marginTop: 16,

@@ -13,7 +13,10 @@ async function getBalance() {
     },
   });
 
-  return (incomeTotal || 0) - (expenseTotal || 0);
+  return {
+    incomeTotal: incomeTotal ?? 0,
+    expenseTotal: expenseTotal ?? 0,
+  };
 }
 
 export const BALANCE_QUERY_KEY = "balance";

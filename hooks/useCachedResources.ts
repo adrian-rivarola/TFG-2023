@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
 import { initiDB } from "../data";
 import { DataSource } from "typeorm";
+import { createMockData } from "../data/mock";
 
 const DB_NAME = "mydb-orm-test.db";
 
@@ -19,7 +20,8 @@ export default function useCachedResources() {
 
         // initialize db connection
         if (!dataSource.current) {
-          dataSource.current = await initiDB(DB_NAME);
+          dataSource.current = await initiDB("mock.db");
+          // await createMockData();
         }
 
         // Load fonts

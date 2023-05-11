@@ -7,6 +7,8 @@ import { useTheme } from "../../context/ThemeContext";
 import { Budget } from "../../data";
 import { useGetBudgets } from "../../hooks/budget/useGetBudgets";
 import { RootTabScreenProps } from "../../types";
+import CustomFAB from "../../components/CustomFAB";
+import { formatCurrency } from "../../utils/numberFormatter";
 
 type ScreenProps = RootTabScreenProps<"BudgetList">;
 
@@ -18,27 +20,33 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
   }
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-      }
-    >
-      <View style={styles.container}>
-        <View
-          style={{
-            width: "100%",
-          }}
-        >
-          {budgets.length === 0 ? (
-            <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
-              Aún no tienes ningún presupuesto
-            </Text>
-          ) : (
-            <BudgetList budgets={budgets} sectionTitle="Presupuestos activos" />
-          )}
+    <>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        }
+      >
+        <View style={styles.container}>
+          <View
+            style={{
+              width: "100%",
+            }}
+          >
+            {budgets.length === 0 ? (
+              <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+                Aún no tienes ningún presupuesto
+              </Text>
+            ) : (
+              <BudgetList
+                budgets={budgets}
+                sectionTitle="Presupuestos activos"
+              />
+            )}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <CustomFAB destination="BudgetForm" />
+    </>
   );
 }
 
@@ -74,7 +82,7 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
 
   return (
     <List.Section
-      title={sectionTitle}
+      // title={sectionTitle}
       titleStyle={{
         fontWeight: "bold",
       }}
@@ -91,9 +99,7 @@ function BudgetList({ budgets, sectionTitle }: BudgetListProps) {
             title={budget.description}
             description={budget.dateInfo}
             descriptionStyle={{ marginTop: 4 }}
-            right={() => {
-              return <Text>Gs. {budget.totalSpent.toLocaleString()}</Text>;
-            }}
+            right={() => <Text>{formatCurrency(budget.totalSpent)}</Text>}
             style={themedStyles.budgetItem}
           />
         );

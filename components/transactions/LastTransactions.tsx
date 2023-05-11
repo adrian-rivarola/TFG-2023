@@ -33,10 +33,8 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
     alignItems: "center",
     alignSelf: "center",
-    width: Layout.window.width - 50,
-  },
-  reportWitdh: {
-    width: Layout.window.width - 50,
+    width: Layout.window.width - 20,
+    marginBottom: 40,
   },
   title: {
     fontSize: 16,

@@ -6,6 +6,7 @@ async function getTransactionById(transactionId: number) {
   const transaction = await Transaction.findOneByOrFail({
     id: transactionId,
   });
+
   transaction.budgets = await Budget.findBudgetsForTransaction(transaction);
 
   return transaction;

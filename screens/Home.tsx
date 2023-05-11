@@ -5,20 +5,24 @@ import Balance from "../components/Balance";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
 import { RootTabScreenProps } from "../types";
+import CustomFAB from "../components/CustomFAB";
 
 type ScreenProps = RootTabScreenProps<"Home">;
 
 export default function Home({ navigation }: ScreenProps) {
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Balance />
-        <View style={styles.smallSeparator} />
-        <ReportsPreview />
-        <View style={styles.smallSeparator} />
-        <LastTransactions />
-      </View>
-    </ScrollView>
+    <>
+      <ScrollView>
+        <View style={styles.container}>
+          <Balance />
+          <View style={styles.smallSeparator} />
+          <ReportsPreview />
+          <View style={styles.smallSeparator} />
+          <LastTransactions />
+        </View>
+      </ScrollView>
+      <CustomFAB destination="TransactionForm" />
+    </>
   );
 }
 
@@ -37,7 +41,7 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   smallSeparator: {
-    marginVertical: 15,
+    marginVertical: 10,
   },
   footer: {
     justifyContent: "space-around",

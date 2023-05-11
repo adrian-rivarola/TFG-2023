@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
+import { MaskedTextInput } from "react-native-mask-text";
 import { DatePicker } from "../../components/DatePicker";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
@@ -31,7 +32,7 @@ export default function TransactionFormScreen({
   );
   const { mutateAsync: saveTransaction } = useSaveTransaction();
 
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
 
@@ -51,24 +52,17 @@ export default function TransactionFormScreen({
     date,
     category,
   }: Transaction) {
-    setAmount(amount.toString());
+    setAmount(amount);
     setDate(dayjs(date).toDate());
     setDescription(description);
     setSelectedCategories([category]);
   }
 
-  const resetFields = () => {
-    setAmount("");
-    setDescription("");
-    setSelectedCategories([]);
-    setDate(new Date());
-  };
-
   const onSubmit = () => {
     const transaction = Transaction.create({
       id: transactionId,
+      amount,
       description,
-      amount: parseInt(amount, 10),
       category: selectedCategories[0],
       date: date,
     });
@@ -83,10 +77,7 @@ export default function TransactionFormScreen({
           type: "success",
         });
 
-        resetFields();
-        navigation.replace("TransactionDetails", {
-          transactionId: t.id,
-        });
+        navigation.goBack();
       })
       .catch((err) => {
         showSnackMessage({
@@ -105,17 +96,24 @@ export default function TransactionFormScreen({
             style={styles.input}
             mode="outlined"
             value={description}
-            onChangeText={(val) => setDescription(val)}
+            onChangeText={setDescription}
           />
         </View>
         <View style={styles.inputGroup}>
           <Text>Monto:</Text>
-          <TextInput
-            style={styles.input}
+          <MaskedTextInput
+            style={styles.amountInput}
             keyboardType="numeric"
-            mode="outlined"
-            value={amount}
-            onChangeText={(val) => setAmount(val)}
+            type="currency"
+            options={{
+              prefix: "Gs. ",
+              decimalSeparator: ",",
+              groupSeparator: ".",
+            }}
+            value={amount.toString()}
+            onChangeText={(text, rawText) => {
+              setAmount(isNaN(parseInt(rawText)) ? 0 : parseInt(rawText));
+            }}
           />
         </View>
         <View style={styles.inputGroup}>
@@ -167,7 +165,7 @@ export default function TransactionFormScreen({
         <Button
           mode="contained"
           style={{ marginTop: 24 }}
-          disabled={!amount || !description || !selectedCategories.length}
+          disabled={!amount || !selectedCategories.length}
           onPress={onSubmit}
         >
           Guardar
@@ -191,4 +189,12 @@ const styles = StyleSheet.create({
     width: screenWidth - 100,
   },
   input: {},
+  amountInput: {
+    height: 40,
+    marginHorizontal: 0,
+    marginVertical: 5,
+    paddingHorizontal: 5,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
 });

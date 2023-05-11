@@ -3,7 +3,13 @@ import { useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
-import { Button, Card, SegmentedButtons, Text } from "react-native-paper";
+import {
+  Button,
+  Card,
+  SegmentedButtons,
+  Surface,
+  Text,
+} from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
 import { useMonthTotals } from "../../hooks/report/useMonthTotals";
@@ -33,34 +39,44 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   }
 
   return (
-    <View style={styles.reportsContainer}>
-      <Text style={styles.title}>Reporte de Gastos</Text>
-      <SegmentedButtons
-        value={activeSegment}
-        onValueChange={(s) => setActiveSegment(s as ReportOption)}
-        density="medium"
-        buttons={[
-          {
-            value: "month",
-            label: "Este mes",
-          },
-          {
-            value: "week",
-            label: "Esta semana",
-          },
-        ]}
-      />
-      <Card
-        mode="outlined"
-        style={{ marginTop: 16, width: screenWidth - 50, padding: 0 }}
-      >
+    <Surface
+      style={{
+        borderRadius: 10,
+        backgroundColor: theme.colors.surface,
+      }}
+      elevation={3}
+    >
+      <View style={styles.titleContainer}>
+        <Text variant="headlineSmall" style={styles.title}>
+          Reporte de Gastos
+        </Text>
+
+        <SegmentedButtons
+          value={activeSegment}
+          onValueChange={(s) => setActiveSegment(s as ReportOption)}
+          density="medium"
+          buttons={[
+            {
+              value: "month",
+              label: "Este mes",
+            },
+            {
+              value: "week",
+              label: "Esta semana",
+            },
+          ]}
+        />
+      </View>
+
+      <View style={{ width: screenWidth - 20, padding: 0 }}>
         <LineChart
           style={{ paddingTop: 12 }}
           data={activeSegment === "week" ? weekTotals : monthTotals}
           chartConfig={chartConfig}
-          width={screenWidth - 50}
-          height={250}
-          // segments={activeSegment === "month" ? 5 : 4}
+          width={screenWidth - 20}
+          segments={3}
+          height={200}
+          withShadow={false}
           yAxisLabel="Gs "
           formatYLabel={(n) => {
             let num = parseInt(n);
@@ -69,38 +85,37 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
             }
             return Math.floor(num / 1000) + "K";
           }}
-          // getDotColor={(dp) =>
-          //   dp > 0 ? theme.colors.text : theme.colors.backdrop
-          // }
           withDots={false}
+          fromZero
           transparent
           bezier
         />
-      </Card>
-      <View>
-        <Button
-          onPress={() => {
-            navigation.navigate("ReportsScreen");
-          }}
-        >
-          Ver más
-        </Button>
       </View>
-    </View>
+
+      <Button
+        mode="text"
+        style={{
+          width: 120,
+          alignSelf: "center",
+        }}
+        onPress={() => {
+          navigation.navigate("ReportsScreen");
+        }}
+      >
+        Ver más
+      </Button>
+    </Surface>
   );
 }
 
 const screenWidth = Dimensions.get("screen").width;
 const styles = StyleSheet.create({
-  reportsContainer: {
+  titleContainer: {
     alignItems: "center",
-    width: screenWidth - 50,
-  },
-  reportWitdh: {
-    width: screenWidth - 50,
+    marginVertical: 10,
+    width: screenWidth - 20,
   },
   title: {
-    fontSize: 16,
     marginBottom: 8,
   },
 });

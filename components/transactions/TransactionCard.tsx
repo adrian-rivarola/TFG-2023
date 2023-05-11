@@ -1,12 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { StackActions, useNavigation } from "@react-navigation/native";
-import dayjs from "dayjs";
-import { View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { Avatar, Card, Text } from "react-native-paper";
 
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
 import { Transaction } from "../../data";
+import { formatCurrency } from "../../utils/numberFormatter";
+import dayjs from "dayjs";
+import { View } from "react-native";
 
 type TransactionCardProps = {
   transaction: Transaction;
@@ -22,10 +23,10 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
 
   return (
     <Card
-      mode="outlined"
+      mode="elevated"
       style={{
         marginVertical: 4,
-        width: Layout.window.width - 50,
+        width: Layout.window.width - 20,
         alignSelf: "center",
       }}
       onPress={() => {
@@ -33,24 +34,47 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
           transactionId: transaction.id,
         });
       }}
-      key={transaction.id}
     >
       <Card.Title
-        title={transaction.description}
+        title={category.name}
+        subtitle={transaction.description}
+        subtitleStyle={{ color: colors.text, opacity: 0.75 }}
         right={() => (
-          <Text
-            variant="bodySmall"
-            style={{
-              color: amountColor,
-              fontWeight: "bold",
-            }}
-          >
-            Gs. {transaction.amount?.toLocaleString()}
-          </Text>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text
+              variant="bodyMedium"
+              style={{
+                color: amountColor,
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(transaction.amount)}
+            </Text>
+            <Text variant="bodySmall">
+              {dayjs(transaction.date).format("D [de] MMMM")}
+            </Text>
+          </View>
         )}
-        rightStyle={{ marginEnd: 8 }}
+        rightStyle={{ marginEnd: 10 }}
+        left={(props) => (
+          <Avatar.Icon
+            {...props}
+            style={{
+              backgroundColor: category.isExpense
+                ? colors.expense
+                : colors.income,
+            }}
+            icon={() => (
+              <MaterialIcons
+                name={category.icon as any}
+                size={20}
+                color={colors.card}
+              />
+            )}
+          />
+        )}
       />
-      <Card.Content
+      {/* <Card.Content
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text variant="bodySmall">
@@ -67,7 +91,7 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
             <Text variant="bodySmall">{category.name}</Text>
           </View>
         )}
-      </Card.Content>
+      </Card.Content> */}
     </Card>
   );
 }
