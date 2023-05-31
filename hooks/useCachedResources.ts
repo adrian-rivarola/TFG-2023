@@ -20,7 +20,7 @@ export default function useCachedResources() {
 
         // initialize db connection
         if (!dataSource.current) {
-          dataSource.current = await initiDB("mock.db");
+          dataSource.current = await initiDB("testing.db");
           // await createMockData();
         }
 

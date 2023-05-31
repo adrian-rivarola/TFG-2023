@@ -7,6 +7,7 @@ import ConfigurationScreen from "../screens/Configuration";
 import Home from "../screens/Home";
 import BudgetListScreen from "../screens/budget/BudgetList";
 import TransactionsListScreen from "../screens/transaction/TransactionsList";
+import Reports from "../screens/Reports";
 
 function TabBarIcon({
   size,
@@ -55,6 +56,16 @@ export default function BottomTabNavigator() {
           title: "Presupuestos",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="attach-money" color={color} />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="ReportsScreen"
+        component={Reports}
+        options={{
+          title: "Reportes",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="bar-chart" color={color} />
           ),
         }}
       />

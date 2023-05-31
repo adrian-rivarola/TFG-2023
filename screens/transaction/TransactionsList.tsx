@@ -16,13 +16,13 @@ import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
 import { RootTabScreenProps } from "../../types";
 import { getDatesFromRange } from "../../utils/dateUtils";
 import { groupTransactionsByRange } from "../../utils/transactionGroupingUtils";
+import { Between } from "typeorm";
 
 type ScreenProps = RootTabScreenProps<"TransactionList">;
 
 const renderScene = SceneMap({
   week: () => <TransactionsByDate range="week" />,
   month: () => <TransactionsByDate range="month" />,
-  before: () => <TransactionsByDate range="before" />,
 });
 
 export default function TransactionsListScreen({}: ScreenProps) {
@@ -31,7 +31,6 @@ export default function TransactionsListScreen({}: ScreenProps) {
   const [routes] = useState([
     { key: "week", title: "Esta Semana" },
     { key: "month", title: "Este Mes" },
-    { key: "before", title: "Anteriores" },
   ]);
 
   return (
@@ -61,13 +60,16 @@ export default function TransactionsListScreen({}: ScreenProps) {
 }
 
 type TransactionsByDateProps = {
-  range: "week" | "month" | "before";
+  range: "week" | "month";
 };
 
 function TransactionsByDate({ range }: TransactionsByDateProps) {
-  const date = useMemo(() => getDatesFromRange(range), [range]);
+  const { startDate, endDate } = useMemo(
+    () => getDatesFromRange(range),
+    [range]
+  );
   const { data, isFetching, isError, refetch } = useGetTransactions({
-    where: { date },
+    where: { date: Between(startDate, endDate) },
   });
 
   const groupedTransactions = useMemo(
@@ -88,9 +90,7 @@ function TransactionsByDate({ range }: TransactionsByDateProps) {
     >
       <View style={styles.container}>
         {Object.entries(groupedTransactions).length === 0 && (
-          <Text style={{ paddingVertical: 16 }}>
-            Aún no hay transacciones :(
-          </Text>
+          <Text style={{ paddingVertical: 16 }}>Aún no hay transacciones</Text>
         )}
         {Object.entries(groupedTransactions).map(
           ([date, transactions], index) => (

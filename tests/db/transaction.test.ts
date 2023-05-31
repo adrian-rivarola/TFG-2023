@@ -10,18 +10,18 @@ describe("Transaction operations", () => {
     beforeAll(async () => {
       dataSource = await initiMemoryDB();
 
-      category = await Category.save({
+      category = await Category.create({
         name: "Category 1",
         icon: "icon",
         type: 0,
-      });
+      }).save();
     });
 
     afterAll(async () => {
       await dataSource.destroy();
     });
 
-    it("should create a new transaction", async () => {
+    it("should create a new transaction correctly", async () => {
       const transaction = Transaction.create({
         description: "Transaction 1",
         date: "2023-01-01",
@@ -31,11 +31,10 @@ describe("Transaction operations", () => {
       expect(transaction).toBeInstanceOf(Transaction);
       expect(transaction.id).toBeUndefined();
 
-      const savedTransaction = await Transaction.save(transaction);
-      expect(savedTransaction).toBeInstanceOf(Transaction);
-      expect(savedTransaction.id).toBeDefined();
-      expect(savedTransaction.category).toBeInstanceOf(Category);
-      expect(savedTransaction.category.id).toBe(category.id);
+      await transaction.save();
+      expect(transaction.id).toBeDefined();
+      expect(transaction.category).toBeInstanceOf(Category);
+      expect(transaction.category.id).toBe(category.id);
 
       expect(Transaction.count()).resolves.toBe(1);
     });

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { List } from "react-native-paper";
+import { Avatar, List } from "react-native-paper";
 import { useQueryClient } from "react-query";
 
 import { useTheme } from "../context/ThemeContext";
@@ -9,6 +9,7 @@ import { Transaction, dropDB } from "../data";
 import { useModalStore } from "../store/modalStore";
 import { RootTabScreenProps } from "../types";
 import { convertToCSV, saveCSV } from "../utils/csvUtils";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 type ScreenProps = RootTabScreenProps<"Configuration">;
 
@@ -21,6 +22,8 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
 
   const {
     theme: { colors },
+    isDarkTheme,
+    toggleThemeType,
   } = useTheme();
 
   const themedStyles = StyleSheet.create({
@@ -91,10 +94,31 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   return (
     <View style={{ marginVertical: 8 }}>
       <List.Item
+        title="Categories"
+        style={themedStyles.categoryItem}
+        onPress={() => {
+          navigation.navigate("CategoryList");
+        }}
+      />
+      <List.Item
         title="TestComponents"
         style={themedStyles.categoryItem}
         onPress={() => {
           navigation.navigate("TestComponents");
+        }}
+      />
+      <List.Item
+        right={() => (
+          <MaterialIcons
+            name={isDarkTheme ? "lightbulb" : "nightlight-round"}
+            color={colors.onBackground}
+            size={15}
+          />
+        )}
+        title="Cambiar tema"
+        style={themedStyles.categoryItem}
+        onPress={() => {
+          toggleThemeType();
         }}
       />
       <List.Item

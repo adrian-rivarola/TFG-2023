@@ -1,7 +1,6 @@
 import { DataSource } from "typeorm";
-import { initiMemoryDB } from "./db/dbSetup";
 import { Category, CategoryType, Transaction } from "../data";
-import dayjs from "dayjs";
+import { initiMemoryDB } from "./db/dbSetup";
 
 describe("Reports", () => {
   let dataSource: DataSource;
@@ -61,7 +60,7 @@ describe("Reports", () => {
         "2023-01-31"
       );
       expect(totals).toHaveLength(1);
-      expect(totals[0]).toHaveProperty("category", category.name);
+      expect(totals[0]).toHaveProperty("categoryName", category.name);
       expect(totals[0]).toHaveProperty("total", 100);
     });
 
@@ -88,7 +87,7 @@ describe("Reports", () => {
         "2023-01-31"
       );
       expect(totals).toHaveLength(1);
-      expect(totals[0]).toHaveProperty("category", category.name);
+      expect(totals[0]).toHaveProperty("categoryName", category.name);
       expect(totals[0]).toHaveProperty("total", 100);
     });
 
@@ -115,9 +114,9 @@ describe("Reports", () => {
         "2023-01-31"
       );
       expect(totals).toHaveLength(2);
-      expect(totals[0]).toHaveProperty("category", category2.name);
+      expect(totals[0]).toHaveProperty("categoryName", category2.name);
       expect(totals[0]).toHaveProperty("total", 200);
-      expect(totals[1]).toHaveProperty("category", category1.name);
+      expect(totals[1]).toHaveProperty("categoryName", category1.name);
       expect(totals[1]).toHaveProperty("total", 100);
     });
   });
@@ -138,14 +137,15 @@ describe("Reports", () => {
     it("should return the daily totals for the given date range", async () => {
       const dates = ["2023-01-01", "2023-01-02", "2023-01-03"];
 
-      await Transaction.save(
-        dates.map((date, idx) => ({
+      const transactions = dates.map((date, idx) =>
+        Transaction.create({
           description: `Transaction ${idx}`,
           category: categories[0],
           amount: 100,
           date,
-        }))
+        })
       );
+      await Transaction.save(transactions);
 
       const totals = await Transaction.getDailyTotals(
         "2023-01-01",
@@ -175,14 +175,15 @@ describe("Reports", () => {
     it("should return the weekly totals for the given date range", async () => {
       const dates = ["2023-01-01", "2023-01-08", "2023-01-15", "2023-01-22"];
 
-      await Transaction.save(
-        dates.map((date, idx) => ({
+      const transactions = dates.map((date, idx) =>
+        Transaction.create({
           description: `Transaction ${idx}`,
           category: categories[0],
           amount: 100,
           date,
-        }))
+        })
       );
+      await Transaction.save(transactions);
 
       const totals = await Transaction.getDailyTotals(
         "2023-01-01",

@@ -1,13 +1,16 @@
 import dayjs from "dayjs";
-import { LessThan, MoreThanOrEqual } from "typeorm";
 
-export type DateRange = "week" | "month" | "before";
+export const DATE_FORMAT = "YYYY-MM-DD";
 
-export const getDatesFromRange = (range: DateRange) => {
-  const operationFn = range === "before" ? LessThan : MoreThanOrEqual;
-  const today = dayjs().startOf("day");
-  const dateOffset =
-    range === "week" ? today.subtract(7, "days") : today.subtract(1, "month");
+export type StringDateRange = "week" | "month";
+export type DateRange = { startDate: string; endDate: string };
 
-  return operationFn(dateOffset.toDate());
+export const getDatesFromRange = (range: StringDateRange): DateRange => {
+  const startDate = dayjs().startOf(range);
+  const endDate = dayjs().endOf(range);
+
+  return {
+    startDate: startDate.format(DATE_FORMAT),
+    endDate: endDate.format(DATE_FORMAT),
+  };
 };

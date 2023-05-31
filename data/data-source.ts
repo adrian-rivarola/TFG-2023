@@ -1,4 +1,5 @@
 import { DataSource } from "typeorm";
+import { Balance } from "./entities/Balance";
 import { Budget, BudgetSubscriber } from "./entities/Budget";
 import { Category } from "./entities/Category";
 import { Transaction } from "./entities/Transaction";
@@ -7,6 +8,9 @@ import { Transaction } from "./entities/Transaction";
 
 const DB_NAME = "mydb-orm-test.db";
 export let dataSource: DataSource;
+
+export const DB_ENTITIES = [Category, Budget, Transaction, Balance];
+export const DB_SUBSCRIBERS = [BudgetSubscriber];
 
 /**
  * initialize the database
@@ -18,8 +22,8 @@ export function initiDB(dbName: string = DB_NAME) {
     driver: require("expo-sqlite"),
     logging: false,
     synchronize: true,
-    entities: [Category, Budget, Transaction],
-    subscribers: [BudgetSubscriber],
+    entities: DB_ENTITIES,
+    subscribers: DB_SUBSCRIBERS,
   });
 
   return dataSource.initialize();

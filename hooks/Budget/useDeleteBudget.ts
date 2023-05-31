@@ -8,8 +8,7 @@ export function useDeleteBudget() {
 
   return useMutation((budgetId: number) => Budget.delete(budgetId), {
     onSuccess: () => {
-      queryCache.invalidateQueries({ queryKey: [BUDGETS_QUERY_KEY] });
-      queryCache.invalidateQueries({ queryKey: [TRANSACTIONS_QUERY_KEY] });
+      queryCache.invalidateQueries();
     },
   });
 }

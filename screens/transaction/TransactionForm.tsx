@@ -7,9 +7,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { MaskedTextInput } from "react-native-mask-text";
 import { Button, Text, TextInput } from "react-native-paper";
 
-import { MaskedTextInput } from "react-native-mask-text";
 import { DatePicker } from "../../components/DatePicker";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
@@ -64,7 +64,7 @@ export default function TransactionFormScreen({
       amount,
       description,
       category: selectedCategories[0],
-      date: date,
+      date: date.toISOString(),
     });
 
     saveTransaction(transaction)
@@ -99,6 +99,7 @@ export default function TransactionFormScreen({
             onChangeText={setDescription}
           />
         </View>
+
         <View style={styles.inputGroup}>
           <Text>Monto:</Text>
           <MaskedTextInput
@@ -112,10 +113,12 @@ export default function TransactionFormScreen({
             }}
             value={amount.toString()}
             onChangeText={(text, rawText) => {
-              setAmount(isNaN(parseInt(rawText)) ? 0 : parseInt(rawText));
+              const newAmount = parseInt(rawText);
+              !isNaN(newAmount) && setAmount(newAmount);
             }}
           />
         </View>
+
         <View style={styles.inputGroup}>
           <Text>Categoría:</Text>
           <TouchableWithoutFeedback

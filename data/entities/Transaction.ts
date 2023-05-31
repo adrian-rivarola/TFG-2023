@@ -22,7 +22,8 @@ type WeeklyTotals = Array<{
 }>;
 
 type CategoryTotals = Array<{
-  category: string;
+  categoryName: string;
+  categoryIcon: string;
   total: number;
 }>;
 
@@ -31,7 +32,9 @@ export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn("increment")
   id: number;
 
-  @Column("varchar")
+  @Column("varchar", {
+    default: "",
+  })
   description: string;
 
   @Column("float", {
@@ -40,7 +43,7 @@ export class Transaction extends BaseEntity {
   amount: number;
 
   @Column("date")
-  date: Date;
+  date: string;
 
   @ManyToOne("Category", "transactions", {
     eager: true,
@@ -53,18 +56,14 @@ export class Transaction extends BaseEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  budgets?: Budget[];
-
   static async getTotalsByCategoryType(
     categoryType: CategoryType,
     startDate: string,
     endDate: string
   ): Promise<CategoryTotals> {
     return Transaction.createQueryBuilder("t")
-      .select("category.name", "category")
+      .select("category.name", "categoryName")
+      .addSelect("category.icon", "categoryIcon")
       .addSelect("SUM(t.amount)", "total")
       .innerJoin("t.category", "category")
       .where("category.type = :type", { type: categoryType })

@@ -6,6 +6,7 @@ import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import {
   Button,
   Card,
+  Chip,
   SegmentedButtons,
   Surface,
   Text,
@@ -14,14 +15,14 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import { useMonthTotals } from "../../hooks/report/useMonthTotals";
 import { useWeekTotals } from "../../hooks/report/useWeekTotals";
+import { DateRange, getDatesFromRange } from "../../utils/dateUtils";
 
 type ReportsPreviewProps = {};
-type ReportOption = "week" | "month";
 
 export default function ReportsPreview(props: ReportsPreviewProps) {
   const navigation = useNavigation();
   const { theme, isDarkTheme } = useTheme();
-  const [activeSegment, setActiveSegment] = useState<ReportOption>("week");
+  const [activeSegment, setActiveSegment] = useState<"week" | "month">("week");
 
   const { data: weekTotals } = useWeekTotals();
   const { data: monthTotals } = useMonthTotals();
@@ -39,72 +40,81 @@ export default function ReportsPreview(props: ReportsPreviewProps) {
   }
 
   return (
-    <Surface
-      style={{
-        borderRadius: 10,
-        backgroundColor: theme.colors.surface,
-      }}
-      elevation={3}
-    >
-      <View style={styles.titleContainer}>
-        <Text variant="headlineSmall" style={styles.title}>
-          Reporte de Gastos
-        </Text>
+    <>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: 10,
+          width: "100%",
+        }}
+      >
+        <Text variant="titleMedium">Gastos totales</Text>
+        <Button
+          mode="text"
+          onPress={() => {
+            navigation.navigate("BottomTab", {
+              screen: "ReportsScreen",
+            });
+          }}
+        >
+          Ver más
+        </Button>
+      </View>
 
+      <Surface
+        style={{
+          borderRadius: 10,
+          backgroundColor: theme.colors.surface,
+        }}
+        elevation={3}
+      >
         <SegmentedButtons
+          style={{
+            margin: 20,
+            alignSelf: "center",
+          }}
           value={activeSegment}
-          onValueChange={(s) => setActiveSegment(s as ReportOption)}
+          onValueChange={(s) => setActiveSegment(s as any)}
           density="medium"
           buttons={[
-            {
-              value: "month",
-              label: "Este mes",
-            },
             {
               value: "week",
               label: "Esta semana",
             },
+            {
+              value: "month",
+              label: "Este mes",
+            },
           ]}
         />
-      </View>
 
-      <View style={{ width: screenWidth - 20, padding: 0 }}>
-        <LineChart
-          style={{ paddingTop: 12 }}
-          data={activeSegment === "week" ? weekTotals : monthTotals}
-          chartConfig={chartConfig}
-          width={screenWidth - 20}
-          segments={3}
-          height={200}
-          withShadow={false}
-          yAxisLabel="Gs "
-          formatYLabel={(n) => {
-            let num = parseInt(n);
-            if (!num) {
-              return "0";
-            }
-            return Math.floor(num / 1000) + "K";
-          }}
-          withDots={false}
-          fromZero
-          transparent
-          bezier
-        />
-      </View>
-
-      <Button
-        mode="text"
-        style={{
-          width: 120,
-          alignSelf: "center",
-        }}
-        onPress={() => {
-          navigation.navigate("ReportsScreen");
-        }}
-      >
-        Ver más
-      </Button>
-    </Surface>
+        <View style={{ width: screenWidth - 20, padding: 0 }}>
+          <LineChart
+            style={{ paddingTop: 12 }}
+            data={activeSegment === "week" ? weekTotals : monthTotals}
+            chartConfig={chartConfig}
+            width={screenWidth - 20}
+            segments={3}
+            height={200}
+            withShadow={false}
+            yAxisLabel="Gs "
+            formatYLabel={(n) => {
+              let num = parseInt(n);
+              if (!num) {
+                return "0";
+              }
+              return Math.floor(num / 1000) + "K";
+            }}
+            withDots={false}
+            fromZero
+            transparent
+            bezier
+          />
+        </View>
+      </Surface>
+    </>
   );
 }
 
@@ -112,10 +122,7 @@ const screenWidth = Dimensions.get("screen").width;
 const styles = StyleSheet.create({
   titleContainer: {
     alignItems: "center",
-    marginVertical: 10,
-    width: screenWidth - 20,
-  },
-  title: {
-    marginBottom: 8,
+    marginVertical: 20,
+    // width: screenWidth - 20,
   },
 });

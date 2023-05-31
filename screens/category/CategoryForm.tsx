@@ -9,22 +9,25 @@ import { useSaveCategory } from "../../hooks/category/useSaveCategory";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
 import { useTheme } from "../../context/ThemeContext";
+import { useDeleteCategory } from "../../hooks/category/useDeleteCategory";
 
 type ScreenProps = RootStackScreenProps<"CategoryForm">;
 
-export default function CategoryForm({ navigation }: ScreenProps) {
+export default function CategoryForm({ navigation, route }: ScreenProps) {
   const {
     theme: { colors },
   } = useTheme();
   const { mutateAsync: saveCategory } = useSaveCategory();
+  const { mutateAsync: deleteCategory } = useDeleteCategory();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
 
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("");
-  const [type, setType] = useState(CategoryType.expense);
+  const [name, setName] = useState(route.params?.name || "");
+  const [icon, setIcon] = useState(route.params?.icon || "");
+  const [type, setType] = useState(route.params?.type || CategoryType.expense);
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     const category = Category.create({
+      id: route.params?.id,
       name,
       icon,
       type,
@@ -46,6 +49,12 @@ export default function CategoryForm({ navigation }: ScreenProps) {
         });
         console.log("Failed to create Category!", err);
       });
+  };
+
+  const handleDelete = () => {
+    deleteCategory(route.params!.id).then(() => {
+      navigation.goBack();
+    });
   };
 
   return (
@@ -96,10 +105,19 @@ export default function CategoryForm({ navigation }: ScreenProps) {
           mode="contained"
           style={{ marginTop: 24 }}
           disabled={!name || !icon}
-          onPress={onSubmit}
+          onPress={handleSubmit}
         >
           Guardar
         </Button>
+        {route.params?.id && (
+          <Button
+            mode="contained"
+            style={{ marginTop: 24 }}
+            onPress={handleDelete}
+          >
+            Eliminar
+          </Button>
+        )}
       </View>
     </ScrollView>
   );

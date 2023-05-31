@@ -9,6 +9,7 @@ import {
   NavigatorScreenParams,
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CategoryType } from "./data";
 
 declare global {
   namespace ReactNavigation {
@@ -31,16 +32,24 @@ export type RootStackParamList = {
   CategorySelect:
     | {
         multiple: boolean;
+        categoryType?: CategoryType;
       }
     | undefined;
-  CategoryForm: undefined;
+  CategoryList: undefined;
+  CategoryForm:
+    | undefined
+    | {
+        id: number;
+        name: string;
+        icon: string;
+        type: CategoryType;
+      };
   TransactionDetails: {
     transactionId: number;
   };
   BudgetDetails: {
     budgetId: number;
   };
-  ReportsScreen: undefined;
   TestComponents: undefined;
   Configuration: undefined;
 };
@@ -52,8 +61,8 @@ export type BottomTabParamList = {
   Home: undefined;
   TransactionList: undefined;
   BudgetList: undefined;
-  Configuration: undefined;
   ReportsScreen: undefined;
+  Configuration: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof BottomTabParamList> =

@@ -9,14 +9,15 @@ import {
   EventSubscriber,
   In,
   JoinTable,
-  LessThanOrEqual,
   ManyToMany,
-  MoreThan,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
+import { getDatesFromRange } from "../../utils/dateUtils";
 import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
+
+type BudgetDateRange = "week" | "month";
 
 @Entity("Budget")
 export class Budget extends BaseEntity {
@@ -31,15 +32,10 @@ export class Budget extends BaseEntity {
   })
   maxAmount: number;
 
-  @Column("date", {
+  @Column("varchar", {
     nullable: false,
   })
-  startDate: Date;
-
-  @Column("date", {
-    nullable: false,
-  })
-  endDate: Date;
+  dateRange: BudgetDateRange;
 
   @ManyToMany("Category", {
     eager: true,
@@ -51,25 +47,32 @@ export class Budget extends BaseEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @CreateDateColumn()
-  updatedAt: Date;
-
-  totalSpent: number;
+  totalSpent = 0;
   transactions?: Transaction[];
 
-  get dateInfo() {
-    const start = dayjs(this.startDate);
-    const end = dayjs(this.endDate);
+  get startDate() {
+    return dayjs().startOf(this.dateRange).startOf("day");
+  }
 
-    if (start.isSame(end, "month")) {
-      return `${start.format("D")} al ${end.format("D [de] MMMM")}`;
+  get endDate() {
+    return dayjs().endOf(this.dateRange).endOf("day");
+  }
+
+  get dateInfo() {
+    const { startDate, endDate } = this;
+
+    if (startDate.isSame(endDate, "month")) {
+      return `${startDate.format("D")} al ${endDate.format("D [de] MMMM")}`;
     } else {
-      return `${start.format("D [de] MMMM")} al ${end.format("D [de] MMMM")}`;
+      return `${startDate.format("D [de] MMMM")} al ${endDate.format(
+        "D [de] MMMM"
+      )}`;
     }
   }
 
   static async findTransactions(budget: Budget): Promise<Transaction[]> {
-    const { categories, startDate, endDate } = budget;
+    const { categories, dateRange } = budget;
+    const { startDate, endDate } = getDatesFromRange(dateRange);
 
     return Transaction.find({
       relations: ["category"],
@@ -85,24 +88,9 @@ export class Budget extends BaseEntity {
     });
   }
 
-  static findBudgetsForTransaction(transaction: Transaction) {
-    const { category, date } = transaction;
-
-    return Budget.find({
-      where: {
-        categories: {
-          id: In([category.id]),
-        },
-        startDate: LessThanOrEqual(date),
-        endDate: MoreThan(date),
-      },
-    });
-  }
-
   static async getTotalSpent(budget: Budget): Promise<number> {
-    const { categories, startDate, endDate } = budget;
-
-    if (categories === undefined) return 0;
+    const { categories, dateRange } = budget;
+    const { startDate, endDate } = getDatesFromRange(dateRange);
 
     try {
       const totalSpent = await Transaction.sum("amount", {
@@ -124,8 +112,9 @@ export class BudgetSubscriber implements EntitySubscriberInterface<Budget> {
     return Budget;
   }
 
-  async afterLoad(budget: Budget): Promise<any | void> {
-    budget.totalSpent = await Budget.getTotalSpent(budget);
-    // console.log("afterLoad", { ...budget, totalSpent: budget.totalSpent });
+  async afterLoad(budget: Budget | any): Promise<any | void> {
+    if (budget instanceof Budget) {
+      budget.totalSpent = await Budget.getTotalSpent(budget);
+    }
   }
 }

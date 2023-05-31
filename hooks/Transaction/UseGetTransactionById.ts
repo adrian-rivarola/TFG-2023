@@ -7,7 +7,7 @@ async function getTransactionById(transactionId: number) {
     id: transactionId,
   });
 
-  transaction.budgets = await Budget.findBudgetsForTransaction(transaction);
+  // transaction.budgets = await Budget.findBudgetsForTransaction(transaction);
 
   return transaction;
 }

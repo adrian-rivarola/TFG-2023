@@ -29,7 +29,6 @@ export default function TransactionDetailsScreen({
   const { mutateAsync } = useDeleteTransaction();
 
   const category = transaction?.category;
-  const budgets = transaction?.budgets ?? [];
 
   const {
     theme: { colors },
@@ -130,31 +129,6 @@ export default function TransactionDetailsScreen({
           </Button>
         </View>
       </View>
-
-      {transaction.category.isExpense && (
-        <View style={styles.budgetInfo}>
-          <Text style={[styles.ms2, styles.mb2]} variant="titleMedium">
-            Presupuestos:
-          </Text>
-          {budgets.length > 0 ? (
-            budgets.map((b) => (
-              <BudgetCard
-                key={b.id}
-                budget={b}
-                onPress={() => {
-                  navigation.navigate("BudgetDetails", {
-                    budgetId: b.id,
-                  });
-                }}
-              />
-            ))
-          ) : (
-            <Text style={{ padding: 16 }}>
-              Esta categoría no pertenece a ningún presupuesto.
-            </Text>
-          )}
-        </View>
-      )}
     </View>
   );
 }

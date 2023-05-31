@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { DATE_FORMAT } from "../utils/dateUtils";
 import { Category, CategoryType } from "./entities/Category";
 import { Transaction } from "./entities/Transaction";
 
@@ -77,15 +78,20 @@ export async function createMockData() {
   await Transaction.save({
     amount: 4_000_000,
     category: cat,
-    date: dayjs().toDate(),
+    date: dayjs().format(DATE_FORMAT),
     description: "",
   });
 
   for (let i = 0; i < 30; i++) {
+    const randomDay = Math.floor(Math.random() * 30) + 1;
+    const randomCategory =
+      categories[Math.floor(Math.random() * categories.length)];
+    const randomAmount = AMOUNTS[Math.floor(Math.random() * AMOUNTS.length)];
+
     await Transaction.save({
-      amount: AMOUNTS[Math.floor(Math.random() * AMOUNTS.length)],
-      category: categories[Math.floor(Math.random() * categories.length)],
-      date: dayjs(`2023-05-${Math.floor(Math.random() * 30) + 1}`).toDate(),
+      amount: randomAmount,
+      category: randomCategory,
+      date: `2023-05-${randomDay}`,
       description: "",
     });
   }

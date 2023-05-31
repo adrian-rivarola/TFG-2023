@@ -5,11 +5,11 @@ import * as React from "react";
 import { useTheme } from "../context/ThemeContext";
 import { RootStackParamList } from "../types";
 
-import Reports from "../screens/Reports";
 import TestComponents from "../screens/TestComponents";
 import BudgetDetailsScreen from "../screens/budget/BudgetDetails";
 import BudgetFormScreen from "../screens/budget/BudgetForm";
 import CategoryForm from "../screens/category/CategoryForm";
+import CategoryList from "../screens/category/CategoryList";
 import CategorySelect from "../screens/category/CategorySelect";
 import TransactionDetailsScreen from "../screens/transaction/TransactionDetails";
 import TransactionFormScreen from "../screens/transaction/TransactionForm";
@@ -86,20 +86,19 @@ export default function Navigation() {
             title: "Detalles de Presupuesto",
           })}
         />
-        {/* Reports screens */}
-        <Stack.Screen
-          name="ReportsScreen"
-          component={Reports}
-          options={() => ({
-            title: "Reportes",
-          })}
-        />
         {/* Other screens */}
         <Stack.Screen
           name="TestComponents"
           component={TestComponents}
           options={() => ({
             title: "Test",
+          })}
+        />
+        <Stack.Screen
+          name="CategoryList"
+          component={CategoryList}
+          options={() => ({
+            title: "Categories",
           })}
         />
       </Stack.Navigator>

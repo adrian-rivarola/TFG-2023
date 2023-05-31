@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { Budget, Category, Transaction } from "../../data";
+import { DB_ENTITIES, DB_SUBSCRIBERS } from "../../data";
 
 /**
  * initialize the database
@@ -10,7 +10,8 @@ export function initiMemoryDB() {
     database: ":memory:",
     logging: false,
     synchronize: true,
-    entities: [Budget, Category, Transaction],
+    entities: DB_ENTITIES,
+    subscribers: DB_SUBSCRIBERS,
   });
 
   return dataSource.initialize();

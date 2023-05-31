@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   ScrollView,
@@ -8,19 +7,18 @@ import {
   View,
 } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, SegmentedButtons, Text, TextInput } from "react-native-paper";
 import { useQuery } from "react-query";
 
-import { DatePicker } from "../../components/DatePicker";
-import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
-import { Budget } from "../../data";
+import { Budget, CategoryType } from "../../data";
 import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
 import { useCategoryStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
 
 type ScreenProps = RootStackScreenProps<"BudgetForm">;
+type DateRangeOption = "week" | "month";
 
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
@@ -34,8 +32,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const budgetId = route.params?.budgetId;
   const [description, setDescription] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [dateRange, setDateRange] = useState<DateRangeOption>("week");
 
   // TODO: improve this
   useQuery(
@@ -58,8 +55,6 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   function onBudgetLoad(budget: Budget) {
     setDescription(budget.description);
     setMaxAmount(budget.maxAmount.toString());
-    setStartDate(dayjs(budget.startDate).toDate());
-    setEndDate(dayjs(budget.endDate).toDate());
     setSelectedCategories(budget.categories);
   }
 
@@ -68,8 +63,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
       description: description,
       maxAmount: parseInt(maxAmount, 10),
       categories: selectedCategories,
-      startDate: startDate,
-      endDate: endDate,
+      dateRange: dateRange,
       id: budgetId,
     });
 
@@ -84,7 +78,6 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         });
 
         navigation.goBack();
-        resetForm();
       })
       .catch((err) => {
         showSnackMessage({
@@ -93,14 +86,6 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         });
         console.error(err);
       });
-  };
-
-  const resetForm = () => {
-    setDescription("");
-    setMaxAmount("");
-    setStartDate(new Date());
-    setEndDate(new Date());
-    setSelectedCategories([]);
   };
 
   return (
@@ -131,12 +116,6 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
               setMaxAmount(isNaN(parseInt(rawText)) ? "" : rawText);
             }}
           />
-          {/* <TextInput
-            mode="outlined"
-            keyboardType="numeric"
-            value={maxAmount}
-            onChangeText={(val) => setMaxAmount(val)}
-          /> */}
         </View>
 
         <View style={styles.inputGroup}>
@@ -146,6 +125,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
             onPress={() => {
               navigation.navigate("CategorySelect", {
                 multiple: true,
+                categoryType: CategoryType.expense,
               });
             }}
           >
@@ -185,21 +165,20 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           </TouchableWithoutFeedback>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text>Fecha de inicio:</Text>
-          <DatePicker
-            // maxDate={endDate}
-            date={startDate}
-            onChange={(val) => setStartDate(val)}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text>Fecha de fin:</Text>
-          <DatePicker
-            date={endDate}
-            // minDate={startDate}
-            onChange={(val) => setEndDate(val)}
+        <View style={{ alignItems: "center" }}>
+          <SegmentedButtons
+            value={dateRange}
+            onValueChange={(value) => setDateRange(value as DateRangeOption)}
+            buttons={[
+              {
+                value: "week",
+                label: "Semana",
+              },
+              {
+                value: "month",
+                label: "Mes",
+              },
+            ]}
           />
         </View>
 
@@ -216,19 +195,14 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   );
 }
 
-const screenWidth = Layout.window.width;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    paddingHorizontal: 25,
   },
   inputGroup: {
     flex: 1,
-    // alignSelf: "center",
     paddingVertical: 16,
-    alignContent: "center",
-    width: screenWidth - 100,
   },
   amountInput: {
     height: 40,

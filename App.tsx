@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { AppRegistry, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { es, registerTranslation } from "react-native-paper-dates";
 import "reflect-metadata";
 
 import ConfirmationModal from "./components/ConfirmationModal";
@@ -39,4 +40,5 @@ export default function App() {
 }
 
 dayjs.locale("es");
+registerTranslation("en", es);
 AppRegistry.registerComponent("app", () => App);

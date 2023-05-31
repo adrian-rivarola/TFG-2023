@@ -3,6 +3,7 @@ coverage/
 .expo/
 dist/
 npm-debug.*
+*.log
 *.jks
 *.p8
 *.p12

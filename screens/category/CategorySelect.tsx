@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Checkbox, List, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
-import { Category } from "../../data";
+import { Category, CategoryType } from "../../data";
 import { useGetCategories } from "../../hooks/category/useGetCategories";
 import { useCategoryStore } from "../../store";
 import { RootStackScreenProps } from "../../types";
@@ -17,8 +17,7 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
     (state) => [state.selectedCategories, state.setSelectedCategories]
   );
 
-  // const multiple = route.params?.multiple || false;
-  const multiple = false;
+  const { multiple = false, categoryType } = route.params || {};
   const expenseCategories = useMemo(
     () => categories?.filter((c) => c.isExpense) ?? [],
     [categories]
@@ -94,26 +93,29 @@ export default function CategorySelect({ navigation, route }: ScreenProps) {
               Aún no tienes ninguna categoría
             </Text>
           )}
-          {expenseCategories.length > 0 && (
-            <List.Section
-              title="Egresos"
-              titleStyle={{
-                fontWeight: "bold",
-              }}
-            >
-              {expenseCategories.map(renderCategoryItem)}
-            </List.Section>
-          )}
-          {incomeCategories.length > 0 && (
-            <List.Section
-              title="Ingresos"
-              titleStyle={{
-                fontWeight: "bold",
-              }}
-            >
-              {incomeCategories.map(renderCategoryItem)}
-            </List.Section>
-          )}
+          {/* TODO: Improve this filter */}
+          {[undefined, CategoryType.expense].includes(categoryType) &&
+            expenseCategories.length > 0 && (
+              <List.Section
+                title="Egresos"
+                titleStyle={{
+                  fontWeight: "bold",
+                }}
+              >
+                {expenseCategories.map(renderCategoryItem)}
+              </List.Section>
+            )}
+          {[undefined, CategoryType.income].includes(categoryType) &&
+            incomeCategories.length > 0 && (
+              <List.Section
+                title="Ingresos"
+                titleStyle={{
+                  fontWeight: "bold",
+                }}
+              >
+                {incomeCategories.map(renderCategoryItem)}
+              </List.Section>
+            )}
         </View>
 
         <Button

@@ -1,11 +1,12 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import React from "react";
-import Balance from "../components/Balance";
+import BalanceCard from "../components/BalanceCard";
 import ReportsPreview from "../components/reports/ReportsPreview";
 import LastTransactions from "../components/transactions/LastTransactions";
 import { RootTabScreenProps } from "../types";
 import CustomFAB from "../components/CustomFAB";
+import DateFilterFAB from "../components/DateFilterFAB";
 
 type ScreenProps = RootTabScreenProps<"Home">;
 
@@ -14,7 +15,7 @@ export default function Home({ navigation }: ScreenProps) {
     <>
       <ScrollView>
         <View style={styles.container}>
-          <Balance />
+          <BalanceCard />
           <View style={styles.smallSeparator} />
           <ReportsPreview />
           <View style={styles.smallSeparator} />

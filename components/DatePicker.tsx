@@ -1,9 +1,8 @@
-import RNDateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
-import React from "react";
-import { Platform, TouchableWithoutFeedback } from "react-native";
+import dayjs from "dayjs";
+import React, { useState } from "react";
+import { TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
+import { DatePickerModal } from "react-native-paper-dates";
 import { useTheme } from "../context/ThemeContext";
 
 type DatePickerProps = {
@@ -19,42 +18,40 @@ export function DatePicker({
   maxDate,
   onChange,
 }: DatePickerProps) {
-  const { themeType, theme } = useTheme();
-
-  return Platform.OS === "ios" ? (
-    <RNDateTimePicker
-      themeVariant={themeType}
-      value={date}
-      minimumDate={minDate}
-      maximumDate={maxDate}
-      onChange={(e, newDate) => newDate && onChange(newDate)}
-      style={{
-        alignSelf: "flex-start",
-      }}
-    />
-  ) : (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        DateTimePickerAndroid.open({
-          minimumDate: minDate,
-          maximumDate: maxDate,
-          value: date,
-          onChange: (e, newDate) => {
-            newDate && onChange(newDate);
-          },
-        });
-      }}
-    >
-      <Text
-        style={{
-          borderColor: theme.colors.secondary,
-          borderWidth: 1,
-          borderRadius: 4,
-          padding: 14,
+  const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <TouchableOpacity onPress={() => setOpen(true)}>
+        <Text
+          style={{
+            borderColor: theme.colors.secondary,
+            borderWidth: 1,
+            borderRadius: 4,
+            padding: 14,
+            textTransform: "capitalize",
+          }}
+        >
+          {dayjs(date).format("dddd, DD [de] MMMM")}
+        </Text>
+      </TouchableOpacity>
+      <DatePickerModal
+        locale="en"
+        mode="single"
+        visible={open}
+        validRange={{
+          startDate: minDate,
+          endDate: maxDate,
         }}
-      >
-        {date.toDateString()}
-      </Text>
-    </TouchableWithoutFeedback>
+        onDismiss={() => setOpen(false)}
+        onConfirm={({ date }) => {
+          if (date) {
+            onChange(date);
+            setOpen(false);
+          }
+        }}
+        dateMode="start"
+      />
+    </>
   );
 }

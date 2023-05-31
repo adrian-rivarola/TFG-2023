@@ -1,12 +1,14 @@
 import { StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
+import { Button, Text } from "react-native-paper";
 
 import Layout from "../../constants/Layout";
 import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
 import TransactionCard from "./TransactionCard";
+import { useNavigation } from "@react-navigation/native";
 
 export default function LastTransactions() {
   const { data: transactions, isLoading } = useGetTransactions({ take: 3 });
+  const navigation = useNavigation();
 
   if (isLoading || !transactions) {
     return null;
@@ -14,16 +16,31 @@ export default function LastTransactions() {
 
   return (
     <View style={styles.transactionsContainer}>
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={styles.title}>Últimas transacciones</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingHorizontal: 10,
+          width: "100%",
+        }}
+      >
+        <Text variant="titleMedium">Últimas transacciones</Text>
+        <Button
+          mode="text"
+          onPress={() => {
+            navigation.navigate("BottomTab", {
+              screen: "TransactionList",
+            });
+          }}
+        >
+          Ver más
+        </Button>
       </View>
-      {transactions.length ? (
-        transactions.map((transaction) => (
-          <TransactionCard key={transaction.id} transaction={transaction} />
-        ))
-      ) : (
-        <Text style={{ paddingVertical: 16 }}>Aún no hay transacciones :(</Text>
-      )}
+
+      {transactions.map((transaction) => (
+        <TransactionCard key={transaction.id} transaction={transaction} />
+      ))}
     </View>
   );
 }
