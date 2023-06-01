@@ -8,6 +8,7 @@ import { Transaction } from "../../data";
 import { formatCurrency } from "../../utils/numberFormatter";
 import dayjs from "dayjs";
 import { View } from "react-native";
+import CategoryIcon from "../category/CategoryIcon";
 
 type TransactionCardProps = {
   transaction: Transaction;
@@ -56,23 +57,7 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
           </View>
         )}
         rightStyle={{ marginEnd: 10 }}
-        left={(props) => (
-          <Avatar.Icon
-            {...props}
-            style={{
-              backgroundColor: category.isExpense
-                ? colors.expense
-                : colors.income,
-            }}
-            icon={() => (
-              <MaterialIcons
-                name={category.icon as any}
-                size={20}
-                color={colors.card}
-              />
-            )}
-          />
-        )}
+        left={(props) => <CategoryIcon category={category} {...props} />}
       />
       {/* <Card.Content
         style={{ flexDirection: "row", justifyContent: "space-between" }}

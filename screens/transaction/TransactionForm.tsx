@@ -18,6 +18,7 @@ import { useSaveTransaction } from "../../hooks/transaction/useSaveTransaction";
 import { useCategoryStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
+import { DATE_FORMAT } from "../../utils/dateUtils";
 
 type ScreenProps = RootStackScreenProps<"TransactionForm">;
 
@@ -64,7 +65,7 @@ export default function TransactionFormScreen({
       amount,
       description,
       category: selectedCategories[0],
-      date: date.toISOString(),
+      date: dayjs(date).format(DATE_FORMAT),
     });
 
     saveTransaction(transaction)

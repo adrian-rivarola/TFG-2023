@@ -101,13 +101,6 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         }}
       />
       <List.Item
-        title="TestComponents"
-        style={themedStyles.categoryItem}
-        onPress={() => {
-          navigation.navigate("TestComponents");
-        }}
-      />
-      <List.Item
         right={() => (
           <MaterialIcons
             name={isDarkTheme ? "lightbulb" : "nightlight-round"}
@@ -130,6 +123,13 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         title="Borrar todos los datos"
         style={themedStyles.categoryItem}
         onPress={clearData}
+      />
+      <List.Item
+        title="TestComponents"
+        style={themedStyles.categoryItem}
+        onPress={() => {
+          navigation.navigate("TestComponents");
+        }}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
 
@@ -30,6 +30,14 @@ export default function BudgetDetailsScreen({
   const { mutateAsync } = useDeleteBudget();
   const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
   const { categories = [], transactions = [] } = budget || {};
+
+  useEffect(() => {
+    if (budget) {
+      navigation.setOptions({
+        title: budget.description,
+      });
+    }
+  }, [budget]);
 
   const deleteBudget = () => {
     showConfirmationModal({

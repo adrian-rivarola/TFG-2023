@@ -41,7 +41,7 @@ export default function BalanceCard() {
   };
 
   return (
-    <Card mode="elevated" style={styles.balanceContainer}>
+    <Card elevation={1} mode="elevated" style={styles.balanceContainer}>
       <Card.Content style={{ alignContent: "center" }}>
         <Text variant="titleMedium">Balance total:</Text>
         <Text variant="displaySmall">{formatCurrency(balance)}</Text>

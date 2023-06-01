@@ -7,7 +7,7 @@ const getMonthTotals = async () => {
   let monthStart = dayjs().startOf("month").startOf("day");
   // get first monday
   while (monthStart.day() !== 1) {
-    monthStart = monthStart.add(1, "day");
+    monthStart = monthStart.subtract(1, "day");
   }
 
   const monthDates: Dayjs[] = [];

@@ -29,7 +29,7 @@ export default function DateFilterFAB({ onChange }: DateFilterFABProps) {
             alignItems: "center",
             justifyContent: "center",
           }}
-          icon="plus"
+          icon="calendar-today"
           actions={[
             {
               icon: "calendar-range",

@@ -34,8 +34,8 @@ const lightTheme: Theme = {
   colors: {
     ...NavigationDefaultTheme.colors,
     ...PaperDefaultTheme.colors,
-    expense: "rgb(186, 26, 26)",
-    income: "rgb(1, 110, 33)",
+    expense: "rgb(248, 79, 49)",
+    income: "rgb(35, 197, 82)",
   },
 };
 
@@ -45,8 +45,8 @@ const darkTheme: Theme = {
   colors: {
     ...NavigationDarkTheme.colors,
     ...PaperDarkTheme.colors,
-    expense: "rgb(255, 180, 171)",
-    income: "rgb(126, 219, 127)",
+    expense: "rgb(248, 79, 49)",
+    income: "rgb(35, 197, 82)",
   },
 };
 

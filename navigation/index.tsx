@@ -36,17 +36,19 @@ export default function Navigation() {
         <Stack.Screen
           name="CategoryForm"
           component={CategoryForm}
-          options={() => ({
-            title: "Crear Categoría",
+          options={({ route }) => ({
+            animation: "fade_from_bottom",
+            animationDuration: 250,
+            title: route.params?.id ? "Editar Categoría" : "Crear Categoría",
           })}
         />
         <Stack.Screen
           name="CategorySelect"
           component={CategorySelect}
           options={() => ({
+            title: "Seleccionar Categoría",
             animation: "fade_from_bottom",
             animationDuration: 250,
-            title: "Seleccionar Categoría",
           })}
         />
         {/* Transactions screens */}
@@ -74,6 +76,8 @@ export default function Navigation() {
           name="BudgetForm"
           component={BudgetFormScreen}
           options={({ route }) => ({
+            animation: "fade_from_bottom",
+            animationDuration: 250,
             title: route.params?.budgetId
               ? "Editar Presupuesto"
               : "Crear Presupuesto",
