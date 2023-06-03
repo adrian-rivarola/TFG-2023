@@ -1,17 +1,29 @@
+import { useIsFocused } from "@react-navigation/native";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FAB, Portal } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
+
 import { DATE_FORMAT, DateRange, getDatesFromRange } from "../utils/dateUtils";
 
 type DateFilterFABProps = {
+  initialRange?: DateRange;
   onChange(dateRange: DateRange): void;
 };
 
-export default function DateFilterFAB({ onChange }: DateFilterFABProps) {
+export default function DateFilterFAB({
+  initialRange,
+  onChange,
+}: DateFilterFABProps) {
+  const isFocused = useIsFocused();
+
   const [open, setOpen] = useState(false);
   const [openDateModal, setOpenDateModal] = useState(false);
-  const [range, setRange] = useState(getDatesFromRange("week"));
+  const [range, setRange] = useState(initialRange || getDatesFromRange("week"));
+
+  if (!isFocused) {
+    return null;
+  }
 
   return (
     <>

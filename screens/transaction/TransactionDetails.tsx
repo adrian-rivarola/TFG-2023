@@ -10,7 +10,7 @@ import { useGetTransactionById } from "../../hooks/transaction/UseGetTransaction
 import { useDeleteTransaction } from "../../hooks/transaction/useDeleteTransaction";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
-import { formatCurrency } from "../../utils/numberFormatter";
+import { formatCurrency } from "../../utils/numberUtils";
 
 type ScreenProps = RootStackScreenProps<"TransactionDetails">;
 

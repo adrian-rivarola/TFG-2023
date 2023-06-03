@@ -16,10 +16,10 @@ const getMonthTotals = async () => {
     monthDates.push(monthStart.add(i, "weeks"));
   }
 
-  const monthData = await Transaction.getWeeklyTotals(
-    monthDates[0].format("YYYY-MM-DD"),
-    monthStart.add(4, "weeks").format("YYYY-MM-DD")
-  );
+  const monthData = await Transaction.getWeeklyTotals({
+    startDate: monthDates[0].format("YYYY-MM-DD"),
+    endDate: monthStart.add(4, "weeks").format("YYYY-MM-DD"),
+  });
   const monthReportData = monthDates.map(
     (d) =>
       monthData.find((md) => d.isSame(md.weekStart, "day"))

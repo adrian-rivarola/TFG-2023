@@ -1,7 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, RadioButton, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  RadioButton,
+  SegmentedButtons,
+  Text,
+  TextInput,
+} from "react-native-paper";
 
 import Layout from "../../constants/Layout";
 import { Category, CategoryType } from "../../data";
@@ -60,6 +66,24 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
   return (
     <ScrollView>
       <View style={styles.container}>
+        <View style={{ marginTop: 20 }}>
+          <SegmentedButtons
+            density="medium"
+            value={type.toString()}
+            onValueChange={(value) => setType(parseInt(value))}
+            buttons={[
+              {
+                value: CategoryType.income.toString(),
+                label: "Ingreso",
+              },
+              {
+                value: CategoryType.expense.toString(),
+                label: "Egreso",
+              },
+            ]}
+          />
+        </View>
+
         <View style={styles.inputGroup}>
           <Text>Nombre:</Text>
           <TextInput
@@ -70,22 +94,7 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text>Tipo:</Text>
-          <RadioButton.Group
-            onValueChange={(value) =>
-              setType(
-                value === "ingreso" ? CategoryType.income : CategoryType.expense
-              )
-            }
-            value={type === CategoryType.income ? "ingreso" : "egreso"}
-          >
-            <RadioButton.Item label="Egreso" value="egreso" mode="android" />
-            <RadioButton.Item label="Ingreso" value="ingreso" mode="android" />
-          </RadioButton.Group>
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text>Icon:</Text>
+          <Text>Ícono:</Text>
           <View>
             <TextInput
               autoCapitalize="none"

@@ -5,7 +5,7 @@ import { Avatar, Card, Text } from "react-native-paper";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
 import { Transaction } from "../../data";
-import { formatCurrency } from "../../utils/numberFormatter";
+import { formatCurrency } from "../../utils/numberUtils";
 import dayjs from "dayjs";
 import { View } from "react-native";
 import CategoryIcon from "../category/CategoryIcon";

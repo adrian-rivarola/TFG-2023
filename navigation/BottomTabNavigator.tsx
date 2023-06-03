@@ -1,13 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
+import { IconButton } from "react-native-paper";
 import { BottomTabParamList } from "../types";
 
 import ConfigurationScreen from "../screens/Configuration";
 import Home from "../screens/Home";
+import Reports from "../screens/Reports";
 import BudgetListScreen from "../screens/budget/BudgetList";
 import TransactionsListScreen from "../screens/transaction/TransactionsList";
-import Reports from "../screens/Reports";
 
 function TabBarIcon({
   size,
@@ -44,8 +45,17 @@ export default function BottomTabNavigator() {
         component={TransactionsListScreen}
         options={{
           title: "Transacciones",
+          tabBarLabel: "Transacciones",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="compare-arrows" color={color} />
+            <TabBarIcon name="list-alt" color={color} />
+          ),
+          headerRight: () => (
+            <IconButton
+              icon={() => <MaterialIcons name="filter-list" size={25} />}
+              onPress={() => {
+                console.log("Feature in progress");
+              }}
+            />
           ),
         }}
       />
@@ -55,7 +65,7 @@ export default function BottomTabNavigator() {
         options={{
           title: "Presupuestos",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="attach-money" color={color} />
+            <TabBarIcon name="account-balance-wallet" color={color} />
           ),
         }}
       />
@@ -64,6 +74,7 @@ export default function BottomTabNavigator() {
         component={Reports}
         options={{
           title: "Reportes",
+          tabBarLabel: "Reportes",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="bar-chart" color={color} />
           ),

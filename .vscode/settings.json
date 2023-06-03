@@ -6,6 +6,7 @@
   },
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+  "workbench.tree.indent": 14,
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   }

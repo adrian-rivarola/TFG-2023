@@ -19,6 +19,7 @@ export default function Home({ navigation }: ScreenProps) {
           <ExpenseTotalsByDate />
           <View style={styles.smallSeparator} />
           <LastTransactions />
+          <View style={styles.separator} />
         </View>
       </ScrollView>
       <CustomFAB destination="TransactionForm" />
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   smallSeparator: {
-    marginVertical: 10,
+    marginVertical: 15,
   },
   footer: {
     justifyContent: "space-around",

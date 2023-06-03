@@ -1,13 +1,11 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
-import { Avatar, ProgressBar, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import CustomFAB from "../../components/CustomFAB";
+import { BudgetGroup } from "../../components/budgets/BudgetGroup";
 import { useGetBudgets } from "../../hooks/budget/useGetBudgets";
 import { RootTabScreenProps } from "../../types";
-import { formatCurrency } from "../../utils/numberFormatter";
-import { BudgetGroup } from "../../components/budgets/BudgetGroup";
 
 type ScreenProps = RootTabScreenProps<"BudgetList">;
 

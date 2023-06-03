@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { ProgressBar, Text } from "react-native-paper";
 import { Budget } from "../../data";
-import { formatCurrency } from "../../utils/numberFormatter";
+import { formatCurrency } from "../../utils/numberUtils";
 
 type BudgetPercentageBarProps = {
   budget: Budget;

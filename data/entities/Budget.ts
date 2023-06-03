@@ -13,7 +13,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import { getDatesFromRange } from "../../utils/dateUtils";
+import { getDateInfo, getDatesFromRange } from "../../utils/dateUtils";
 import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
 
@@ -59,20 +59,15 @@ export class Budget extends BaseEntity {
   }
 
   get dateInfo() {
-    const { startDate, endDate } = this;
-
-    if (startDate.isSame(endDate, "month")) {
-      return `${startDate.format("D")} al ${endDate.format("D [de] MMMM")}`;
-    } else {
-      return `${startDate.format("D [de] MMMM")} al ${endDate.format(
-        "D [de] MMMM"
-      )}`;
-    }
+    return getDateInfo(getDatesFromRange(this.dateRange));
   }
 
-  static async findTransactions(budget: Budget): Promise<Transaction[]> {
+  static async findTransactions(
+    budget: Budget,
+    offest = 0
+  ): Promise<Transaction[]> {
     const { categories, dateRange } = budget;
-    const { startDate, endDate } = getDatesFromRange(dateRange);
+    const { startDate, endDate } = getDatesFromRange(dateRange, offest);
 
     return Transaction.find({
       relations: ["category"],
@@ -88,13 +83,12 @@ export class Budget extends BaseEntity {
     });
   }
 
-  static async getTotalSpent(budget: Budget): Promise<number> {
-    const { categories, dateRange } = budget;
-    const { startDate, endDate } = getDatesFromRange(dateRange);
+  static async getTotalSpent(budget: Budget, offset = 0): Promise<number> {
+    const { startDate, endDate } = getDatesFromRange(budget.dateRange, offset);
 
     try {
       const totalSpent = await Transaction.sum("amount", {
-        category: In(categories.map((c) => c.id)),
+        category: In(budget.categories.map((c) => c.id)),
         date: Between(startDate, endDate),
       });
 

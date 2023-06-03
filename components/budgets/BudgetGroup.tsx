@@ -42,7 +42,7 @@ export function BudgetGroup({ budgets, title }: BudgetGroupProps) {
           marginBottom: 10,
         }}
       >
-        <Text variant="titleMedium">{title}</Text>
+        <Text variant="labelLarge">{title}</Text>
       </View>
 
       {budgets.map((budget) => (

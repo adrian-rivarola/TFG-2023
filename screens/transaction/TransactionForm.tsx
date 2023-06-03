@@ -7,9 +7,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { MaskedTextInput } from "react-native-mask-text";
 import { Button, Text, TextInput } from "react-native-paper";
 
+import AmountInput from "../../components/AmountInput";
 import { DatePicker } from "../../components/DatePicker";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
@@ -94,31 +94,13 @@ export default function TransactionFormScreen({
         <View style={styles.inputGroup}>
           <Text>Descripción:</Text>
           <TextInput
-            style={styles.input}
             mode="outlined"
             value={description}
             onChangeText={setDescription}
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text>Monto:</Text>
-          <MaskedTextInput
-            style={styles.amountInput}
-            keyboardType="numeric"
-            type="currency"
-            options={{
-              prefix: "Gs. ",
-              decimalSeparator: ",",
-              groupSeparator: ".",
-            }}
-            value={amount.toString()}
-            onChangeText={(text, rawText) => {
-              const newAmount = parseInt(rawText);
-              !isNaN(newAmount) && setAmount(newAmount);
-            }}
-          />
-        </View>
+        <AmountInput label="Monto:" value={amount} setValue={setAmount} />
 
         <View style={styles.inputGroup}>
           <Text>Categoría:</Text>
@@ -133,7 +115,7 @@ export default function TransactionFormScreen({
                 flexDirection: "row",
                 borderWidth: 1,
                 borderRadius: 4,
-                paddingVertical: 10,
+                paddingVertical: 14,
               }}
             >
               {selectedCategories.length > 0 && (
@@ -162,7 +144,7 @@ export default function TransactionFormScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={{ marginBottom: 8 }}>Fecha:</Text>
+          <Text>Fecha:</Text>
           <DatePicker date={date} onChange={setDate} />
         </View>
 
@@ -191,14 +173,5 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignContent: "center",
     width: screenWidth - 100,
-  },
-  input: {},
-  amountInput: {
-    height: 40,
-    marginHorizontal: 0,
-    marginVertical: 5,
-    paddingHorizontal: 5,
-    borderWidth: 1,
-    borderRadius: 10,
   },
 });

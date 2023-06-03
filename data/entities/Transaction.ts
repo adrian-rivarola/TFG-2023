@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import type { Budget } from "./Budget";
 import { Category, CategoryType } from "./Category";
+import { DateRange } from "../../utils/dateUtils";
 
 type DailyTotals = Array<{ date: string; total: number }>;
 type WeeklyTotals = Array<{
@@ -21,11 +22,12 @@ type WeeklyTotals = Array<{
   totalTransactions: number;
 }>;
 
-type CategoryTotals = Array<{
+export type CategoryTotal = {
   categoryName: string;
   categoryIcon: string;
   total: number;
-}>;
+  count: number;
+};
 
 @Entity("Transaction")
 export class Transaction extends BaseEntity {
@@ -58,39 +60,33 @@ export class Transaction extends BaseEntity {
 
   static async getTotalsByCategoryType(
     categoryType: CategoryType,
-    startDate: string,
-    endDate: string
-  ): Promise<CategoryTotals> {
+    dateRange: DateRange
+  ): Promise<CategoryTotal[]> {
     return Transaction.createQueryBuilder("t")
       .select("category.name", "categoryName")
       .addSelect("category.icon", "categoryIcon")
       .addSelect("SUM(t.amount)", "total")
+      .addSelect("COUNT(*)", "count")
       .innerJoin("t.category", "category")
       .where("category.type = :type", { type: categoryType })
-      .andWhere("date BETWEEN :startDate AND :endDate", { startDate, endDate })
+      .andWhere("date BETWEEN :startDate AND :endDate", dateRange)
       .orderBy("total", "DESC")
       .groupBy("category.name")
       .getRawMany();
   }
 
-  static getDailyTotals(
-    startDate: string,
-    endDate: string
-  ): Promise<DailyTotals> {
+  static getDailyTotals(dateRange: DateRange): Promise<DailyTotals> {
     return Transaction.createQueryBuilder("t")
       .select("date", "date")
       .addSelect("SUM(amount)", "total")
       .innerJoin("t.category", "category")
       .where("category.type = :type", { type: CategoryType.expense })
-      .andWhere("date BETWEEN :startDate AND :endDate", { startDate, endDate })
+      .andWhere("date BETWEEN :startDate AND :endDate", dateRange)
       .groupBy("date")
       .getRawMany();
   }
 
-  static async getWeeklyTotals(
-    startDate: string,
-    endDate: string
-  ): Promise<WeeklyTotals> {
+  static async getWeeklyTotals(dateRange: DateRange): Promise<WeeklyTotals> {
     return Transaction.createQueryBuilder("t")
       .select("strftime('%W', t.date)", "weekNumber")
       .addSelect("max(date(t.date, 'weekday 1', '-7 day'))", "weekStart")
@@ -98,10 +94,7 @@ export class Transaction extends BaseEntity {
       .addSelect("SUM(t.amount)", "totalTransactions")
       .innerJoin("t.category", "category")
       .where("category.type = :type", { type: 0 })
-      .andWhere("t.date BETWEEN :startDate AND :endDate", {
-        startDate,
-        endDate,
-      })
+      .andWhere("t.date BETWEEN :startDate AND :endDate", dateRange)
       .groupBy("weekNumber")
       .getRawMany();
   }

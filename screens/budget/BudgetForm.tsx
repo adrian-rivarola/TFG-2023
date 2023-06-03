@@ -16,6 +16,8 @@ import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
 import { useCategoryStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
+import AmountInput from "../../components/AmountInput";
+import Layout from "../../constants/Layout";
 
 type ScreenProps = RootStackScreenProps<"BudgetForm">;
 type DateRangeOption = "week" | "month";
@@ -31,7 +33,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
   const budgetId = route.params?.budgetId;
   const [description, setDescription] = useState("");
-  const [maxAmount, setMaxAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState(0);
   const [dateRange, setDateRange] = useState<DateRangeOption>("week");
 
   // TODO: improve this
@@ -54,14 +56,15 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
 
   function onBudgetLoad(budget: Budget) {
     setDescription(budget.description);
-    setMaxAmount(budget.maxAmount.toString());
+    setMaxAmount(budget.maxAmount);
+    setDateRange(budget.dateRange);
     setSelectedCategories(budget.categories);
   }
 
   const onSubmit = () => {
     const budget = Budget.create({
       description: description,
-      maxAmount: parseInt(maxAmount, 10),
+      maxAmount: maxAmount,
       categories: selectedCategories,
       dateRange: dateRange,
       id: budgetId,
@@ -100,23 +103,11 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text>Monto máximo:</Text>
-          <MaskedTextInput
-            style={styles.amountInput}
-            keyboardType="numeric"
-            type="currency"
-            options={{
-              prefix: "Gs. ",
-              decimalSeparator: ",",
-              groupSeparator: ".",
-            }}
-            value={maxAmount}
-            onChangeText={(text, rawText) => {
-              setMaxAmount(isNaN(parseInt(rawText)) ? "" : rawText);
-            }}
-          />
-        </View>
+        <AmountInput
+          label="Monto máximo:"
+          value={maxAmount}
+          setValue={setMaxAmount}
+        />
 
         <View style={styles.inputGroup}>
           <Text>Categoría:</Text>
@@ -165,7 +156,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           </TouchableWithoutFeedback>
         </View>
 
-        <View style={{ alignItems: "center" }}>
+        <View style={{ marginVertical: 10 }}>
           <SegmentedButtons
             value={dateRange}
             onValueChange={(value) => setDateRange(value as DateRangeOption)}
@@ -195,14 +186,18 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   );
 }
 
+const screenWidth = Layout.window.width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 25,
+    alignItems: "center",
   },
   inputGroup: {
     flex: 1,
     paddingVertical: 16,
+    alignContent: "center",
+    width: screenWidth - 100,
   },
   amountInput: {
     height: 40,

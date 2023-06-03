@@ -47,11 +47,8 @@ export default function LastTransactions() {
 
 const styles = StyleSheet.create({
   transactionsContainer: {
-    paddingVertical: 25,
     alignItems: "center",
-    alignSelf: "center",
     width: Layout.window.width - 20,
-    marginBottom: 40,
   },
   title: {
     fontSize: 16,

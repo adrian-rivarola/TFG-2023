@@ -1,8 +1,14 @@
 import { DataSource } from "typeorm";
 import { Category, CategoryType, Transaction } from "../data";
 import { initiMemoryDB } from "./db/dbSetup";
+import { DATE_FORMAT, DateRange } from "../utils/dateUtils";
+import dayjs from "dayjs";
 
 describe("Reports", () => {
+  const monthRange: DateRange = {
+    startDate: "2023-01-01",
+    endDate: "2023-01-31",
+  };
   let dataSource: DataSource;
   let categories: Category[];
 
@@ -37,8 +43,7 @@ describe("Reports", () => {
     it("should return an empty array if no transaction exist", async () => {
       const totals = await Transaction.getTotalsByCategoryType(
         CategoryType.expense,
-        "2023-01-01",
-        "2023-01-31"
+        monthRange
       );
       expect(totals).toHaveLength(0);
     });
@@ -53,11 +58,9 @@ describe("Reports", () => {
           category,
         },
       ]);
-
       const totals = await Transaction.getTotalsByCategoryType(
         CategoryType.expense,
-        "2023-01-01",
-        "2023-01-31"
+        monthRange
       );
       expect(totals).toHaveLength(1);
       expect(totals[0]).toHaveProperty("categoryName", category.name);
@@ -83,8 +86,7 @@ describe("Reports", () => {
 
       const totals = await Transaction.getTotalsByCategoryType(
         CategoryType.expense,
-        "2023-01-01",
-        "2023-01-31"
+        monthRange
       );
       expect(totals).toHaveLength(1);
       expect(totals[0]).toHaveProperty("categoryName", category.name);
@@ -110,8 +112,7 @@ describe("Reports", () => {
 
       const totals = await Transaction.getTotalsByCategoryType(
         CategoryType.expense,
-        "2023-01-01",
-        "2023-01-31"
+        monthRange
       );
       expect(totals).toHaveLength(2);
       expect(totals[0]).toHaveProperty("categoryName", category2.name);
@@ -127,10 +128,7 @@ describe("Reports", () => {
     });
 
     it("should return an empty array if no transaction exist", async () => {
-      const dailyTotals = await Transaction.getDailyTotals(
-        "2023-01-01",
-        "2023-01-31"
-      );
+      const dailyTotals = await Transaction.getDailyTotals(monthRange);
       expect(dailyTotals).toHaveLength(0);
     });
 
@@ -147,10 +145,7 @@ describe("Reports", () => {
       );
       await Transaction.save(transactions);
 
-      const totals = await Transaction.getDailyTotals(
-        "2023-01-01",
-        "2023-01-03"
-      );
+      const totals = await Transaction.getDailyTotals(monthRange);
       expect(totals).toHaveLength(3);
       totals.forEach((total, idx) => {
         expect(total).toHaveProperty("date", dates[idx]);
@@ -165,10 +160,7 @@ describe("Reports", () => {
     });
 
     it("should return an empty array if no transaction exist", async () => {
-      const dailyTotals = await Transaction.getWeeklyTotals(
-        "2023-01-01",
-        "2023-01-31"
-      );
+      const dailyTotals = await Transaction.getWeeklyTotals(monthRange);
       expect(dailyTotals).toHaveLength(0);
     });
 
@@ -185,10 +177,7 @@ describe("Reports", () => {
       );
       await Transaction.save(transactions);
 
-      const totals = await Transaction.getDailyTotals(
-        "2023-01-01",
-        "2023-01-31"
-      );
+      const totals = await Transaction.getDailyTotals(monthRange);
       expect(totals).toHaveLength(4);
       totals.forEach((total, idx) => {
         expect(total).toHaveProperty("date", dates[idx]);

@@ -1,33 +1,27 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Dialog, Paragraph, Portal, Text } from "react-native-paper";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { Avatar, Banner, IconButton, Text } from "react-native-paper";
 
+import BudgetPercentageBar from "../../components/budgets/BudgetPercentageBar";
+import CategoryIcon from "../../components/category/CategoryIcon";
 import TransactionCard from "../../components/transactions/TransactionCard";
 import { useTheme } from "../../context/ThemeContext";
-import { useDeleteBudget } from "../../hooks/budget/useDeleteBudget";
+import { Category } from "../../data";
 import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
-import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
-import { formatCurrency } from "../../utils/numberFormatter";
+import { formatCurrency } from "../../utils/numberUtils";
 
 type ScreenProps = RootStackScreenProps<"BudgetDetails">;
 
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>["name"];
+const screenWidth = Dimensions.get("screen").width;
 
 export default function BudgetDetailsScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
-  const showConfirmationModal = useModalStore(
-    (state) => state.showConfirmationModal
-  );
-  const {
-    theme: { colors },
-  } = useTheme();
+  const { theme } = useTheme();
 
-  const { mutateAsync } = useDeleteBudget();
   const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
   const { categories = [], transactions = [] } = budget || {};
 
@@ -35,35 +29,29 @@ export default function BudgetDetailsScreen({
     if (budget) {
       navigation.setOptions({
         title: budget.description,
+        headerRight: () => (
+          <IconButton
+            icon={() => <MaterialIcons name="edit" size={25} />}
+            onPress={() => {
+              navigation.navigate("BudgetForm", { budgetId: budget.id });
+            }}
+          />
+        ),
       });
     }
   }, [budget]);
 
-  const deleteBudget = () => {
-    showConfirmationModal({
-      onConfirm: () => {
-        mutateAsync(budget!.id).then((deleted) => {
-          if (deleted) {
-            showSnackMessage({
-              message: "El presupuesto fue eliminada correctamente",
-              type: "success",
-            });
+  const getCategoryTotal = (category: Category) => {
+    const total = transactions
+      .filter((t) => t.category.id === category.id)
+      .reduce((acc, t) => acc + t.amount, 0);
 
-            navigation.goBack();
-          } else {
-            showSnackMessage({
-              message: "Algo salío mal, intente nuevamente más tarde",
-              type: "error",
-            });
-          }
-        });
-      },
-    });
+    return formatCurrency(total);
   };
 
   const themedStyles = StyleSheet.create({
     bordered: {
-      borderBottomColor: colors.border,
+      borderBottomColor: theme.colors.border,
       borderBottomWidth: 1,
     },
   });
@@ -72,81 +60,98 @@ export default function BudgetDetailsScreen({
     return null;
   }
 
+  const isOverLimit = budget.totalSpent > budget.maxAmount;
+
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={[styles.transactionInfo, themedStyles.bordered]}>
-          <View style={styles.header}>
-            <MaterialIcons name="short-text" size={24} color={colors.text} />
-            <Text variant="titleLarge" style={styles.ms2}>
-              {budget.description}
-            </Text>
-          </View>
-
-          <View style={styles.amount}>
-            <Text>Monto establecido:</Text>
-            <Text variant="headlineSmall">
-              {formatCurrency(budget.maxAmount)}
-            </Text>
-          </View>
-
-          <View style={styles.amount}>
-            <Text>Monto utilizado:</Text>
-            <Text variant="headlineSmall">
-              {formatCurrency(budget.totalSpent)}
-            </Text>
-          </View>
-
-          <View style={styles.categoriesContainer}>
-            {categories.map((category) => (
-              <View style={styles.description} key={category.id}>
+        <Banner
+          visible={isOverLimit}
+          elevation={3}
+          style={{
+            backgroundColor: theme.colors.errorContainer,
+            justifyContent: "center",
+          }}
+          icon={(props) => (
+            <Avatar.Icon
+              {...props}
+              size={30}
+              style={[
+                {
+                  backgroundColor: theme.colors.expense,
+                },
+              ]}
+              icon={() => (
                 <MaterialIcons
-                  name={category.icon.toLowerCase() as MaterialIconName}
-                  color={colors.text}
-                  size={24}
+                  name={"warning"}
+                  size={15}
+                  color={theme.colors.card}
                 />
-                <Text variant="bodyLarge" style={styles.ms2}>
-                  {category?.name}
-                </Text>
+              )}
+            />
+          )}
+        >
+          <Text variant="bodyLarge">Se ha excedido el presupuesto!</Text>
+        </Banner>
+
+        <View
+          style={[
+            styles.transactionInfo,
+            {
+              paddingBottom: 0,
+            },
+          ]}
+        >
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text variant="titleMedium">{budget.dateInfo}</Text>
+            <BudgetPercentageBar budget={budget} />
+          </View>
+
+          <View style={[styles.categoriesContainer]}>
+            <View style={{ alignSelf: "center" }}>
+              <Text variant="titleMedium">Categorías:</Text>
+            </View>
+
+            {categories.map((category) => (
+              <View
+                key={category.id}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                  key={category.id}
+                >
+                  <CategoryIcon category={category} />
+                  <Text variant="bodyLarge" style={styles.ms2}>
+                    {category?.name}
+                  </Text>
+                </View>
+
+                <Text>{getCategoryTotal(category)}</Text>
               </View>
             ))}
-          </View>
-
-          <View style={styles.description}>
-            <MaterialIcons
-              name="calendar-today"
-              size={24}
-              color={colors.text}
-            />
-            <Text variant="bodyLarge" style={styles.ms2}>
-              {budget.dateInfo}
-            </Text>
-          </View>
-
-          <View style={styles.description}>
-            <Button
-              onPress={() => {
-                navigation.navigate("BudgetForm", { budgetId: budget.id });
-              }}
-              mode="contained"
-              icon="pencil"
-            >
-              Editar
-            </Button>
-            <Button
-              onPress={deleteBudget}
-              style={styles.ms2}
-              mode="contained"
-              icon="delete"
-            >
-              Eliminar
-            </Button>
           </View>
         </View>
 
         <View style={styles.budgetInfo}>
-          <Text style={[styles.ms2, styles.mb2]} variant="titleMedium">
-            Transacciones incluidas en este presupuesto:
+          <Text
+            style={[
+              styles.ms2,
+              styles.mb2,
+              {
+                alignSelf: "center",
+              },
+            ]}
+            variant="titleMedium"
+          >
+            Transacciones en este periodo:
           </Text>
 
           {transactions && transactions.length > 0 ? (
@@ -177,13 +182,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   ms2: {
-    marginStart: 16,
+    marginStart: 10,
   },
   mb2: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   amount: {
-    marginTop: 16,
+    marginTop: 15,
     marginStart: 32,
   },
   description: {
@@ -201,41 +206,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     borderColor: "#ccc",
     borderWidth: 1,
-    paddingBottom: 16,
+    padding: 16,
   },
 });
-
-type DialogProps = {
-  visible: boolean;
-  hideDialog(): void;
-  onDelete(): void;
-};
-
-function DeleteDialog({ visible, hideDialog, onDelete }: DialogProps) {
-  return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Content>
-          <Paragraph>Está seguro que quiere eliminar este elemento?</Paragraph>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button
-            onPress={() => {
-              hideDialog();
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onPress={() => {
-              hideDialog();
-              onDelete();
-            }}
-          >
-            Eliminar
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
-  );
-}

@@ -4,7 +4,7 @@ import { Card, IconButton, Text } from "react-native-paper";
 
 import { useTheme } from "../context/ThemeContext";
 import { useGetBalance } from "../hooks/balance/useGetBalance";
-import { formatCurrency } from "../utils/numberFormatter";
+import { formatCurrency } from "../utils/numberUtils";
 import { useUpdateBalance } from "../hooks/balance/useUpdateBalance";
 import { Balance } from "../data";
 
@@ -45,22 +45,22 @@ export default function BalanceCard() {
       <Card.Content style={{ alignContent: "center" }}>
         <Text variant="titleMedium">Balance total:</Text>
         <Text variant="displaySmall">{formatCurrency(balance)}</Text>
-      </Card.Content>
 
-      <View
-        style={{
-          position: "absolute",
-          right: 0,
-          top: 0,
-        }}
-      >
-        <IconButton
-          icon="cog"
-          iconColor={colors.backdrop}
-          size={20}
-          onPress={adjustBalance}
-        />
-      </View>
+        <View
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+          }}
+        >
+          <IconButton
+            icon="cog"
+            iconColor={colors.backdrop}
+            size={20}
+            onPress={adjustBalance}
+          />
+        </View>
+      </Card.Content>
 
       <Card.Content
         style={{
@@ -73,7 +73,7 @@ export default function BalanceCard() {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
-            marginTop: 10,
+            marginTop: 5,
           }}
         >
           <View
@@ -82,6 +82,7 @@ export default function BalanceCard() {
               alignItems: "center",
             }}
           >
+            {/* TODO: define order of icon/text */}
             <Text
               style={{
                 color: colors.income,
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   balanceContainer: {
     borderRadius: 10,
     paddingVertical: 10,
-    marginVertical: 15,
+    marginTop: 15,
     alignSelf: "center",
     width: screenWidth - 20,
   },

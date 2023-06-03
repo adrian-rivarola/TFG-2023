@@ -1,13 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import { BarChart, LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { Button, SegmentedButtons, Surface, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
-import { useMonthTotals } from "../../hooks/report/useMonthTotals";
-import { useWeekTotals } from "../../hooks/report/useWeekTotals";
+import { useMonthTotals } from "../../hooks/reports/useMonthTotals";
+import { useWeekTotals } from "../../hooks/reports/useWeekTotals";
 
 type ReportsPreviewProps = {};
 
@@ -64,7 +64,7 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
       >
         <SegmentedButtons
           style={{
-            margin: 20,
+            marginTop: 15,
             alignSelf: "center",
           }}
           value={activeSegment}
@@ -84,7 +84,7 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
 
         <View style={{ width: screenWidth - 20, padding: 0 }}>
           <LineChart
-            style={{ paddingTop: 12 }}
+            style={{ paddingTop: 10 }}
             data={activeSegment === "week" ? weekTotals : monthTotals}
             chartConfig={chartConfig}
             width={screenWidth - 20}

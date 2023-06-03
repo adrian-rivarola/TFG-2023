@@ -51,6 +51,13 @@ export default function Navigation() {
             animationDuration: 250,
           })}
         />
+        <Stack.Screen
+          name="CategoryList"
+          component={CategoryList}
+          options={() => ({
+            title: "Categories",
+          })}
+        />
         {/* Transactions screens */}
         <Stack.Screen
           name="TransactionForm"
@@ -96,13 +103,6 @@ export default function Navigation() {
           component={TestComponents}
           options={() => ({
             title: "Test",
-          })}
-        />
-        <Stack.Screen
-          name="CategoryList"
-          component={CategoryList}
-          options={() => ({
-            title: "Categories",
           })}
         />
       </Stack.Navigator>

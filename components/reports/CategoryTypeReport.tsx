@@ -1,24 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Avatar, ProgressBar, Text } from "react-native-paper";
+import { Avatar, Card, DataTable, ProgressBar, Text } from "react-native-paper";
 import PieChart from "react-native-pie-chart";
 
-import { useIsFocused } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
-import { CategoryType, Transaction } from "../../data";
-import { getDatesFromRange } from "../../utils/dateUtils";
-import { formatCurrency } from "../../utils/numberFormatter";
-import DateFilterFAB from "../DateFilterFAB";
+import { CategoryTotal, CategoryType, Transaction } from "../../data";
+import { DateRange } from "../../utils/dateUtils";
+import { convertToShortScale, formatCurrency } from "../../utils/numberUtils";
 
-type TransactionsReportProps = {
-  categoryType: CategoryType;
-};
-type CategotyChartData = {
-  categoryName: string;
-  categoryIcon: string;
-  total: number;
+type CategotyChartData = CategoryTotal & {
   color: string;
   percentage: number;
 };
@@ -34,28 +25,36 @@ const COLORS = [
   "#003f5c",
 ];
 
+type TransactionsReportProps = {
+  dateRange: DateRange;
+  categoryType: CategoryType;
+};
+
 export default function CategoryTypeReport({
   categoryType,
+  dateRange,
 }: TransactionsReportProps) {
   const {
     theme: { colors },
   } = useTheme();
-  const isFocused = useIsFocused();
 
-  const [range, setRange] = useState(getDatesFromRange("week"));
   const [categoryTotal, setCategoryTotal] = useState(0);
   const [pieChartData, setPieChartData] = useState<CategotyChartData[]>([]);
+
+  const transactionsCount = pieChartData.reduce((acc, d) => acc + d.count, 0);
+  const average =
+    pieChartData.reduce((acc, d) => acc + d.total, 0) / transactionsCount;
 
   const categoryColor =
     categoryType === CategoryType.expense ? colors.expense : colors.income;
   const categoryTitle =
-    categoryType === CategoryType.expense ? "Egresos" : "Ingresos";
+    categoryType === CategoryType.expense ? "Gastos" : "Ingresos";
   const size = 250;
 
   useEffect(() => {
-    const { startDate, endDate } = range;
+    // console.log(JSON.stringify({ dateRange }, undefined, 2));
 
-    Transaction.getTotalsByCategoryType(categoryType, startDate, endDate).then(
+    Transaction.getTotalsByCategoryType(categoryType, dateRange).then(
       (data) => {
         const res = [];
         let total = 0;
@@ -77,120 +76,146 @@ export default function CategoryTypeReport({
         setCategoryTotal(total);
       }
     );
-  }, [range]);
+  }, [dateRange]);
+
+  if (pieChartData.length === 0) {
+    return (
+      <View style={{ paddingVertical: 20, alignItems: "center" }}>
+        <Text variant="bodyMedium">
+          No hay registros en este periodo de tiempo
+        </Text>
+      </View>
+    );
+  }
 
   return (
-    <>
-      <ScrollView style={{ flex: 1 }}>
-        <Text variant="titleSmall" style={{ alignSelf: "center" }}>
-          {dateInfo(range)}
-        </Text>
+    <ScrollView style={{ flex: 1, padding: 20 }}>
+      <Card>
+        <Card.Title
+          title={`${categoryTitle} por categoría`}
+          titleVariant="titleMedium"
+        />
 
-        {pieChartData.length !== 0 ? (
-          <View style={{ alignItems: "center" }}>
-            <Text variant="titleMedium" style={{ marginTop: 20 }}>
-              {categoryTitle} por categoría
-            </Text>
-
-            <View
+        <Card.Content>
+          <View
+            style={{
+              position: "relative",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 10,
+              marginBottom: 20,
+            }}
+          >
+            <Text
+              variant="headlineSmall"
               style={{
-                position: "relative",
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 20,
+                position: "absolute",
+                zIndex: 100,
               }}
             >
-              <Text
-                variant="headlineSmall"
-                style={{
-                  position: "absolute",
-                  zIndex: 100,
-                }}
-              >
-                {Math.floor(categoryTotal / 1000) + " K"}
-              </Text>
-
-              <PieChart
-                series={pieChartData.map((d) => d.total)}
-                sliceColor={pieChartData.map((d) => d.color)}
-                widthAndHeight={size}
-                coverRadius={0.44}
-                coverFill={colors.background}
-              />
-            </View>
-          </View>
-        ) : (
-          <View style={{ paddingVertical: 20, alignItems: "center" }}>
-            <Text variant="bodyMedium">
-              No hay registros en este periodo de tiempo
+              {convertToShortScale(categoryTotal)}
             </Text>
+
+            <PieChart
+              series={pieChartData.map((d) => d.total)}
+              sliceColor={pieChartData.map((d) => d.color)}
+              widthAndHeight={size}
+              coverRadius={0.44}
+              coverFill={colors.background}
+            />
           </View>
-        )}
 
-        <View style={{ paddingHorizontal: 40 }}>
-          {pieChartData.map((d, i) => (
-            <View
-              key={i}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <Avatar.Icon
-                style={{
-                  backgroundColor: d.color,
-                  marginEnd: 10,
-                  height: 40,
-                  width: 40,
-                }}
-                icon={() => (
-                  <MaterialIcons
-                    name={d.categoryIcon as any}
-                    color={colors.card}
-                    size={20}
-                  />
-                )}
-              />
+          <View style={{ paddingHorizontal: 20 }}>
+            {pieChartData.map((d, i) => (
+              <CategoryAmount key={i} data={d} amountColor={categoryColor} />
+            ))}
+          </View>
+        </Card.Content>
+      </Card>
 
-              <View style={{ flexGrow: 1 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text variant="titleMedium">{d.categoryName}</Text>
-                  <Text
-                    variant="titleSmall"
-                    style={{
-                      color: categoryColor,
-                    }}
-                  >
-                    {formatCurrency(d.total)}
-                  </Text>
-                </View>
+      <Card
+        elevation={1}
+        mode="elevated"
+        style={{
+          marginTop: 30,
+        }}
+      >
+        <Card.Title title="Transacciones" titleVariant="titleMedium" />
 
-                <ProgressBar progress={d.percentage} color={d.color} />
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-      {isFocused && <DateFilterFAB onChange={setRange} />}
-    </>
+        <Card.Content>
+          <DataTable>
+            <DataTable.Row>
+              <DataTable.Cell>Cantidad</DataTable.Cell>
+              <DataTable.Cell numeric>{transactionsCount}</DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>Promedio</DataTable.Cell>
+              <DataTable.Cell numeric>{formatCurrency(average)}</DataTable.Cell>
+            </DataTable.Row>
+          </DataTable>
+        </Card.Content>
+      </Card>
+
+      <View style={{ paddingVertical: 50 }} />
+    </ScrollView>
   );
 }
 
-function dateInfo(range: { startDate: string; endDate: string }) {
-  const startDate = dayjs(range.startDate);
-  const endDate = dayjs(range.endDate);
+type CategoryAmountProps = {
+  data: CategotyChartData;
+  amountColor: string;
+};
 
-  if (startDate.isSame(endDate, "month")) {
-    return `${startDate.format("D")} al ${endDate.format("D [de] MMMM")}`;
-  } else {
-    return `${startDate.format("D [de] MMMM")} al ${endDate.format(
-      "D [de] MMMM"
-    )}`;
-  }
+function CategoryAmount({ data, amountColor }: CategoryAmountProps) {
+  const {
+    theme: { colors },
+  } = useTheme();
+
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 20,
+      }}
+    >
+      <Avatar.Icon
+        style={{
+          backgroundColor: data.color,
+          marginEnd: 10,
+          height: 40,
+          width: 40,
+        }}
+        icon={() => (
+          <MaterialIcons
+            name={data.categoryIcon as any}
+            color={colors.card}
+            size={20}
+          />
+        )}
+      />
+
+      <View style={{ flexGrow: 1 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text variant="titleMedium">{data.categoryName}</Text>
+          <Text
+            variant="titleSmall"
+            style={{
+              color: amountColor,
+            }}
+          >
+            {formatCurrency(data.total)}
+          </Text>
+        </View>
+
+        <ProgressBar progress={data.percentage} color={data.color} />
+      </View>
+    </View>
+  );
 }
