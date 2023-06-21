@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-mask-text/lib/module/utils/mask.js b/node_modules/react-native-mask-text/lib/module/utils/mask.js
+index 8a1fb19..94ca266 100644
+--- a/node_modules/react-native-mask-text/lib/module/utils/mask.js
++++ b/node_modules/react-native-mask-text/lib/module/utils/mask.js
+@@ -13,6 +13,7 @@ function unMask(value) {
+   if (type === 'currency') {
+     if (!value) return '0';
+     const unMaskedValue = value.replace(/\D/g, '');
++    if (!unMaskedValue) return '0'   // Fix NaN issue
+     const number = parseInt(unMaskedValue.trimStart());
+     return number.toString();
+   }
