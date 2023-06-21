@@ -10,7 +10,6 @@ import BudgetDetailsScreen from "../screens/budget/BudgetDetails";
 import BudgetFormScreen from "../screens/budget/BudgetForm";
 import CategoryForm from "../screens/category/CategoryForm";
 import CategoryList from "../screens/category/CategoryList";
-import CategorySelect from "../screens/category/CategorySelect";
 import TransactionDetailsScreen from "../screens/transaction/TransactionDetails";
 import TransactionFormScreen from "../screens/transaction/TransactionForm";
 import BottomTabNavigator from "./BottomTabNavigator";
@@ -43,19 +42,10 @@ export default function Navigation() {
           })}
         />
         <Stack.Screen
-          name="CategorySelect"
-          component={CategorySelect}
-          options={() => ({
-            title: "Seleccionar Categoría",
-            animation: "fade_from_bottom",
-            animationDuration: 250,
-          })}
-        />
-        <Stack.Screen
           name="CategoryList"
           component={CategoryList}
           options={() => ({
-            title: "Categories",
+            title: "Categorías",
           })}
         />
         {/* Transactions screens */}

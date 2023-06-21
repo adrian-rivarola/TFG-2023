@@ -21,7 +21,7 @@ export function BudgetGroup({ budgets, title }: BudgetGroupProps) {
   const themedStyles = StyleSheet.create({
     surfaceStyle: {
       backgroundColor: colors.background,
-      marginHorizontal: 20,
+      marginHorizontal: 10,
       marginBottom: 15,
       borderRadius: 10,
       padding: 10,

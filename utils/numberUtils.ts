@@ -10,12 +10,10 @@ export function formatCurrency(value: number) {
   return formatter.format(value);
 }
 
-export function convertToShortScale(number: number): string {
+export function convertToShortScale(number: number, decimals = 0): string {
   const suffixes = ["", "K", "M"];
   const suffixIndex = Math.floor(Math.log10(number) / 3);
   const scaledNumber = number / Math.pow(10, suffixIndex * 3);
 
-  return `${scaledNumber.toFixed(suffixIndex === 2 ? 2 : 0)} ${
-    suffixes[suffixIndex]
-  }`;
+  return `${scaledNumber.toFixed(decimals)}${suffixes[suffixIndex]}`;
 }

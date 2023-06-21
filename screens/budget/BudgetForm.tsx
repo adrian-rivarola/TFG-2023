@@ -1,23 +1,24 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
-  ScrollView,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
-import { MaskedTextInput } from "react-native-mask-text";
-import { Button, SegmentedButtons, Text, TextInput } from "react-native-paper";
+  Button,
+  Chip,
+  SegmentedButtons,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import { useQuery } from "react-query";
 
+import AmountInput from "../../components/AmountInput";
+import CategorySelect from "../../components/category/CategorySelect";
+import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
-import { Budget, CategoryType } from "../../data";
+import { Budget } from "../../data";
 import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
-import { useCategoryStore } from "../../store";
+import { useMainStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
-import AmountInput from "../../components/AmountInput";
-import Layout from "../../constants/Layout";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type ScreenProps = RootStackScreenProps<"BudgetForm">;
 type DateRangeOption = "week" | "month";
@@ -25,9 +26,10 @@ type DateRangeOption = "week" | "month";
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
-  const [selectedCategories, setSelectedCategories] = useCategoryStore(
-    (state) => [state.selectedCategories, state.setSelectedCategories]
-  );
+  const [selectedCategories, setSelectedCategories] = useMainStore((state) => [
+    state.selectedCategories,
+    state.setSelectedCategories,
+  ]);
 
   const { mutateAsync: saveBudget } = useSaveBudget();
 
@@ -95,6 +97,58 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.inputGroup}>
+          <Text>Periodo:</Text>
+          <View style={{ flex: 1, flexDirection: "row", marginTop: 5 }}>
+            <Chip
+              onPress={() => setDateRange("week")}
+              // selected={dateRange === "week"}
+              // icon={"calendar-today"}
+              style={{
+                marginEnd: 10,
+                borderColor: theme.colors.primaryContainer,
+                borderWidth: 2,
+                backgroundColor:
+                  dateRange === "week"
+                    ? theme.colors.primaryContainer
+                    : theme.colors.surface,
+              }}
+            >
+              Semana
+            </Chip>
+            <Chip
+              onPress={() => setDateRange("month")}
+              // selected={dateRange === "month"}
+              style={{
+                borderColor: theme.colors.primaryContainer,
+                borderWidth: 2,
+                backgroundColor:
+                  dateRange === "month"
+                    ? theme.colors.primaryContainer
+                    : theme.colors.surface,
+              }}
+              // icon={"calendar-today"}
+            >
+              Mes
+            </Chip>
+          </View>
+          {/* <SegmentedButtons
+            density="medium"
+            value={dateRange}
+            onValueChange={(value) => setDateRange(value as DateRangeOption)}
+            buttons={[
+              {
+                value: "week",
+                label: "Semana",
+              },
+              {
+                value: "month",
+                label: "Mes",
+              },
+            ]}
+          /> */}
+        </View>
+
+        <View style={styles.inputGroup}>
           <Text>Descripción:</Text>
           <TextInput
             mode="outlined"
@@ -110,67 +164,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         />
 
         <View style={styles.inputGroup}>
-          <Text>Categoría:</Text>
-          {/* TODO: move to it's own component */}
-          <TouchableWithoutFeedback
-            onPress={() => {
-              navigation.navigate("CategorySelect", {
-                multiple: true,
-                categoryType: CategoryType.expense,
-              });
-            }}
-          >
-            <View
-              style={{
-                borderColor: theme.colors.secondary,
-                flexDirection: "row",
-                borderWidth: 1,
-                borderRadius: 4,
-                paddingVertical: 10,
-              }}
-            >
-              {selectedCategories.length === 1 && (
-                <MaterialIcons
-                  name={selectedCategories[0].icon.toLowerCase() as any}
-                  color={theme.colors.text}
-                  size={24}
-                  style={{ marginStart: 8 }}
-                />
-              )}
-              <Text
-                style={{
-                  alignSelf: "center",
-                  marginStart: selectedCategories.length ? 8 : 16,
-                  color: selectedCategories.length
-                    ? theme.colors.text
-                    : theme.colors.outline,
-                }}
-              >
-                {selectedCategories.length === 0
-                  ? "Seleccionar categoría"
-                  : selectedCategories.length === 1
-                  ? selectedCategories[0].name
-                  : `${selectedCategories.map((c) => c.name).join(", ")}`}
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-
-        <View style={{ marginVertical: 10 }}>
-          <SegmentedButtons
-            value={dateRange}
-            onValueChange={(value) => setDateRange(value as DateRangeOption)}
-            buttons={[
-              {
-                value: "week",
-                label: "Semana",
-              },
-              {
-                value: "month",
-                label: "Mes",
-              },
-            ]}
-          />
+          <CategorySelect multiple expenseOnly label="Categorías:" />
         </View>
 
         <Button

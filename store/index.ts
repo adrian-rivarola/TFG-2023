@@ -1,14 +1,25 @@
 import { create } from "zustand";
-import { Category } from "../data";
+import { Category, CategoryType } from "../data";
+
+type TransactionFilter = {
+  type?: CategoryType;
+  categories?: number[];
+};
 
 interface State {
+  activeFilters: TransactionFilter;
   selectedCategories: Category[];
   setSelectedCategories: (categories: Category[]) => void;
+  setActiveFilters: (filters: TransactionFilter) => void;
 }
 
-export const useCategoryStore = create<State>((set) => ({
+export const useMainStore = create<State>((set) => ({
+  activeFilters: {},
   selectedCategories: [],
   setSelectedCategories: (categories: Category[]) => {
     set({ selectedCategories: categories });
+  },
+  setActiveFilters: (filters: TransactionFilter) => {
+    set({ activeFilters: filters });
   },
 }));

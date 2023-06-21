@@ -4,11 +4,11 @@ import { TabBar, TabView } from "react-native-tab-view";
 
 import DateFilterFAB from "../components/DateFilterFAB";
 import CategoryTypeReport from "../components/reports/CategoryTypeReport";
+import Layout from "../constants/Layout";
 import { useTheme } from "../context/ThemeContext";
 import { CategoryType } from "../data";
 import { RootTabScreenProps } from "../types";
-import { getDatesFromRange } from "../utils/dateUtils";
-import Layout from "../constants/Layout";
+import { DateRange } from "../utils/dateUtils";
 
 type ScreenProps = RootTabScreenProps<"ReportsScreen">;
 type ReportTabsKey = "statistics" | "expenses" | "incomes";
@@ -27,16 +27,22 @@ export default function Reports({ navigation, route }: ScreenProps) {
     { key: "expenses", title: "Gastos" },
     { key: "incomes", title: "Ingresos" },
   ];
-  const [dateRange, setDateRange] = useState(getDatesFromRange("week"));
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   useEffect(() => {
-    const start = dayjs(dateRange.startDate);
-    const end = dayjs(dateRange.endDate);
-    const dateInfo = `${start.format("DD[/]MM")} al ${end.format("DD[/]MM")}`;
+    if (dateRange) {
+      const start = dayjs(dateRange.startDate);
+      const end = dayjs(dateRange.endDate);
+      const dateInfo = `${start.format("DD[/]MM")} al ${end.format("DD[/]MM")}`;
 
-    navigation.setOptions({
-      title: `Reportes - ${dateInfo}`,
-    });
+      navigation.setOptions({
+        title: `Reportes - ${dateInfo}`,
+      });
+    } else {
+      navigation.setOptions({
+        title: "Reportes",
+      });
+    }
   }, [dateRange]);
 
   return (

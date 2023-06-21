@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { Avatar, List } from "react-native-paper";
+import { Avatar, List, Switch, ToggleButton } from "react-native-paper";
 import { useQueryClient } from "react-query";
 
 import { useTheme } from "../context/ThemeContext";
@@ -31,6 +31,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
       backgroundColor: colors.surface,
+      paddingStart: 20,
     },
   });
 
@@ -93,44 +94,53 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
 
   return (
     <View style={{ marginVertical: 8 }}>
-      <List.Item
-        title="Categories"
-        style={themedStyles.categoryItem}
-        onPress={() => {
-          navigation.navigate("CategoryList");
-        }}
-      />
-      <List.Item
-        right={() => (
-          <MaterialIcons
-            name={isDarkTheme ? "lightbulb" : "nightlight-round"}
-            color={colors.onBackground}
-            size={15}
-          />
-        )}
-        title="Cambiar tema"
-        style={themedStyles.categoryItem}
-        onPress={() => {
-          toggleThemeType();
-        }}
-      />
-      <List.Item
-        title="Exportar datos a CSV"
-        style={themedStyles.categoryItem}
-        onPress={exportCSV}
-      />
-      <List.Item
-        title="Borrar todos los datos"
-        style={themedStyles.categoryItem}
-        onPress={clearData}
-      />
-      <List.Item
+      <List.Section title="Categorías">
+        <List.Item
+          title="Crear Categoría"
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            navigation.navigate("CategoryForm");
+          }}
+        />
+        <List.Item
+          title="Ver Categorías"
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            navigation.navigate("CategoryList", {
+              action: "edit",
+            });
+          }}
+        />
+      </List.Section>
+      <List.Section title="Apariencia">
+        <List.Item
+          title="Modo oscuro"
+          style={themedStyles.categoryItem}
+          right={() => (
+            <Switch value={isDarkTheme} onValueChange={toggleThemeType} />
+          )}
+          onPress={toggleThemeType}
+        />
+      </List.Section>
+      <List.Section title="Datos">
+        <List.Item
+          title="Exportar datos a CSV"
+          style={themedStyles.categoryItem}
+          onPress={exportCSV}
+        />
+        <List.Item
+          title="Borrar todos los datos"
+          style={themedStyles.categoryItem}
+          onPress={clearData}
+        />
+      </List.Section>
+      {/* <List.Item
         title="TestComponents"
         style={themedStyles.categoryItem}
         onPress={() => {
           navigation.navigate("TestComponents");
         }}
-      />
+      /> */}
     </View>
   );
 };

@@ -11,6 +11,7 @@ import { Category } from "../../data";
 import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
 import { RootStackScreenProps } from "../../types";
 import { formatCurrency } from "../../utils/numberUtils";
+import BudgetLineChart from "../../components/budgets/BudgetLineChart";
 
 type ScreenProps = RootStackScreenProps<"BudgetDetails">;
 
@@ -31,7 +32,8 @@ export default function BudgetDetailsScreen({
         title: budget.description,
         headerRight: () => (
           <IconButton
-            icon={() => <MaterialIcons name="edit" size={25} />}
+            style={{ padding: 0, marginEnd: -10 }}
+            icon={() => <MaterialIcons name="edit" size={20} />}
             onPress={() => {
               navigation.navigate("BudgetForm", { budgetId: budget.id });
             }}
@@ -48,13 +50,6 @@ export default function BudgetDetailsScreen({
 
     return formatCurrency(total);
   };
-
-  const themedStyles = StyleSheet.create({
-    bordered: {
-      borderBottomColor: theme.colors.border,
-      borderBottomWidth: 1,
-    },
-  });
 
   if (isLoading || !budget) {
     return null;
@@ -119,6 +114,7 @@ export default function BudgetDetailsScreen({
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  marginBottom: 10,
                 }}
               >
                 <View
@@ -128,7 +124,7 @@ export default function BudgetDetailsScreen({
                   }}
                   key={category.id}
                 >
-                  <CategoryIcon category={category} />
+                  <CategoryIcon size={30} category={category} />
                   <Text variant="bodyLarge" style={styles.ms2}>
                     {category?.name}
                   </Text>
@@ -164,6 +160,22 @@ export default function BudgetDetailsScreen({
             </Text>
           )}
         </View>
+
+        <View style={{ paddingHorizontal: 10, marginTop: 20 }}>
+          <Text
+            style={{
+              marginBottom: 10,
+              alignSelf: "center",
+            }}
+            variant="titleMedium"
+          >
+            Progreso:
+          </Text>
+
+          <BudgetLineChart budget={budget} transactions={transactions} />
+        </View>
+
+        <View style={{ padding: 15 }} />
       </View>
     </ScrollView>
   );

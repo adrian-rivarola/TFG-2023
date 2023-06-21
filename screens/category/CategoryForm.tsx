@@ -73,12 +73,12 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
             onValueChange={(value) => setType(parseInt(value))}
             buttons={[
               {
-                value: CategoryType.income.toString(),
-                label: "Ingreso",
-              },
-              {
                 value: CategoryType.expense.toString(),
                 label: "Egreso",
+              },
+              {
+                value: CategoryType.income.toString(),
+                label: "Ingreso",
               },
             ]}
           />

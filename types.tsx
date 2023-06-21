@@ -29,13 +29,11 @@ export type RootStackParamList = {
     | {
         budgetId: number;
       };
-  CategorySelect:
-    | {
-        multiple: boolean;
-        categoryType?: CategoryType;
-      }
-    | undefined;
-  CategoryList: undefined;
+  CategoryList: {
+    action: "select" | "select-multiple" | "edit";
+    categoryType?: CategoryType;
+    initialTab?: CategoryType;
+  };
   CategoryForm:
     | undefined
     | {

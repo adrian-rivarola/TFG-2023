@@ -16,17 +16,17 @@ type CategotyChartData = CategoryTotal & {
 
 const COLORS = [
   "#ffa600",
-  "#ff7c43",
-  "#f95d6a",
-  "#d45087",
-  "#a05195",
   "#665191",
-  "#2f4b7c",
   "#003f5c",
+  "#2f4b7c",
+  "#a05195",
+  "#d45087",
+  "#f95d6a",
+  "#ff7c43",
 ];
 
 type TransactionsReportProps = {
-  dateRange: DateRange;
+  dateRange?: DateRange;
   categoryType: CategoryType;
 };
 
@@ -89,7 +89,7 @@ export default function CategoryTypeReport({
   }
 
   return (
-    <ScrollView style={{ flex: 1, padding: 20 }}>
+    <ScrollView style={{ flex: 1, padding: 10 }}>
       <Card>
         <Card.Title
           title={`${categoryTitle} por categoría`}
@@ -125,7 +125,7 @@ export default function CategoryTypeReport({
             />
           </View>
 
-          <View style={{ paddingHorizontal: 20 }}>
+          <View style={{}}>
             {pieChartData.map((d, i) => (
               <CategoryAmount key={i} data={d} amountColor={categoryColor} />
             ))}
@@ -151,7 +151,9 @@ export default function CategoryTypeReport({
 
             <DataTable.Row>
               <DataTable.Cell>Promedio</DataTable.Cell>
-              <DataTable.Cell numeric>{formatCurrency(average)}</DataTable.Cell>
+              <DataTable.Cell numeric>
+                Gs. {convertToShortScale(average, 2)}
+              </DataTable.Cell>
             </DataTable.Row>
           </DataTable>
         </Card.Content>
@@ -203,14 +205,23 @@ function CategoryAmount({ data, amountColor }: CategoryAmountProps) {
             justifyContent: "space-between",
           }}
         >
-          <Text variant="titleMedium">{data.categoryName}</Text>
+          <Text
+            variant="titleMedium"
+            ellipsizeMode="tail"
+            numberOfLines={1}
+            style={{
+              maxWidth: 160,
+            }}
+          >
+            {data.categoryName}
+          </Text>
           <Text
             variant="titleSmall"
             style={{
               color: amountColor,
             }}
           >
-            {formatCurrency(data.total)}
+            Gs. {convertToShortScale(data.total)}
           </Text>
         </View>
 

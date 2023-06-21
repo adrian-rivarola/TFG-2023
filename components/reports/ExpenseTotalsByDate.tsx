@@ -1,15 +1,18 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import { BarChart, LineChart } from "react-native-chart-kit";
-import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
+import { Dimensions, View } from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import type { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { Button, SegmentedButtons, Surface, Text } from "react-native-paper";
 
 import { useTheme } from "../../context/ThemeContext";
 import { useMonthTotals } from "../../hooks/reports/useMonthTotals";
 import { useWeekTotals } from "../../hooks/reports/useWeekTotals";
+import { convertToShortScale } from "../../utils/numberUtils";
 
 type ReportsPreviewProps = {};
+
+const screenWidth = Dimensions.get("screen").width;
 
 export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
   const navigation = useNavigation();
@@ -30,6 +33,8 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
   if (!monthTotals || !weekTotals) {
     return null;
   }
+  const chartData = activeSegment === "week" ? weekTotals : monthTotals;
+  const emptyData = chartData.datasets[0].data.every((n) => n === 0);
 
   return (
     <>
@@ -84,12 +89,12 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
 
         <View style={{ width: screenWidth - 20, padding: 0 }}>
           <LineChart
-            style={{ paddingTop: 10 }}
-            data={activeSegment === "week" ? weekTotals : monthTotals}
-            chartConfig={chartConfig}
-            width={screenWidth - 20}
-            segments={3}
             height={200}
+            width={screenWidth}
+            style={{ paddingTop: 10 }}
+            data={chartData}
+            chartConfig={chartConfig}
+            segments={emptyData ? 0 : 3}
             withShadow={false}
             yAxisLabel="Gs "
             formatYLabel={(n) => {
@@ -97,7 +102,8 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
               if (!num) {
                 return "0";
               }
-              return Math.floor(num / 1000) + "K";
+              const decimal = activeSegment === "week" ? 0 : 1;
+              return convertToShortScale(num, decimal);
             }}
             withDots={false}
             fromZero
@@ -109,12 +115,3 @@ export default function ExpenseTotalsByDate(props: ReportsPreviewProps) {
     </>
   );
 }
-
-const screenWidth = Dimensions.get("screen").width;
-const styles = StyleSheet.create({
-  titleContainer: {
-    alignItems: "center",
-    marginVertical: 20,
-    // width: screenWidth - 20,
-  },
-});

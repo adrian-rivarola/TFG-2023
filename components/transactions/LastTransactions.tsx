@@ -7,7 +7,9 @@ import TransactionCard from "./TransactionCard";
 import { useNavigation } from "@react-navigation/native";
 
 export default function LastTransactions() {
-  const { data: transactions, isLoading } = useGetTransactions({ take: 3 });
+  const { data: transactions, isLoading } = useGetTransactions({
+    take: 3,
+  });
   const navigation = useNavigation();
 
   if (isLoading || !transactions) {

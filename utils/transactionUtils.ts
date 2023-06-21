@@ -2,8 +2,8 @@ import dayjs from "dayjs";
 import { Transaction } from "../data";
 
 export function groupTransactionsByRange(
-  range: "day" | "week",
-  transactions: Transaction[]
+  transactions: Transaction[],
+  range: "day" | "week"
 ) {
   if (range === "day") {
     return groupTransactionsByDay(transactions);

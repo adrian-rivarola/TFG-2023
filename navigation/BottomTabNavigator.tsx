@@ -49,14 +49,6 @@ export default function BottomTabNavigator() {
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="list-alt" color={color} />
           ),
-          headerRight: () => (
-            <IconButton
-              icon={() => <MaterialIcons name="filter-list" size={25} />}
-              onPress={() => {
-                console.log("Feature in progress");
-              }}
-            />
-          ),
         }}
       />
       <BottomTab.Screen

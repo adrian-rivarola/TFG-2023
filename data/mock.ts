@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { DATE_FORMAT } from "../utils/dateUtils";
 import { Category, CategoryType } from "./entities/Category";
 import { Transaction } from "./entities/Transaction";
+import { Budget } from "./entities/Budget";
 
 const AMOUNTS = [
   10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000, 500_000,
@@ -9,6 +10,7 @@ const AMOUNTS = [
 
 export async function createMockData() {
   await Transaction.clear();
+  await Budget.clear();
   await Category.clear();
 
   const categories = await Category.save([
@@ -52,21 +54,6 @@ export async function createMockData() {
       icon: "directions-bus",
       type: CategoryType.expense,
     },
-    // {
-    //   name: "Salary",
-    //   icon: "account-balance-wallet",
-    //   type: CategoryType.income,
-    // },
-    // {
-    //   name: "Investments",
-    //   icon: "trending-up",
-    //   type: CategoryType.income,
-    // },
-    // {
-    //   name: "Other",
-    //   icon: "more-horiz",
-    //   type: CategoryType.income,
-    // },
   ]);
 
   const cat = await Category.save({
@@ -91,7 +78,7 @@ export async function createMockData() {
     await Transaction.save({
       amount: randomAmount,
       category: randomCategory,
-      date: `2023-05-${randomDay}`,
+      date: `2023-06-${randomDay}`,
       description: "",
     });
   }
@@ -101,3 +88,64 @@ export async function createMockData() {
 
   console.log(`Created ${tCount} transactions and ${cCount} categories.`);
 }
+
+export const getDefaultCategories = () =>
+  Category.create([
+    // expense
+    {
+      name: "Alimentos",
+      icon: "fastfood",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Entretenimiento",
+      icon: "movie",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Educación",
+      icon: "school",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Hogar",
+      icon: "home",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Salud",
+      icon: "medical-services",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Servicios básicos",
+      icon: "lightbulb-outline",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Shopping",
+      icon: "shopping-cart",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Transporte",
+      icon: "directions-bus",
+      type: CategoryType.expense,
+    },
+    {
+      name: "Otros gastos",
+      icon: "more-horiz",
+      type: CategoryType.expense,
+    },
+    // income
+    {
+      name: "Salario",
+      icon: "attach-money",
+      type: CategoryType.income,
+    },
+    {
+      name: "Otros ingresos",
+      icon: "more-horiz",
+      type: CategoryType.income,
+    },
+  ]);

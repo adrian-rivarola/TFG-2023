@@ -60,19 +60,21 @@ export class Transaction extends BaseEntity {
 
   static async getTotalsByCategoryType(
     categoryType: CategoryType,
-    dateRange: DateRange
+    dateRange?: DateRange
   ): Promise<CategoryTotal[]> {
-    return Transaction.createQueryBuilder("t")
+    let query = Transaction.createQueryBuilder("t")
       .select("category.name", "categoryName")
       .addSelect("category.icon", "categoryIcon")
       .addSelect("SUM(t.amount)", "total")
       .addSelect("COUNT(*)", "count")
       .innerJoin("t.category", "category")
-      .where("category.type = :type", { type: categoryType })
-      .andWhere("date BETWEEN :startDate AND :endDate", dateRange)
-      .orderBy("total", "DESC")
-      .groupBy("category.name")
-      .getRawMany();
+      .where("category.type = :type", { type: categoryType });
+
+    if (dateRange) {
+      query = query.andWhere("date BETWEEN :startDate AND :endDate", dateRange);
+    }
+
+    return query.orderBy("total", "DESC").groupBy("category.name").getRawMany();
   }
 
   static getDailyTotals(dateRange: DateRange): Promise<DailyTotals> {

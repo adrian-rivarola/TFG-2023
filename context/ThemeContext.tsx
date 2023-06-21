@@ -45,8 +45,8 @@ const darkTheme: Theme = {
   colors: {
     ...NavigationDarkTheme.colors,
     ...PaperDarkTheme.colors,
-    expense: "rgb(248, 79, 49)",
-    income: "rgb(35, 197, 82)",
+    expense: "rgba(248, 79, 49, .75)",
+    income: "rgba(35, 197, 82, .75)",
   },
 };
 

@@ -1,26 +1,23 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
 import AmountInput from "../../components/AmountInput";
 import { DatePicker } from "../../components/DatePicker";
+import CategorySelect from "../../components/category/CategorySelect";
 import Layout from "../../constants/Layout";
 import { useTheme } from "../../context/ThemeContext";
 import { Transaction } from "../../data";
 import { useSaveTransaction } from "../../hooks/transaction/useSaveTransaction";
-import { useCategoryStore } from "../../store";
+import { useMainStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
 import { DATE_FORMAT } from "../../utils/dateUtils";
 
 type ScreenProps = RootStackScreenProps<"TransactionForm">;
+
+const screenWidth = Layout.window.width;
 
 export default function TransactionFormScreen({
   navigation,
@@ -28,14 +25,16 @@ export default function TransactionFormScreen({
 }: ScreenProps) {
   const { theme } = useTheme();
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
-  const [selectedCategories, setSelectedCategories] = useCategoryStore(
-    (state) => [state.selectedCategories, state.setSelectedCategories]
-  );
+  const [selectedCategories, setSelectedCategories] = useMainStore((state) => [
+    state.selectedCategories,
+    state.setSelectedCategories,
+  ]);
   const { mutateAsync: saveTransaction } = useSaveTransaction();
 
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
+  const category = selectedCategories[0];
 
   const transactionId = route.params?.transactionId;
 
@@ -88,6 +87,20 @@ export default function TransactionFormScreen({
       });
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: "center",
+    },
+    inputGroup: {
+      flex: 1,
+      paddingVertical: 16,
+      alignContent: "center",
+      width: screenWidth - 100,
+      borderColor: theme.colors.border,
+    },
+  });
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -103,49 +116,12 @@ export default function TransactionFormScreen({
         <AmountInput label="Monto:" value={amount} setValue={setAmount} />
 
         <View style={styles.inputGroup}>
-          <Text>Categoría:</Text>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              navigation.navigate("CategorySelect");
-            }}
-          >
-            <View
-              style={{
-                borderColor: theme.colors.secondary,
-                flexDirection: "row",
-                borderWidth: 1,
-                borderRadius: 4,
-                paddingVertical: 14,
-              }}
-            >
-              {selectedCategories.length > 0 && (
-                <MaterialIcons
-                  name={selectedCategories[0].icon.toLowerCase() as any}
-                  color={theme.colors.text}
-                  size={24}
-                  style={{ marginStart: 8 }}
-                />
-              )}
-              <Text
-                style={{
-                  alignSelf: "center",
-                  marginStart: selectedCategories.length ? 8 : 16,
-                  color: selectedCategories.length
-                    ? theme.colors.text
-                    : theme.colors.outline,
-                }}
-              >
-                {!selectedCategories.length
-                  ? "Seleccionar categoría"
-                  : selectedCategories[0].name}
-              </Text>
-            </View>
-          </TouchableWithoutFeedback>
+          <Text>Fecha:</Text>
+          <DatePicker date={date} onChange={setDate} />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text>Fecha:</Text>
-          <DatePicker date={date} onChange={setDate} />
+          <CategorySelect label="Categoría:" />
         </View>
 
         <Button
@@ -160,18 +136,3 @@ export default function TransactionFormScreen({
     </ScrollView>
   );
 }
-
-const screenWidth = Layout.window.width;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-  },
-  inputGroup: {
-    flex: 1,
-    paddingVertical: 16,
-    alignContent: "center",
-    width: screenWidth - 100,
-  },
-});

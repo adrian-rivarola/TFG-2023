@@ -13,7 +13,12 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import { getDateInfo, getDatesFromRange } from "../../utils/dateUtils";
+import {
+  DateRange,
+  StringDateRange,
+  getDateInfo,
+  getDatesFromRange,
+} from "../../utils/dateUtils";
 import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
 
@@ -35,7 +40,7 @@ export class Budget extends BaseEntity {
   @Column("varchar", {
     nullable: false,
   })
-  dateRange: BudgetDateRange;
+  dateRange: StringDateRange;
 
   @ManyToMany("Category", {
     eager: true,
