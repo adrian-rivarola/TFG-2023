@@ -1,7 +1,8 @@
 import { StyleSheet, View } from "react-native";
+import CurrencyInput, { FakeCurrencyInput } from "react-native-currency-input";
+
 import Layout from "../constants/Layout";
-import { MaskedTextInput } from "react-native-mask-text";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../theme/ThemeContext";
 import { Text } from "react-native-paper";
 
 type AmountInputProps = {
@@ -17,12 +18,16 @@ export default function AmountInput({
   const { theme } = useTheme();
 
   const themedStyles = StyleSheet.create({
-    amountInput: {
-      width: screenWidth - 100,
+    inputContainer: {
       borderColor: theme.colors.secondary,
-      borderWidth: 1,
+      width: screenWidth - 100,
       borderRadius: 4,
-      padding: 14,
+      borderWidth: 1,
+      padding: 10,
+    },
+    input: {
+      color: theme.colors.text,
+      fontSize: 20,
     },
   });
 
@@ -30,19 +35,20 @@ export default function AmountInput({
     <View style={styles.inputGroup}>
       <Text>{label}</Text>
 
-      <MaskedTextInput
-        style={themedStyles.amountInput}
-        keyboardType="numeric"
-        type="currency"
-        options={{
-          prefix: "Gs. ",
-          decimalSeparator: ",",
-          groupSeparator: ".",
+      <FakeCurrencyInput
+        value={value}
+        onChangeValue={(newVal) => {
+          setValue(newVal || 0);
         }}
-        value={String(value)}
-        onChangeText={(text, rawText) => {
-          setValue(isNaN(parseInt(rawText)) ? 0 : parseInt(rawText));
-        }}
+        prefix="Gs. "
+        delimiter=","
+        separator="."
+        keyboardType="number-pad"
+        precision={0}
+        minValue={0}
+        caretColor={theme.colors.primary}
+        style={themedStyles.input}
+        containerStyle={themedStyles.inputContainer}
       />
     </View>
   );

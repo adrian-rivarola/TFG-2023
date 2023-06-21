@@ -55,7 +55,6 @@ MyApp
     /screens
       - TransactionList
       - TransactionForm
-      - TransactionDetails
 
   /Budget
     /screens

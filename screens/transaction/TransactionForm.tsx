@@ -7,69 +7,60 @@ import AmountInput from "../../components/AmountInput";
 import { DatePicker } from "../../components/DatePicker";
 import CategorySelect from "../../components/category/CategorySelect";
 import Layout from "../../constants/Layout";
-import { useTheme } from "../../context/ThemeContext";
-import { Transaction } from "../../data";
+import { Transaction, TransactionFormData } from "../../data";
 import { useSaveTransaction } from "../../hooks/transaction/useSaveTransaction";
 import { useMainStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
 import { DATE_FORMAT } from "../../utils/dateUtils";
+import useForm from "../../hooks/useForm";
 
 type ScreenProps = RootStackScreenProps<"TransactionForm">;
 
 const screenWidth = Layout.window.width;
 
+const DEFAULT_TRANSACTION = {
+  amount: 0,
+  category: 0,
+  description: "",
+  date: dayjs().format(DATE_FORMAT),
+};
+
 export default function TransactionFormScreen({
   navigation,
   route,
 }: ScreenProps) {
-  const { theme } = useTheme();
-  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const [showSnackMessage, setLoading] = useModalStore((state) => [
+    state.showSnackMessage,
+    state.setLoading,
+  ]);
   const [selectedCategories, setSelectedCategories] = useMainStore((state) => [
     state.selectedCategories,
     state.setSelectedCategories,
   ]);
   const { mutateAsync: saveTransaction } = useSaveTransaction();
 
-  const [amount, setAmount] = useState(0);
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(new Date());
-  const category = selectedCategories[0];
-
-  const transactionId = route.params?.transactionId;
+  const [formData, onChange] = useForm<TransactionFormData>({
+    ...DEFAULT_TRANSACTION,
+    ...route.params?.transaction,
+  });
 
   useEffect(() => {
-    if (transactionId) {
-      Transaction.findOneByOrFail({ id: transactionId! }).then(
-        onTransactionLoad
-      );
-    }
-  }, [route]);
-
-  function onTransactionLoad({
-    amount,
-    description,
-    date,
-    category,
-  }: Transaction) {
-    setAmount(amount);
-    setDate(dayjs(date).toDate());
-    setDescription(description);
-    setSelectedCategories([category]);
-  }
+    return () => {
+      setSelectedCategories([]);
+    };
+  }, []);
 
   const onSubmit = () => {
     const transaction = Transaction.create({
-      id: transactionId,
-      amount,
-      description,
+      ...formData,
       category: selectedCategories[0],
-      date: dayjs(date).format(DATE_FORMAT),
     });
 
+    setLoading(true);
     saveTransaction(transaction)
       .then((t) => {
-        const message = transactionId
+        const message = formData.id
           ? "Transacción actualizada"
           : "Transacción creada";
         showSnackMessage({
@@ -84,6 +75,9 @@ export default function TransactionFormScreen({
           message: "Error al guardar la transacción",
           type: "error",
         });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -97,27 +91,35 @@ export default function TransactionFormScreen({
       paddingVertical: 16,
       alignContent: "center",
       width: screenWidth - 100,
-      borderColor: theme.colors.border,
     },
   });
 
   return (
     <ScrollView>
       <View style={styles.container}>
+        <AmountInput
+          label="Monto:"
+          value={formData.amount}
+          setValue={(val) => onChange("amount", val)}
+        />
+
         <View style={styles.inputGroup}>
           <Text>Descripción:</Text>
           <TextInput
             mode="outlined"
-            value={description}
-            onChangeText={setDescription}
+            value={formData.description}
+            onChangeText={(val) => onChange("description", val)}
           />
         </View>
 
-        <AmountInput label="Monto:" value={amount} setValue={setAmount} />
-
         <View style={styles.inputGroup}>
           <Text>Fecha:</Text>
-          <DatePicker date={date} onChange={setDate} />
+          <DatePicker
+            date={dayjs(formData.date).toDate()}
+            onChange={(newDate) => {
+              onChange("date", dayjs(newDate).format(DATE_FORMAT));
+            }}
+          />
         </View>
 
         <View style={styles.inputGroup}>
@@ -127,7 +129,7 @@ export default function TransactionFormScreen({
         <Button
           mode="contained"
           style={{ marginTop: 24 }}
-          disabled={!amount || !selectedCategories.length}
+          disabled={!formData.amount || !selectedCategories.length}
           onPress={onSubmit}
         >
           Guardar

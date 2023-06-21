@@ -1,17 +1,18 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect } from "react";
-import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
-import { Avatar, Banner, IconButton, Text } from "react-native-paper";
+import React, { useEffect, useMemo } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
+import { IconButton } from "react-native-paper";
+import { TabBar, TabView } from "react-native-tab-view";
 
-import BudgetPercentageBar from "../../components/budgets/BudgetPercentageBar";
-import CategoryIcon from "../../components/category/CategoryIcon";
-import TransactionCard from "../../components/transactions/TransactionCard";
-import { useTheme } from "../../context/ThemeContext";
-import { Category } from "../../data";
+import CustomFAB from "../../components/CustomFAB";
+import GroupedTransactions from "../../components/transactions/GroupedTransactions";
+import { Transaction } from "../../data";
 import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
+import { useMainStore } from "../../store";
+import { useTheme } from "../../theme/ThemeContext";
 import { RootStackScreenProps } from "../../types";
-import { formatCurrency } from "../../utils/numberUtils";
-import BudgetLineChart from "../../components/budgets/BudgetLineChart";
+import { groupTransactionsByDate } from "../../utils/transactionUtils";
+import BudgetInfo from "./BudgetInfo";
 
 type ScreenProps = RootStackScreenProps<"BudgetDetails">;
 
@@ -22,168 +23,90 @@ export default function BudgetDetailsScreen({
   route,
 }: ScreenProps) {
   const { theme } = useTheme();
+  const setSelectedCategories = useMainStore(
+    (state) => state.setSelectedCategories
+  );
+  const [index, setIndex] = React.useState(0);
+  const routes = [
+    { key: "details", title: "Detalles" },
+    { key: "transactions", title: "Transacciones" },
+  ];
 
   const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
-  const { categories = [], transactions = [] } = budget || {};
+
+  const groupedTransactions: Record<string, Transaction[]> = useMemo(() => {
+    if (!budget) {
+      return {};
+    }
+    return groupTransactionsByDate(budget.transactions);
+  }, [budget?.transactions]);
 
   useEffect(() => {
-    if (budget) {
-      navigation.setOptions({
-        title: budget.description,
-        headerRight: () => (
-          <IconButton
-            style={{ padding: 0, marginEnd: -10 }}
-            icon={() => <MaterialIcons name="edit" size={20} />}
-            onPress={() => {
-              navigation.navigate("BudgetForm", { budgetId: budget.id });
-            }}
-          />
-        ),
-      });
-    }
+    if (!budget) return;
+
+    navigation.setOptions({
+      title: budget.description,
+      headerRight: () => (
+        <IconButton
+          style={{ padding: 0, marginEnd: -10 }}
+          icon={() => (
+            <MaterialIcons name="edit" size={20} color={theme.colors.text} />
+          )}
+          onPress={() => {
+            setSelectedCategories(budget.categories);
+            navigation.navigate("BudgetForm", { budget: budget.serialize() });
+          }}
+        />
+      ),
+    });
   }, [budget]);
-
-  const getCategoryTotal = (category: Category) => {
-    const total = transactions
-      .filter((t) => t.category.id === category.id)
-      .reduce((acc, t) => acc + t.amount, 0);
-
-    return formatCurrency(total);
-  };
 
   if (isLoading || !budget) {
     return null;
   }
 
-  const isOverLimit = budget.totalSpent > budget.maxAmount;
-
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Banner
-          visible={isOverLimit}
-          elevation={3}
-          style={{
-            backgroundColor: theme.colors.errorContainer,
-            justifyContent: "center",
-          }}
-          icon={(props) => (
-            <Avatar.Icon
-              {...props}
-              size={30}
-              style={[
-                {
-                  backgroundColor: theme.colors.expense,
-                },
-              ]}
-              icon={() => (
-                <MaterialIcons
-                  name={"warning"}
-                  size={15}
-                  color={theme.colors.card}
-                />
-              )}
-            />
-          )}
-        >
-          <Text variant="bodyLarge">Se ha excedido el presupuesto!</Text>
-        </Banner>
-
-        <View
-          style={[
-            styles.transactionInfo,
-            {
-              paddingBottom: 0,
-            },
-          ]}
-        >
-          <View style={{ paddingHorizontal: 20 }}>
-            <Text variant="titleMedium">{budget.dateInfo}</Text>
-            <BudgetPercentageBar budget={budget} />
-          </View>
-
-          <View style={[styles.categoriesContainer]}>
-            <View style={{ alignSelf: "center" }}>
-              <Text variant="titleMedium">Categorías:</Text>
-            </View>
-
-            {categories.map((category) => (
-              <View
-                key={category.id}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 10,
-                }}
-              >
+    <TabView
+      initialLayout={{
+        width: screenWidth,
+      }}
+      navigationState={{ index, routes }}
+      onIndexChange={setIndex}
+      renderScene={({ route }) => {
+        switch (route.key) {
+          case "details":
+            return <BudgetInfo budget={budget} />;
+          case "transactions":
+            return (
+              <>
+                <GroupedTransactions transactions={groupedTransactions} />
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
+                    marginBottom: 50,
                   }}
-                  key={category.id}
                 >
-                  <CategoryIcon size={30} category={category} />
-                  <Text variant="bodyLarge" style={styles.ms2}>
-                    {category?.name}
-                  </Text>
+                  <CustomFAB destination="TransactionForm" />
                 </View>
-
-                <Text>{getCategoryTotal(category)}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.budgetInfo}>
-          <Text
-            style={[
-              styles.ms2,
-              styles.mb2,
-              {
-                alignSelf: "center",
-              },
-            ]}
-            variant="titleMedium"
-          >
-            Transacciones en este periodo:
-          </Text>
-
-          {transactions && transactions.length > 0 ? (
-            transactions.map((t) => (
-              <TransactionCard key={t.id} transaction={t} />
-            ))
-          ) : (
-            <Text style={{ padding: 16 }}>
-              No se ha registrado ninguna transacción para este presupuesto.
-            </Text>
-          )}
-        </View>
-
-        <View style={{ paddingHorizontal: 10, marginTop: 20 }}>
-          <Text
-            style={{
-              marginBottom: 10,
-              alignSelf: "center",
-            }}
-            variant="titleMedium"
-          >
-            Progreso:
-          </Text>
-
-          <BudgetLineChart budget={budget} transactions={transactions} />
-        </View>
-
-        <View style={{ padding: 15 }} />
-      </View>
-    </ScrollView>
+              </>
+            );
+        }
+      }}
+      renderTabBar={(props) => (
+        <TabBar
+          indicatorStyle={{ backgroundColor: theme.colors.primary }}
+          style={{ backgroundColor: theme.colors.background }}
+          labelStyle={{ color: theme.colors.text }}
+          {...props}
+        />
+      )}
+    />
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    margin: 10,
   },
   transactionInfo: {
     paddingVertical: 24,
@@ -213,11 +136,5 @@ const styles = StyleSheet.create({
   },
   budgetCard: {
     marginTop: 16,
-  },
-  categoriesContainer: {
-    marginVertical: 16,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 16,
   },
 });

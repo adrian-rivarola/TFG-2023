@@ -2,33 +2,20 @@ import { View } from "react-native";
 import { ProgressBar, Text } from "react-native-paper";
 import { Budget } from "../../data";
 import { formatCurrency } from "../../utils/numberUtils";
+import { getBudgetStatusColor } from "../../utils/budgetUtils";
 
-type BudgetPercentageBarProps = {
+type BudgetProgressBarProps = {
   budget: Budget;
 };
 
-export default function BudgetPercentageBar({
-  budget,
-}: BudgetPercentageBarProps) {
-  const percentage = Math.min(budget.totalSpent / budget.maxAmount, 100);
-  let color: string;
-
-  switch (true) {
-    case percentage < 0.5:
-      color = "#47B39C";
-      break;
-    case percentage < 0.85:
-      color = "#FFC154";
-      break;
-    default:
-      color = "#EC6B56";
-      break;
-  }
+export default function BudgetProgressBar({ budget }: BudgetProgressBarProps) {
+  const barProgress = Math.min(budget.percentage / 100, 100);
+  const color = getBudgetStatusColor(budget.percentage);
 
   return (
     <View>
       <ProgressBar
-        progress={percentage}
+        progress={barProgress}
         color={color}
         style={{ marginTop: 5, marginBottom: 5 }}
       />

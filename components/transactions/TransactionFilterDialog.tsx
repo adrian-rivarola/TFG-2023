@@ -10,7 +10,7 @@ import {
   Portal,
   Text,
 } from "react-native-paper";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { CategoryType } from "../../data";
 import { useGetCategories } from "../../hooks/category/useGetCategories";
 import { useMainStore } from "../../store";
@@ -33,6 +33,10 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
   const closeDialog = () => {
     setVisible(false);
   };
+
+  if (!categories) {
+    return null;
+  }
 
   return (
     <>

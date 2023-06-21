@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
-export type StringDateRange = "week" | "month";
+export type StringDateRange = "day" | "week" | "month";
 export type DateRange = { startDate: string; endDate: string };
 
 export const DATE_FORMAT = "YYYY-MM-DD";
@@ -29,4 +29,31 @@ export function getDateInfo(range: DateRange) {
       "D [de] MMMM"
     )}`;
   }
+}
+
+export function getGroupLabel(
+  date: Dayjs,
+  groupRange: StringDateRange = "day"
+) {
+  if (groupRange !== "day") {
+    return (
+      date.format("DD/MM") + " - " + date.endOf(groupRange).format("DD/MM")
+    );
+  }
+
+  let label: string;
+  switch (true) {
+    case date.isSame(dayjs(), "day"):
+      label = "Hoy";
+      break;
+    case date.isSame(dayjs().subtract(1, "day"), "day"):
+      label = "Ayer";
+      break;
+    default:
+      label = date.format("dddd, DD [de] MMMM");
+      label = label[0].toUpperCase() + label.slice(1);
+      break;
+  }
+
+  return label;
 }

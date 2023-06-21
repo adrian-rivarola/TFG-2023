@@ -1,21 +1,16 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  RadioButton,
-  SegmentedButtons,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 
+import CategoryTypeSelector from "../../components/CategoryTypeSelector";
 import Layout from "../../constants/Layout";
+import { useTheme } from "../../theme/ThemeContext";
 import { Category, CategoryType } from "../../data";
+import { useDeleteCategory } from "../../hooks/category/useDeleteCategory";
 import { useSaveCategory } from "../../hooks/category/useSaveCategory";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
-import { useTheme } from "../../context/ThemeContext";
-import { useDeleteCategory } from "../../hooks/category/useDeleteCategory";
 
 type ScreenProps = RootStackScreenProps<"CategoryForm">;
 
@@ -66,22 +61,9 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={{ marginTop: 20 }}>
-          <SegmentedButtons
-            density="medium"
-            value={type.toString()}
-            onValueChange={(value) => setType(parseInt(value))}
-            buttons={[
-              {
-                value: CategoryType.expense.toString(),
-                label: "Egreso",
-              },
-              {
-                value: CategoryType.income.toString(),
-                label: "Ingreso",
-              },
-            ]}
-          />
+        <View style={styles.inputGroup}>
+          <Text>Tipo:</Text>
+          <CategoryTypeSelector value={type} onChange={setType} />
         </View>
 
         <View style={styles.inputGroup}>

@@ -1,58 +1,26 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Transaction } from "../data";
+import { StringDateRange, getGroupLabel } from "./dateUtils";
 
-export function groupTransactionsByRange(
+export function groupTransactionsByDate(
   transactions: Transaction[],
-  range: "day" | "week"
+  groupRange: StringDateRange = "day"
 ) {
-  if (range === "day") {
-    return groupTransactionsByDay(transactions);
-  }
-  if (range === "week") {
-    return groupTransactionsByWeek(transactions);
-  }
-  return {};
-}
+  const transactionsMap = new Map<Dayjs, Transaction[]>();
 
-function groupTransactionsByDay(transactions: Transaction[]) {
-  return transactions.reduce((acc, transaction) => {
-    const transactionDate = dayjs(transaction.date);
-    let key: string;
-
-    switch (true) {
-      case transactionDate.isSame(dayjs(), "day"):
-        key = "Hoy";
-        break;
-      case transactionDate.isSame(dayjs().subtract(1, "day"), "day"):
-        key = "Ayer";
-        break;
-      default:
-        key = transactionDate.format("dddd, DD/MM");
-        break;
-    }
-
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(transaction);
-
-    return acc;
-  }, {} as { [key: string]: Transaction[] });
-}
-
-function groupTransactionsByWeek(transactions: Transaction[]) {
-  return transactions.reduce((acc, transaction) => {
-    const transactionDate = dayjs(transaction.date);
+  transactions.forEach((t) => {
+    const date = dayjs(t.date).startOf(groupRange);
     const key =
-      transactionDate.startOf("week").format("DD/MM") +
-      " - " +
-      transactionDate.endOf("week").format("DD/MM");
+      [...transactionsMap.keys()].find((k) => k.isSame(date, groupRange)) ||
+      date;
+    transactionsMap.set(key, [...(transactionsMap.get(key) || []), t]);
+  });
 
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(transaction);
+  const res: Record<string, Transaction[]> = {};
+  transactionsMap.forEach((vals, key) => {
+    const date = getGroupLabel(key, groupRange);
+    res[date] = vals;
+  });
 
-    return acc;
-  }, {} as { [key: string]: Transaction[] });
+  return res;
 }

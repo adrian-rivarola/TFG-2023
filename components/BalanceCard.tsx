@@ -1,12 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Alert, Dimensions, StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
 
-import { useTheme } from "../context/ThemeContext";
-import { useGetBalance } from "../hooks/balance/useGetBalance";
-import { formatCurrency } from "../utils/numberUtils";
-import { useUpdateBalance } from "../hooks/balance/useUpdateBalance";
 import { Balance } from "../data";
+import { useGetBalance } from "../hooks/balance/useGetBalance";
+import { useUpdateBalance } from "../hooks/balance/useUpdateBalance";
+import { useTheme } from "../theme/ThemeContext";
+import { formatCurrency } from "../utils/numberUtils";
 
 export default function BalanceCard() {
   const {
@@ -127,14 +127,10 @@ export default function BalanceCard() {
   );
 }
 
-const screenWidth = Dimensions.get("screen").width;
 const styles = StyleSheet.create({
   balanceContainer: {
-    borderRadius: 10,
     paddingVertical: 10,
     marginTop: 15,
-    alignSelf: "center",
-    width: screenWidth - 20,
   },
   balanceText: {
     fontWeight: "bold",

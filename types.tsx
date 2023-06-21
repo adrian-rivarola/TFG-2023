@@ -9,7 +9,7 @@ import {
   NavigatorScreenParams,
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { CategoryType } from "./data";
+import type { BudgetFormData, CategoryType, TransactionFormData } from "./data";
 
 declare global {
   namespace ReactNavigation {
@@ -21,13 +21,13 @@ export type RootStackParamList = {
   BottomTab: NavigatorScreenParams<BottomTabParamList>;
   TransactionForm:
     | {
-        transactionId: number;
+        transaction?: TransactionFormData;
       }
     | undefined;
   BudgetForm:
     | undefined
     | {
-        budgetId: number;
+        budget: BudgetFormData;
       };
   CategoryList: {
     action: "select" | "select-multiple" | "edit";
@@ -42,9 +42,6 @@ export type RootStackParamList = {
         icon: string;
         type: CategoryType;
       };
-  TransactionDetails: {
-    transactionId: number;
-  };
   BudgetDetails: {
     budgetId: number;
   };

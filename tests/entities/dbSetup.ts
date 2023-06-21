@@ -1,9 +1,6 @@
 import { DataSource } from "typeorm";
 import { DB_ENTITIES, DB_SUBSCRIBERS } from "../../data";
 
-/**
- * initialize the database
- */
 export function initiMemoryDB() {
   const dataSource = new DataSource({
     type: "sqlite",

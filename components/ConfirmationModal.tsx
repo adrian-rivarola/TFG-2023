@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Dialog, Paragraph, Portal } from "react-native-paper";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../theme/ThemeContext";
 import { useModalStore } from "../store/modalStore";
 
 export default function ConfirmationModal() {

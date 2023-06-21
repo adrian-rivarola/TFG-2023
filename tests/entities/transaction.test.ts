@@ -2,7 +2,7 @@ import { DataSource, QueryFailedError } from "typeorm";
 import { Category, Transaction } from "../../data";
 import { initiMemoryDB } from "./dbSetup";
 
-describe("Transaction operations", () => {
+describe("Transaction", () => {
   describe("Create", () => {
     let category: Category;
     let dataSource: DataSource;

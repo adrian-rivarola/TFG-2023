@@ -2,9 +2,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
-import { initiDB } from "../data";
 import { DataSource } from "typeorm";
-import { createMockData } from "../data/mock";
+import { initiDB } from "../data";
 
 const DB_NAME = "mydb-orm-test.db";
 
@@ -21,7 +20,6 @@ export default function useCachedResources() {
         // initialize db connection
         if (!dataSource.current) {
           dataSource.current = await initiDB("testing.db");
-          // await createMockData();
         }
 
         // Load fonts

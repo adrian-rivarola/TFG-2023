@@ -1,18 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Checkbox, List, Text } from "react-native-paper";
+import { List, Text } from "react-native-paper";
 import { TabBar, TabView } from "react-native-tab-view";
 
 import CustomFAB from "../../components/CustomFAB";
+import CategoryIcon from "../../components/category/CategoryIcon";
 import Layout from "../../constants/Layout";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { Category, CategoryType } from "../../data";
-import { getDefaultCategories } from "../../data/mock";
 import { useGetCategories } from "../../hooks/category/useGetCategories";
 import { useMainStore } from "../../store";
 import { RootStackScreenProps } from "../../types";
-import CategoryIcon from "../../components/category/CategoryIcon";
 
 type ScreenProps = RootStackScreenProps<"CategoryList">;
 
@@ -44,16 +43,6 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
     }),
     [categories]
   );
-
-  useEffect(() => {
-    if (categoryType !== undefined) {
-      const categoryTitle =
-        categoryType === CategoryType.expense ? "Gastos" : "Ingresos";
-      navigation.setOptions({
-        title: `Categorías - ${categoryTitle}`,
-      });
-    }
-  }, [categoryType]);
 
   const themedStyles = {
     categoryItem: {

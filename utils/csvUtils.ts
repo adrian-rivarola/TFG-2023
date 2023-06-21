@@ -15,7 +15,6 @@ export function convertToCSV<T extends Record<string, string | number>>(
   const csvContent = [
     keys.join(","),
     ...objectsList.map((obj) => keys.map((key) => obj[key]).join(",")),
-    ,
   ];
 
   return csvContent.join("\n");

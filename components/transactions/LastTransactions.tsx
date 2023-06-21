@@ -1,10 +1,9 @@
 import { StyleSheet, View } from "react-native";
 import { Button, Text } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 
-import Layout from "../../constants/Layout";
 import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
 import TransactionCard from "./TransactionCard";
-import { useNavigation } from "@react-navigation/native";
 
 export default function LastTransactions() {
   const { data: transactions, isLoading } = useGetTransactions({
@@ -17,17 +16,16 @@ export default function LastTransactions() {
   }
 
   return (
-    <View style={styles.transactionsContainer}>
+    <View>
       <View
         style={{
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingHorizontal: 10,
-          width: "100%",
         }}
       >
         <Text variant="titleMedium">Últimas transacciones</Text>
+
         <Button
           mode="text"
           onPress={() => {
@@ -41,17 +39,15 @@ export default function LastTransactions() {
       </View>
 
       {transactions.map((transaction) => (
-        <TransactionCard key={transaction.id} transaction={transaction} />
+        <View key={transaction.id} style={{ marginBottom: 10 }}>
+          <TransactionCard transaction={transaction} />
+        </View>
       ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  transactionsContainer: {
-    alignItems: "center",
-    width: Layout.window.width - 20,
-  },
   title: {
     fontSize: 16,
     marginBottom: 8,

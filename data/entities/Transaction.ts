@@ -8,13 +8,11 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation,
-  UpdateDateColumn,
 } from "typeorm";
-import type { Budget } from "./Budget";
-import { Category, CategoryType } from "./Category";
 import { DateRange } from "../../utils/dateUtils";
+import { Category, CategoryType } from "./Category";
 
-type DailyTotals = Array<{ date: string; total: number }>;
+type DayTotal = { date: string; amount: number };
 type WeeklyTotals = Array<{
   weekNumber: string;
   weekStart: string;
@@ -27,6 +25,14 @@ export type CategoryTotal = {
   categoryIcon: string;
   total: number;
   count: number;
+};
+
+export type TransactionFormData = {
+  id?: number;
+  date: string;
+  amount: number;
+  category?: number;
+  description: string;
 };
 
 @Entity("Transaction")
@@ -77,10 +83,10 @@ export class Transaction extends BaseEntity {
     return query.orderBy("total", "DESC").groupBy("category.name").getRawMany();
   }
 
-  static getDailyTotals(dateRange: DateRange): Promise<DailyTotals> {
+  static getDailyTotals(dateRange: DateRange): Promise<DayTotal[]> {
     return Transaction.createQueryBuilder("t")
       .select("date", "date")
-      .addSelect("SUM(amount)", "total")
+      .addSelect("SUM(amount)", "amount")
       .innerJoin("t.category", "category")
       .where("category.type = :type", { type: CategoryType.expense })
       .andWhere("date BETWEEN :startDate AND :endDate", dateRange)
@@ -99,5 +105,15 @@ export class Transaction extends BaseEntity {
       .andWhere("t.date BETWEEN :startDate AND :endDate", dateRange)
       .groupBy("weekNumber")
       .getRawMany();
+  }
+
+  serialize(): TransactionFormData {
+    return {
+      id: this.id,
+      date: this.date,
+      amount: this.amount,
+      category: this.category.id,
+      description: this.description,
+    };
   }
 }

@@ -1,15 +1,15 @@
 import dayjs from "dayjs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { Avatar, List, Switch, ToggleButton } from "react-native-paper";
+import { List, Switch } from "react-native-paper";
 import { useQueryClient } from "react-query";
 
-import { useTheme } from "../context/ThemeContext";
-import { Transaction, dropDB } from "../data";
+import { Transaction, clearAllData } from "../data";
+import { createMockData } from "../data/mock";
 import { useModalStore } from "../store/modalStore";
+import { useTheme } from "../theme/ThemeContext";
 import { RootTabScreenProps } from "../types";
 import { convertToCSV, saveCSV } from "../utils/csvUtils";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 type ScreenProps = RootTabScreenProps<"Configuration">;
 
@@ -81,7 +81,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         "Está seguro que quiere eliminar todos los datos registrados en esta aplicación?",
       confirmText: "Eliminar todo",
       onConfirm: () => {
-        dropDB().then(() => {
+        clearAllData().then(() => {
           queryClient.resetQueries();
           showSnackMessage({
             message: "Los datos fueron eliminados correctamente",
@@ -112,6 +112,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           }}
         />
       </List.Section>
+
       <List.Section title="Apariencia">
         <List.Item
           title="Modo oscuro"
@@ -134,13 +135,37 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           onPress={clearData}
         />
       </List.Section>
-      {/* <List.Item
-        title="TestComponents"
-        style={themedStyles.categoryItem}
-        onPress={() => {
-          navigation.navigate("TestComponents");
-        }}
-      /> */}
+
+      <List.Section title="Pruebas">
+        <List.Item
+          title="Probar Componentes"
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            navigation.navigate("TestComponents");
+          }}
+        />
+        <List.Item
+          title="Insertar datos de prueba"
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            createMockData()
+              .then(({ categories, transactions }) => {
+                queryClient.resetQueries();
+                showSnackMessage({
+                  message: `Se crearon ${categories} categorías y ${transactions} transacciones`,
+                  type: "success",
+                });
+              })
+              .catch((err) => {
+                console.log(err);
+                showSnackMessage({
+                  message: "Algo salió mal :(",
+                  type: "error",
+                });
+              });
+          }}
+        />
+      </List.Section>
     </View>
   );
 };

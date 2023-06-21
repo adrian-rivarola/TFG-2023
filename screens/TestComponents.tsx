@@ -1,9 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Divider } from "react-native-paper";
-import { useTheme } from "../context/ThemeContext";
+import { Button } from "react-native-paper";
 import { useModalStore } from "../store/modalStore";
-import { DEFAULT_CATEGORIES } from "../data/default-values";
-import CategoryList from "./category/CategoryList";
+import { useTheme } from "../theme/ThemeContext";
 
 export default function TestComponents() {
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);

@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { DateRange } from "../../utils/dateUtils";
 
 @Entity("Balance")
 export class Balance extends BaseEntity {
@@ -45,15 +46,10 @@ export class Balance extends BaseEntity {
     return res?.amount || 0;
   }
 
-  static async getPartialTotals() {
-    const startDate = dayjs().startOf("month");
-    const endDate = startDate.endOf("month");
+  static async getPartialBalance(dateRange: DateRange) {
+    const { startDate, endDate } = dateRange;
 
-    const dateQuery = `
-      t."date" BETWEEN 
-      '${startDate.format("YYYY-MM-DD")}' AND '${endDate.format("YYYY-MM-DD")}'
-    `;
-
+    const dateQuery = `t."date" BETWEEN '${startDate}' AND '${endDate}'`;
     const sqlQuery = `
       SELECT income.amount as totalIncome, expense.amount AS totalExpense
       FROM (

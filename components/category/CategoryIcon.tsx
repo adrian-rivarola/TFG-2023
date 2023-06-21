@@ -1,7 +1,7 @@
 import { Avatar } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Category } from "../../data";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { View } from "react-native";
 
 type CategoryIconProps = React.ComponentProps<typeof View> & {

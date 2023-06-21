@@ -3,14 +3,13 @@ import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../theme/ThemeContext";
 
 type DatePickerProps = {
   date: Date;
   minDate?: Date;
   maxDate?: Date;
-
-  onChange: React.Dispatch<React.SetStateAction<Date>>;
+  onChange: (newDate: Date) => void;
 };
 export function DatePicker({
   date,
@@ -36,9 +35,10 @@ export function DatePicker({
         </Text>
       </TouchableOpacity>
       <DatePickerModal
-        locale="en"
+        locale="es"
         mode="single"
         visible={open}
+        date={date}
         validRange={{
           startDate: minDate,
           endDate: maxDate,

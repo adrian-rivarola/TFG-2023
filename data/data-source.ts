@@ -29,6 +29,9 @@ export function initiDB(dbName: string = DB_NAME) {
   return dataSource.initialize();
 }
 
-export function dropDB() {
-  return dataSource.dropDatabase();
+export async function clearAllData() {
+  await Budget.clear();
+  await Transaction.clear();
+  await Balance.clear();
+  await Category.clear();
 }

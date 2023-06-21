@@ -1,23 +1,15 @@
 import { useQuery } from "react-query";
-import { Budget, Transaction } from "../../data";
+import { Transaction } from "../../data";
 import { TRANSACTIONS_QUERY_KEY } from "./useGetTransactions";
 
-async function getTransactionById(transactionId: number) {
-  const transaction = await Transaction.findOneByOrFail({
-    id: transactionId,
-  });
-
-  // transaction.budgets = await Budget.findBudgetsForTransaction(transaction);
-
-  return transaction;
+async function getTransactionById(id: number) {
+  return Transaction.findOneByOrFail({ id });
 }
 
 export function useGetTransactionById(transactionId: number) {
   return useQuery(
     [TRANSACTIONS_QUERY_KEY, transactionId],
-    () => {
-      return getTransactionById(transactionId);
-    },
+    () => getTransactionById(transactionId),
     {
       enabled: !!transactionId,
     }

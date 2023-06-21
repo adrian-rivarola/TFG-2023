@@ -14,7 +14,6 @@ import {
 } from "typeorm";
 
 import {
-  DateRange,
   StringDateRange,
   getDateInfo,
   getDatesFromRange,
@@ -22,7 +21,15 @@ import {
 import type { Category } from "./Category";
 import { Transaction } from "./Transaction";
 
-type BudgetDateRange = "week" | "month";
+type BudgetDateRange = Exclude<StringDateRange, "day">;
+
+export type BudgetFormData = {
+  id?: number;
+  dateRange: BudgetDateRange;
+  maxAmount: number;
+  categories: number[];
+  description: string;
+};
 
 @Entity("Budget")
 export class Budget extends BaseEntity {
@@ -40,7 +47,7 @@ export class Budget extends BaseEntity {
   @Column("varchar", {
     nullable: false,
   })
-  dateRange: StringDateRange;
+  dateRange: BudgetDateRange;
 
   @ManyToMany("Category", {
     eager: true,
@@ -53,7 +60,7 @@ export class Budget extends BaseEntity {
   createdAt: Date;
 
   totalSpent = 0;
-  transactions?: Transaction[];
+  transactions: Transaction[] = [];
 
   get startDate() {
     return dayjs().startOf(this.dateRange).startOf("day");
@@ -67,6 +74,10 @@ export class Budget extends BaseEntity {
     return getDateInfo(getDatesFromRange(this.dateRange));
   }
 
+  get percentage() {
+    return Math.floor((this.totalSpent / this.maxAmount) * 100);
+  }
+
   static async findTransactions(
     budget: Budget,
     offest = 0
@@ -75,7 +86,6 @@ export class Budget extends BaseEntity {
     const { startDate, endDate } = getDatesFromRange(dateRange, offest);
 
     return Transaction.find({
-      relations: ["category"],
       order: {
         date: "DESC",
       },
@@ -102,6 +112,16 @@ export class Budget extends BaseEntity {
       console.log("Failed to get total spend of budget:", err);
     }
     return 0;
+  }
+
+  serialize(): BudgetFormData {
+    return {
+      id: this.id,
+      dateRange: this.dateRange,
+      maxAmount: this.maxAmount,
+      description: this.description,
+      categories: this.categories.map((c) => c.id),
+    };
   }
 }
 

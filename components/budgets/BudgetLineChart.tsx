@@ -1,13 +1,13 @@
-import dayjs from "dayjs";
 import { useMemo } from "react";
 import { Dimensions, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { AbstractChartConfig } from "react-native-chart-kit/dist/AbstractChart";
 import { LineChartData } from "react-native-chart-kit/dist/line-chart/LineChart";
-import { Surface, Text } from "react-native-paper";
+import { Card } from "react-native-paper";
 
-import { useTheme } from "../../context/ThemeContext";
 import { Budget, Transaction } from "../../data";
+import { useTheme } from "../../theme/ThemeContext";
+import { getBudgetStatusColor, getBudgetTrend } from "../../utils/budgetUtils";
 import { convertToShortScale } from "../../utils/numberUtils";
 
 const screenWidth = Dimensions.get("screen").width;
@@ -22,8 +22,11 @@ export default function BudgetLineChart({
   budget,
 }: BudgetLineChartProps) {
   const { theme, isDarkTheme } = useTheme();
-  const data = useMemo(() => getGraphData(budget, transactions), [budget]);
+  const data = useMemo(() => getGraphData(), [transactions]);
 
+  const lineColor = getBudgetStatusColor(budget.percentage);
+  const chartWidth =
+    screenWidth + screenWidth / (data.datasets[0].data.length - 1) - 85;
   const chartConfig: AbstractChartConfig = {
     labelColor: () => theme.colors.text,
     color: (opacity = 1) =>
@@ -32,26 +35,47 @@ export default function BudgetLineChart({
         : `rgba(0, 0, 0, ${opacity})`,
   };
 
+  function getGraphData() {
+    const { trend, labels } = getBudgetTrend(budget);
+
+    const chartData: LineChartData = {
+      datasets: [
+        {
+          data: trend,
+          color: () => lineColor,
+          withScrollableDot: true,
+        },
+      ],
+      labels,
+    };
+
+    if (budget.totalSpent >= budget.maxAmount) {
+      chartData.datasets[1] = {
+        color: () => "red",
+        data: trend.map(() => budget.maxAmount),
+        withDots: false,
+        strokeWidth: 2,
+        strokeDashArray: [8],
+      };
+    }
+
+    return chartData;
+  }
+
   return (
-    <Surface
-      style={{
-        borderRadius: 10,
-        backgroundColor: theme.colors.surface,
-      }}
-      elevation={1}
-    >
-      <View style={{ width: screenWidth - 20, padding: 0 }}>
+    <Card elevation={1}>
+      <View style={{ padding: 0 }}>
         <LineChart
-          style={{ padding: 10, margin: 0 }}
-          data={data}
-          chartConfig={chartConfig}
-          width={
-            screenWidth + screenWidth / (data.datasets[0].data.length - 1) - 85
-          }
-          height={380}
-          segments={4}
-          yAxisLabel="Gs "
+          fromZero
+          transparent
           withShadow={false}
+          chartConfig={chartConfig}
+          style={{ padding: 10, margin: 0, overflow: "hidden" }}
+          width={chartWidth}
+          height={380}
+          data={data}
+          segments={5}
+          yAxisLabel="Gs "
           formatYLabel={(n) => {
             let num = parseInt(n);
             if (!num) {
@@ -59,52 +83,8 @@ export default function BudgetLineChart({
             }
             return convertToShortScale(num);
           }}
-          withDots={false}
-          fromZero
-          transparent
-          bezier
         />
       </View>
-    </Surface>
+    </Card>
   );
 }
-const getGraphData = (budget: Budget, transactions: Transaction[]) => {
-  const range = budget.dateRange === "week" ? "day" : "week";
-  const startDate = dayjs().startOf(budget.dateRange);
-  const endDate = dayjs().endOf(budget.dateRange);
-  const diff = endDate.diff(startDate, range);
-  const dates = Array.from(new Array(diff)).map((v, i) =>
-    startDate.add(i, range)
-  );
-  const totals: number[] = dates.map(() => 0);
-  let acu = 0;
-
-  transactions.reverse().forEach((transaction) => {
-    const date = dayjs(transaction.date);
-    const idx = Math.abs(startDate.diff(date, range));
-    if (idx >= totals.length) {
-      totals[totals.length - 1] += transaction.amount;
-    } else {
-      totals[idx] += transaction.amount;
-    }
-  });
-
-  const data: LineChartData = {
-    datasets: [
-      {
-        data: totals.map((total) => (acu += total), acu),
-      },
-    ],
-    labels: dates.map((d) => d.format("DD/MM")),
-  };
-
-  if (acu >= budget.maxAmount) {
-    data.datasets[1] = {
-      data: dates.map(() => budget.maxAmount),
-      color: () => "red",
-      strokeWidth: 2,
-    };
-  }
-
-  return data;
-};

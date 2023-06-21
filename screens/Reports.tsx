@@ -5,7 +5,7 @@ import { TabBar, TabView } from "react-native-tab-view";
 import DateFilterFAB from "../components/DateFilterFAB";
 import CategoryTypeReport from "../components/reports/CategoryTypeReport";
 import Layout from "../constants/Layout";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../theme/ThemeContext";
 import { CategoryType } from "../data";
 import { RootTabScreenProps } from "../types";
 import { DateRange } from "../utils/dateUtils";

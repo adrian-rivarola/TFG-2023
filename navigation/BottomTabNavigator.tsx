@@ -1,7 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
-import { IconButton } from "react-native-paper";
 import { BottomTabParamList } from "../types";
 
 import ConfigurationScreen from "../screens/Configuration";

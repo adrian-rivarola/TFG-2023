@@ -1,13 +1,10 @@
 {
-  "editor.formatOnSave": true,
   "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-  "files.associations": {
-    "*.js": "javascriptreact"
-  },
+  "editor.formatOnSave": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
-  "workbench.tree.indent": 14,
-  "[sql]": {
-    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
-  }
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "workbench.tree.indent": 16
 }

@@ -1,96 +1,90 @@
 import dayjs from "dayjs";
 import { DATE_FORMAT } from "../utils/dateUtils";
+import { Balance } from "./entities/Balance";
+import { Budget } from "./entities/Budget";
 import { Category, CategoryType } from "./entities/Category";
 import { Transaction } from "./entities/Transaction";
-import { Budget } from "./entities/Budget";
 
-const AMOUNTS = [
-  10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000, 500_000,
+const EXPENSE_AMOUNTS = [
+  10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000,
 ];
+const INCOME_AMOUNTS = [600_000, 400_000, 500_000];
 
 export async function createMockData() {
   await Transaction.clear();
   await Budget.clear();
   await Category.clear();
+  await Balance.clear();
 
-  const categories = await Category.save([
-    {
-      name: "Food & Drinks",
-      icon: "fastfood",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Shopping",
-      icon: "shopping-cart",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Housing",
-      icon: "home",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Vehicle",
-      icon: "directions-car",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Life & Entertainment",
-      icon: "local-movies",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Communication, PC",
-      icon: "computer",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Financial Expenses",
-      icon: "account-balance",
-      type: CategoryType.expense,
-    },
-    {
-      name: "Transportation",
-      icon: "directions-bus",
-      type: CategoryType.expense,
-    },
-  ]);
+  await Category.save(getDefaultCategories());
+  const categories = await Category.find();
+  const transactions: Transaction[] = [];
 
-  const cat = await Category.save({
-    name: "Salary",
-    icon: "account-balance-wallet",
-    type: CategoryType.income,
-  });
+  let dateStart = dayjs().startOf("month").subtract(2, "month");
+  // const dateEnd = dateStart.add(3, "months");
 
-  await Transaction.save({
-    amount: 4_000_000,
-    category: cat,
-    date: dayjs().format(DATE_FORMAT),
-    description: "",
-  });
+  // let dateStart = dayjs().startOf("year");
+  const dateEnd = dayjs();
 
-  for (let i = 0; i < 30; i++) {
-    const randomDay = Math.floor(Math.random() * 30) + 1;
-    const randomCategory =
-      categories[Math.floor(Math.random() * categories.length)];
-    const randomAmount = AMOUNTS[Math.floor(Math.random() * AMOUNTS.length)];
+  while (dateStart.isBefore(dateEnd)) {
+    // const t = 1 + randInt(4);
+    const t = 1;
 
-    await Transaction.save({
-      amount: randomAmount,
-      category: randomCategory,
-      date: `2023-06-${randomDay}`,
-      description: "",
-    });
+    for (let i = 0; i < t; i++) {
+      const randomCategory = categories[randInt(categories.length)];
+      const randomAmount = randomCategory.isExpense
+        ? EXPENSE_AMOUNTS[randInt(EXPENSE_AMOUNTS.length)]
+        : INCOME_AMOUNTS[randInt(INCOME_AMOUNTS.length)];
+
+      try {
+        const t = await Transaction.save({
+          amount: randomAmount,
+          category: randomCategory,
+          date: dateStart.format(DATE_FORMAT),
+          description: "",
+        });
+        transactions.push(t);
+      } catch (err) {
+        console.log(
+          `Failed to save all transactions, transactions saved: ${transactions.length}`
+        );
+      }
+    }
+    dateStart = dateStart.add(1, "day");
   }
 
   const cCount = await Category.count();
   const tCount = await Transaction.count();
 
+  const balance = transactions.reduce(
+    (acu, t) => (t.category.isExpense ? acu - t.amount : acu + t.amount),
+    0
+  );
+  if (balance <= 100_000) {
+    await Balance.setInitialBalance(Math.abs(balance) + 200_000);
+  }
+
   console.log(`Created ${tCount} transactions and ${cCount} categories.`);
+
+  return {
+    categories: cCount,
+    transactions: tCount,
+  };
 }
 
-export const getDefaultCategories = () =>
-  Category.create([
+function getDefaultCategories() {
+  return Category.create([
+    // income
+    // {
+    //   name: "Salario",
+    //   icon: "attach-money",
+    //   type: CategoryType.income,
+    // },
+    // {
+    //   name: "Otros ingresos",
+    //   icon: "more-horiz",
+    //   type: CategoryType.income,
+    // },
     // expense
     {
       name: "Alimentos",
@@ -137,15 +131,9 @@ export const getDefaultCategories = () =>
       icon: "more-horiz",
       type: CategoryType.expense,
     },
-    // income
-    {
-      name: "Salario",
-      icon: "attach-money",
-      type: CategoryType.income,
-    },
-    {
-      name: "Otros ingresos",
-      icon: "more-horiz",
-      type: CategoryType.income,
-    },
   ]);
+}
+
+function randInt(max: number) {
+  return Math.floor(Math.random() * max);
+}

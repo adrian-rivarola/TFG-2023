@@ -21,16 +21,18 @@ interface ModalStore {
   modalOptions: ModalOptions;
   showConfirmationModal: (options: ModalOptions) => void;
   closeConfirmationModal: () => void;
+  loading: boolean;
+  setLoading: (val: boolean) => void;
 }
 
 const DEFAULT_MODAL_OPTS = {
   content: "",
   confirmText: "",
   cancelText: "",
-  onConfirm: () => {},
 };
 
 export const useModalStore = create<ModalStore>((set, get) => ({
+  loading: false,
   snackOptions: {
     visible: false,
     message: "",
@@ -67,6 +69,11 @@ export const useModalStore = create<ModalStore>((set, get) => ({
         ...get().modalOptions,
         visible: false,
       },
+    });
+  },
+  setLoading: (val: boolean) => {
+    set({
+      loading: val,
     });
   },
 }));

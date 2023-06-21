@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { ScrollView, View } from "react-native";
 import { Card, DataTable, Text } from "react-native-paper";
 
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { DateRange } from "../../utils/dateUtils";
 
 type CategotyChartData = {

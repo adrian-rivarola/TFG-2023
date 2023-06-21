@@ -6,6 +6,7 @@ import CustomFAB from "../../components/CustomFAB";
 import { BudgetGroup } from "../../components/budgets/BudgetGroup";
 import { useGetBudgets } from "../../hooks/budget/useGetBudgets";
 import { RootTabScreenProps } from "../../types";
+import { globalStyles } from "../../theme/globalStyles";
 
 type ScreenProps = RootTabScreenProps<"BudgetList">;
 
@@ -23,9 +24,9 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
         }
       >
-        <View style={styles.container}>
+        <View style={globalStyles.screenContainer}>
           {budgets.length === 0 ? (
-            <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+            <Text style={{ alignSelf: "center", paddingVertical: 15 }}>
               Aún no tienes ningún presupuesto
             </Text>
           ) : (
@@ -46,9 +47,3 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 15,
-  },
-});

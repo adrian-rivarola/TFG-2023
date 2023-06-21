@@ -3,44 +3,61 @@ import { useNavigation } from "@react-navigation/native";
 import { Avatar, Card, Text } from "react-native-paper";
 
 import Layout from "../../constants/Layout";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { Transaction } from "../../data";
 import { formatCurrency } from "../../utils/numberUtils";
 import dayjs from "dayjs";
 import { View } from "react-native";
 import CategoryIcon from "../category/CategoryIcon";
+import { useMainStore } from "../../store";
 
 type TransactionCardProps = {
   transaction: Transaction;
+  hideDate?: boolean;
 };
 
-export default function TransactionCard({ transaction }: TransactionCardProps) {
+export default function TransactionCard({
+  transaction,
+  hideDate,
+}: TransactionCardProps) {
   const navigation = useNavigation();
   const {
     theme: { colors },
   } = useTheme();
+  const setSelectedCategories = useMainStore(
+    (state) => state.setSelectedCategories
+  );
   const { category } = transaction;
   const amountColor = category.isExpense ? colors.expense : colors.income;
 
   return (
     <Card
-      mode="elevated"
-      style={{
-        marginVertical: 4,
-        width: Layout.window.width - 20,
-        alignSelf: "center",
-      }}
+      elevation={1}
       onPress={() => {
-        navigation.navigate("TransactionDetails", {
-          transactionId: transaction.id,
+        setSelectedCategories([transaction.category]);
+        navigation.navigate("TransactionForm", {
+          transaction: transaction.serialize(),
         });
       }}
     >
-      <Card.Title
-        title={category.name}
-        subtitle={transaction.description}
-        subtitleStyle={{ color: colors.text, opacity: 0.75 }}
-        right={() => (
+      <Card.Content>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <CategoryIcon category={category} />
+
+          <View style={{ marginStart: 10 }}>
+            <Text variant="labelLarge">{category.name}</Text>
+            {transaction.description && (
+              <Text
+                variant="bodySmall"
+                style={{ color: colors.text, opacity: 0.75 }}
+              >
+                {transaction.description}
+              </Text>
+            )}
+          </View>
+
+          <View style={{ flexGrow: 1 }} />
+
           <View style={{ alignItems: "flex-end" }}>
             <Text
               variant="bodyMedium"
@@ -51,32 +68,15 @@ export default function TransactionCard({ transaction }: TransactionCardProps) {
             >
               {formatCurrency(transaction.amount)}
             </Text>
-            <Text variant="bodySmall">
-              {dayjs(transaction.date).format("D [de] MMMM")}
-            </Text>
+
+            {!hideDate && (
+              <Text variant="bodySmall">
+                {dayjs(transaction.date).format("D [de] MMMM")}
+              </Text>
+            )}
           </View>
-        )}
-        rightStyle={{ marginEnd: 10 }}
-        left={(props) => <CategoryIcon category={category} {...props} />}
-      />
-      {/* <Card.Content
-        style={{ flexDirection: "row", justifyContent: "space-between" }}
-      >
-        <Text variant="bodySmall">
-          {dayjs(transaction.date).format("dddd, D [de] MMMM")}
-        </Text>
-        {category && (
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <MaterialIcons
-              name={category.icon.toLowerCase() as any}
-              color={colors.text}
-              size={16}
-              style={{ marginStart: 16 }}
-            />
-            <Text variant="bodySmall">{category.name}</Text>
-          </View>
-        )}
-      </Card.Content> */}
+        </View>
+      </Card.Content>
     </Card>
   );
 }

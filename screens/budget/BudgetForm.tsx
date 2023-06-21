@@ -1,80 +1,93 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Chip,
-  SegmentedButtons,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { Button, Chip, IconButton, Text, TextInput } from "react-native-paper";
 import { useQuery } from "react-query";
 
 import AmountInput from "../../components/AmountInput";
 import CategorySelect from "../../components/category/CategorySelect";
 import Layout from "../../constants/Layout";
-import { useTheme } from "../../context/ThemeContext";
-import { Budget } from "../../data";
+import { useTheme } from "../../theme/ThemeContext";
+import { Budget, BudgetFormData } from "../../data";
+import { useDeleteBudget } from "../../hooks/budget/useDeleteBudget";
 import { useSaveBudget } from "../../hooks/budget/useSaveBudget";
 import { useMainStore } from "../../store";
 import { useModalStore } from "../../store/modalStore";
 import { RootStackScreenProps } from "../../types";
-import { MaterialIcons } from "@expo/vector-icons";
+import DateRangeSelector from "../../components/DateRangeSelector";
+import useForm from "../../hooks/useForm";
 
 type ScreenProps = RootStackScreenProps<"BudgetForm">;
 type DateRangeOption = "week" | "month";
 
+const DEFAULT_BUDGET: BudgetFormData = {
+  categories: [],
+  dateRange: "week",
+  description: "",
+  maxAmount: 0,
+};
+
 export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
-  const showSnackMessage = useModalStore((state) => state.showSnackMessage);
+  const [showSnackMessage, showConfirmationModal, setLoading] = useModalStore(
+    (state) => [
+      state.showSnackMessage,
+      state.showConfirmationModal,
+      state.setLoading,
+    ]
+  );
   const [selectedCategories, setSelectedCategories] = useMainStore((state) => [
     state.selectedCategories,
     state.setSelectedCategories,
   ]);
 
   const { mutateAsync: saveBudget } = useSaveBudget();
+  const { mutateAsync: deleteBudget } = useDeleteBudget();
 
-  const budgetId = route.params?.budgetId;
-  const [description, setDescription] = useState("");
-  const [maxAmount, setMaxAmount] = useState(0);
-  const [dateRange, setDateRange] = useState<DateRangeOption>("week");
-
-  // TODO: improve this
-  useQuery(
-    ["budgets-edit", budgetId],
-    () => Budget.findOneByOrFail({ id: budgetId }),
-    {
-      enabled: !!budgetId,
-      onSuccess: onBudgetLoad,
-      onError: (err) => {
-        console.log(`Transaction with id ${budgetId} not found`);
-        navigation.goBack();
-      },
-    }
-  );
+  const [formData, onChange] = useForm<BudgetFormData>({
+    ...DEFAULT_BUDGET,
+    ...route.params?.budget,
+  });
 
   useEffect(() => {
+    if (formData.id) {
+      navigation.setOptions({
+        headerRight: () => (
+          <IconButton
+            icon={"delete"}
+            iconColor={theme.colors.error}
+            onPress={() => {
+              showConfirmationModal({
+                onConfirm: () => {
+                  deleteBudget(formData.id!).then(() => {
+                    showSnackMessage({
+                      message: "Presupuesto eliminado",
+                      type: "success",
+                    });
+                    navigation.navigate("BottomTab", {
+                      screen: "BudgetList",
+                    });
+                  });
+                },
+              });
+            }}
+          />
+        ),
+      });
+    }
+
     return () => setSelectedCategories([]);
   }, []);
 
-  function onBudgetLoad(budget: Budget) {
-    setDescription(budget.description);
-    setMaxAmount(budget.maxAmount);
-    setDateRange(budget.dateRange);
-    setSelectedCategories(budget.categories);
-  }
-
   const onSubmit = () => {
     const budget = Budget.create({
-      description: description,
-      maxAmount: maxAmount,
+      ...formData,
       categories: selectedCategories,
-      dateRange: dateRange,
-      id: budgetId,
     });
 
+    setLoading(true);
     saveBudget(budget)
       .then(() => {
-        const message = budgetId
+        const message = formData.id
           ? "Presupuesto actualizado correctamente"
           : "Presupuesto creado correctamente";
         showSnackMessage({
@@ -90,78 +103,40 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
           type: "error",
         });
         console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <View style={styles.inputGroup}>
-          <Text>Periodo:</Text>
-          <View style={{ flex: 1, flexDirection: "row", marginTop: 5 }}>
-            <Chip
-              onPress={() => setDateRange("week")}
-              // selected={dateRange === "week"}
-              // icon={"calendar-today"}
-              style={{
-                marginEnd: 10,
-                borderColor: theme.colors.primaryContainer,
-                borderWidth: 2,
-                backgroundColor:
-                  dateRange === "week"
-                    ? theme.colors.primaryContainer
-                    : theme.colors.surface,
-              }}
-            >
-              Semana
-            </Chip>
-            <Chip
-              onPress={() => setDateRange("month")}
-              // selected={dateRange === "month"}
-              style={{
-                borderColor: theme.colors.primaryContainer,
-                borderWidth: 2,
-                backgroundColor:
-                  dateRange === "month"
-                    ? theme.colors.primaryContainer
-                    : theme.colors.surface,
-              }}
-              // icon={"calendar-today"}
-            >
-              Mes
-            </Chip>
-          </View>
-          {/* <SegmentedButtons
-            density="medium"
-            value={dateRange}
-            onValueChange={(value) => setDateRange(value as DateRangeOption)}
-            buttons={[
-              {
-                value: "week",
-                label: "Semana",
-              },
-              {
-                value: "month",
-                label: "Mes",
-              },
-            ]}
-          /> */}
-        </View>
+        <AmountInput
+          label="Monto máximo:"
+          value={formData.maxAmount}
+          setValue={(val) => onChange("maxAmount", val)}
+        />
 
         <View style={styles.inputGroup}>
-          <Text>Descripción:</Text>
+          <Text>Nombre:</Text>
           <TextInput
             mode="outlined"
-            value={description}
-            onChangeText={(val) => setDescription(val)}
+            value={formData.description}
+            onChangeText={(val) => onChange("description", val)}
           />
         </View>
 
-        <AmountInput
-          label="Monto máximo:"
-          value={maxAmount}
-          setValue={setMaxAmount}
-        />
+        <View style={styles.inputGroup}>
+          <Text>Periodo:</Text>
+
+          <View style={{ marginTop: 5 }}>
+            <DateRangeSelector
+              value={formData.dateRange}
+              onChange={(val) => onChange("dateRange", val)}
+            />
+          </View>
+        </View>
 
         <View style={styles.inputGroup}>
           <CategorySelect multiple expenseOnly label="Categorías:" />
@@ -170,7 +145,11 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         <Button
           mode="contained"
           style={{ marginTop: 24 }}
-          disabled={!description || !maxAmount || !selectedCategories.length}
+          disabled={
+            !formData.description ||
+            !formData.maxAmount ||
+            !selectedCategories.length
+          }
           onPress={onSubmit}
         >
           Guardar
@@ -186,6 +165,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    marginBottom: 80,
   },
   inputGroup: {
     flex: 1,

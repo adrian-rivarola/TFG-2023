@@ -4,7 +4,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, List, Text } from "react-native-paper";
 
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { CategoryType } from "../../data";
 import { useMainStore } from "../../store";
 import CategoryIcon from "./CategoryIcon";
@@ -33,16 +33,17 @@ export default function CategorySelect({
 
   const styles = StyleSheet.create({
     container: {
-      borderWidth: 1,
-      borderColor: colors.border,
       padding: 0,
       marginTop: 5,
     },
     categoryItem: {
-      backgroundColor: colors.surface,
       paddingStart: 10,
       paddingEnd: 5,
       justifyContent: "center",
+      backgroundColor: colors.surface,
+      borderColor: colors.secondary,
+      borderRadius: 4,
+      borderWidth: 1,
     },
   });
 
@@ -57,20 +58,34 @@ export default function CategorySelect({
             style={styles.categoryItem}
             left={() => <CategoryIcon category={category} size={30} />}
             right={() =>
-              !multiple && (
+              multiple ? (
                 <MaterialIcons
+                  size={20}
+                  name="close"
+                  color={colors.primary}
+                  style={{ alignSelf: "center" }}
+                />
+              ) : (
+                <MaterialIcons
+                  size={30}
                   name="swap-horiz"
                   color={colors.primary}
-                  size={30}
+                  style={{ alignSelf: "center" }}
                 />
               )
             }
             onPress={() => {
-              navigation.navigate("CategoryList", {
-                action: multiple ? "select-multiple" : "select",
-                initialTab: selectedCategories[0]?.type,
-                categoryType: expenseOnly ? CategoryType.expense : undefined,
-              });
+              if (multiple) {
+                setSelectedCategories(
+                  selectedCategories.filter((cat) => cat.id !== category.id)
+                );
+              } else {
+                navigation.navigate("CategoryList", {
+                  action: multiple ? "select-multiple" : "select",
+                  initialTab: selectedCategories[0]?.type,
+                  categoryType: expenseOnly ? CategoryType.expense : undefined,
+                });
+              }
             }}
           />
         </View>

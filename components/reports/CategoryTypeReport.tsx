@@ -4,10 +4,12 @@ import { ScrollView, View } from "react-native";
 import { Avatar, Card, DataTable, ProgressBar, Text } from "react-native-paper";
 import PieChart from "react-native-pie-chart";
 
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../theme/ThemeContext";
 import { CategoryTotal, CategoryType, Transaction } from "../../data";
 import { DateRange } from "../../utils/dateUtils";
 import { convertToShortScale, formatCurrency } from "../../utils/numberUtils";
+import CategoryTypeSelector from "../CategoryTypeSelector";
+import { globalStyles } from "../../theme/globalStyles";
 
 type CategotyChartData = CategoryTotal & {
   color: string;
@@ -89,87 +91,88 @@ export default function CategoryTypeReport({
   }
 
   return (
-    <ScrollView style={{ flex: 1, padding: 10 }}>
-      <Card>
-        <Card.Title
-          title={`${categoryTitle} por categoría`}
-          titleVariant="titleMedium"
-        />
+    <ScrollView>
+      <View style={globalStyles.screenContainer}>
+        <Card>
+          <Card.Title
+            title={`${categoryTitle} por categoría`}
+            titleVariant="titleMedium"
+          />
 
-        <Card.Content>
-          <View
-            style={{
-              position: "relative",
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 10,
-              marginBottom: 20,
-            }}
-          >
-            <Text
-              variant="headlineSmall"
+          <Card.Content>
+            <View
               style={{
-                position: "absolute",
-                zIndex: 100,
+                position: "relative",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 10,
+                marginBottom: 20,
               }}
             >
-              {convertToShortScale(categoryTotal)}
-            </Text>
+              <Text
+                variant="headlineSmall"
+                style={{
+                  position: "absolute",
+                  zIndex: 100,
+                }}
+              >
+                {convertToShortScale(categoryTotal)}
+              </Text>
 
-            <PieChart
-              series={pieChartData.map((d) => d.total)}
-              sliceColor={pieChartData.map((d) => d.color)}
-              widthAndHeight={size}
-              coverRadius={0.44}
-              coverFill={colors.background}
-            />
-          </View>
+              <PieChart
+                series={pieChartData.map((d) => d.total)}
+                sliceColor={pieChartData.map((d) => d.color)}
+                widthAndHeight={size}
+                coverRadius={0.44}
+                coverFill={colors.background}
+              />
+            </View>
 
-          <View style={{}}>
-            {pieChartData.map((d, i) => (
-              <CategoryAmount key={i} data={d} amountColor={categoryColor} />
-            ))}
-          </View>
-        </Card.Content>
-      </Card>
+            <View style={{}}>
+              {pieChartData.map((d, i) => (
+                <CategoryAmount key={i} data={d} />
+              ))}
+            </View>
+          </Card.Content>
+        </Card>
 
-      <Card
-        elevation={1}
-        mode="elevated"
-        style={{
-          marginTop: 30,
-        }}
-      >
-        <Card.Title title="Transacciones" titleVariant="titleMedium" />
+        <Card
+          elevation={1}
+          mode="elevated"
+          style={{
+            marginTop: 20,
+          }}
+        >
+          <Card.Title title="Transacciones" titleVariant="titleMedium" />
 
-        <Card.Content>
-          <DataTable>
-            <DataTable.Row>
-              <DataTable.Cell>Cantidad</DataTable.Cell>
-              <DataTable.Cell numeric>{transactionsCount}</DataTable.Cell>
-            </DataTable.Row>
+          <Card.Content>
+            <DataTable>
+              <DataTable.Row>
+                <DataTable.Cell>Cantidad</DataTable.Cell>
+                <DataTable.Cell numeric>{transactionsCount}</DataTable.Cell>
+              </DataTable.Row>
 
-            <DataTable.Row>
-              <DataTable.Cell>Promedio</DataTable.Cell>
-              <DataTable.Cell numeric>
-                Gs. {convertToShortScale(average, 2)}
-              </DataTable.Cell>
-            </DataTable.Row>
-          </DataTable>
-        </Card.Content>
-      </Card>
+              <DataTable.Row>
+                <DataTable.Cell>Promedio</DataTable.Cell>
+                <DataTable.Cell numeric>
+                  Gs. {convertToShortScale(average, 2)}
+                </DataTable.Cell>
+              </DataTable.Row>
+            </DataTable>
+          </Card.Content>
+        </Card>
 
-      <View style={{ paddingVertical: 50 }} />
+        <View style={{ paddingVertical: 50 }} />
+      </View>
     </ScrollView>
   );
 }
 
 type CategoryAmountProps = {
   data: CategotyChartData;
-  amountColor: string;
 };
 
-function CategoryAmount({ data, amountColor }: CategoryAmountProps) {
+function CategoryAmount({ data }: CategoryAmountProps) {
   const {
     theme: { colors },
   } = useTheme();
@@ -218,7 +221,7 @@ function CategoryAmount({ data, amountColor }: CategoryAmountProps) {
           <Text
             variant="titleSmall"
             style={{
-              color: amountColor,
+              color: colors.text,
             }}
           >
             Gs. {convertToShortScale(data.total)}
