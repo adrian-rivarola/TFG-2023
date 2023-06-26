@@ -1,13 +1,13 @@
-import { formatCurrency } from "../../utils/numberUtils";
+import { formatCurrency } from '../../utils/numberUtils';
 
-describe("formatCurrency", () => {
-  it("should return a string", () => {
+describe('formatCurrency', () => {
+  it('should return a string', () => {
     const result = formatCurrency(100);
 
-    expect(typeof result).toBe("string");
+    expect(typeof result).toBe('string');
   });
 
-  it("should formats the value correctly", () => {
+  it('should formats the value correctly', () => {
     // TODO: fix this
     // expect(formatCurrency(0)).toBe("Gs. 0");
     // expect(formatCurrency(1000)).toBe("Gs. 1.000");

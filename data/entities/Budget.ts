@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import {
   BaseEntity,
   Between,
@@ -11,17 +11,13 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
-} from "typeorm";
+} from 'typeorm';
 
-import {
-  StringDateRange,
-  getDateInfo,
-  getDatesFromRange,
-} from "../../utils/dateUtils";
-import type { Category } from "./Category";
-import { Transaction } from "./Transaction";
+import { StringDateRange, getDateInfo, getDatesFromRange } from '../../utils/dateUtils';
+import type { Category } from './Category';
+import { Transaction } from './Transaction';
 
-type BudgetDateRange = Exclude<StringDateRange, "day">;
+type BudgetDateRange = Exclude<StringDateRange, 'day'>;
 
 export type BudgetFormData = {
   id?: number;
@@ -31,29 +27,29 @@ export type BudgetFormData = {
   description: string;
 };
 
-@Entity("Budget")
+@Entity('Budget')
 export class Budget extends BaseEntity {
-  @PrimaryGeneratedColumn("increment")
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column("varchar")
+  @Column('varchar')
   description: string;
 
-  @Column("float", {
+  @Column('float', {
     nullable: false,
   })
   maxAmount: number;
 
-  @Column("varchar", {
+  @Column('varchar', {
     nullable: false,
   })
   dateRange: BudgetDateRange;
 
-  @ManyToMany("Category", {
+  @ManyToMany('Category', {
     eager: true,
     nullable: false,
   })
-  @JoinTable({ name: "BudgetCategories" })
+  @JoinTable({ name: 'BudgetCategories' })
   categories: Category[];
 
   @CreateDateColumn()
@@ -63,11 +59,11 @@ export class Budget extends BaseEntity {
   transactions: Transaction[] = [];
 
   get startDate() {
-    return dayjs().startOf(this.dateRange).startOf("day");
+    return dayjs().startOf(this.dateRange).startOf('day');
   }
 
   get endDate() {
-    return dayjs().endOf(this.dateRange).endOf("day");
+    return dayjs().endOf(this.dateRange).endOf('day');
   }
 
   get dateInfo() {
@@ -78,16 +74,17 @@ export class Budget extends BaseEntity {
     return Math.floor((this.totalSpent / this.maxAmount) * 100);
   }
 
-  static async findTransactions(
-    budget: Budget,
-    offest = 0
-  ): Promise<Transaction[]> {
+  getDateWithOffset(offset: number) {
+    return getDateInfo(getDatesFromRange(this.dateRange, offset));
+  }
+
+  static async findTransactions(budget: Budget, offest = 0): Promise<Transaction[]> {
     const { categories, dateRange } = budget;
     const { startDate, endDate } = getDatesFromRange(dateRange, offest);
 
     return Transaction.find({
       order: {
-        date: "DESC",
+        date: 'DESC',
       },
       where: {
         category: {
@@ -102,14 +99,14 @@ export class Budget extends BaseEntity {
     const { startDate, endDate } = getDatesFromRange(budget.dateRange, offset);
 
     try {
-      const totalSpent = await Transaction.sum("amount", {
+      const totalSpent = await Transaction.sum('amount', {
         category: In(budget.categories.map((c) => c.id)),
         date: Between(startDate, endDate),
       });
 
       return totalSpent || 0;
     } catch (err) {
-      console.log("Failed to get total spend of budget:", err);
+      console.log('Failed to get total spend of budget:', err);
     }
     return 0;
   }

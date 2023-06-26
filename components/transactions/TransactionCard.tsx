@@ -1,32 +1,25 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { Avatar, Card, Text } from "react-native-paper";
+import { useNavigation } from '@react-navigation/native';
+import dayjs from 'dayjs';
+import { View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 
-import Layout from "../../constants/Layout";
-import { useTheme } from "../../theme/ThemeContext";
-import { Transaction } from "../../data";
-import { formatCurrency } from "../../utils/numberUtils";
-import dayjs from "dayjs";
-import { View } from "react-native";
-import CategoryIcon from "../category/CategoryIcon";
-import { useMainStore } from "../../store";
+import { Transaction } from '../../data';
+import { useMainStore } from '../../store';
+import { useTheme } from '../../theme/ThemeContext';
+import { formatCurrency } from '../../utils/numberUtils';
+import CategoryIcon from '../category/CategoryIcon';
 
 type TransactionCardProps = {
   transaction: Transaction;
   hideDate?: boolean;
 };
 
-export default function TransactionCard({
-  transaction,
-  hideDate,
-}: TransactionCardProps) {
+export default function TransactionCard({ transaction, hideDate }: TransactionCardProps) {
   const navigation = useNavigation();
   const {
     theme: { colors },
   } = useTheme();
-  const setSelectedCategories = useMainStore(
-    (state) => state.setSelectedCategories
-  );
+  const setSelectedCategories = useMainStore((state) => state.setSelectedCategories);
   const { category } = transaction;
   const amountColor = category.isExpense ? colors.expense : colors.income;
 
@@ -35,22 +28,18 @@ export default function TransactionCard({
       elevation={1}
       onPress={() => {
         setSelectedCategories([transaction.category]);
-        navigation.navigate("TransactionForm", {
+        navigation.navigate('TransactionForm', {
           transaction: transaction.serialize(),
         });
-      }}
-    >
+      }}>
       <Card.Content>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <CategoryIcon category={category} />
 
           <View style={{ marginStart: 10 }}>
             <Text variant="labelLarge">{category.name}</Text>
             {transaction.description && (
-              <Text
-                variant="bodySmall"
-                style={{ color: colors.text, opacity: 0.75 }}
-              >
+              <Text variant="bodySmall" style={{ color: colors.text, opacity: 0.75 }}>
                 {transaction.description}
               </Text>
             )}
@@ -58,21 +47,18 @@ export default function TransactionCard({
 
           <View style={{ flexGrow: 1 }} />
 
-          <View style={{ alignItems: "flex-end" }}>
+          <View style={{ alignItems: 'flex-end' }}>
             <Text
               variant="bodyMedium"
               style={{
                 color: amountColor,
-                fontWeight: "bold",
-              }}
-            >
+                fontWeight: 'bold',
+              }}>
               {formatCurrency(transaction.amount)}
             </Text>
 
             {!hideDate && (
-              <Text variant="bodySmall">
-                {dayjs(transaction.date).format("D [de] MMMM")}
-              </Text>
+              <Text variant="bodySmall">{dayjs(transaction.date).format('D [de] MMMM')}</Text>
             )}
           </View>
         </View>

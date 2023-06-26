@@ -1,16 +1,11 @@
-import { StyleSheet, View } from "react-native";
-import { Button } from "react-native-paper";
-import { useModalStore } from "../store/modalStore";
-import { useTheme } from "../theme/ThemeContext";
+import { StyleSheet, View } from 'react-native';
+import { Button } from 'react-native-paper';
+
+import { useModalStore } from '../store/modalStore';
 
 export default function TestComponents() {
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
-  const showConfirmationModal = useModalStore(
-    (state) => state.showConfirmationModal
-  );
-  const {
-    theme: { colors },
-  } = useTheme();
+  const showConfirmationModal = useModalStore((state) => state.showConfirmationModal);
 
   return (
     <View style={styles.container}>
@@ -21,16 +16,15 @@ export default function TestComponents() {
         }}
         onPress={() => {
           showConfirmationModal({
-            content: "Hola",
+            content: 'Hola',
             onConfirm: () => {
               showSnackMessage({
-                message: "Modal confirmado!",
-                type: "success",
+                message: 'Modal confirmado!',
+                type: 'success',
               });
             },
           });
-        }}
-      >
+        }}>
         Confirmation modal
       </Button>
       <Button
@@ -40,22 +34,20 @@ export default function TestComponents() {
         }}
         onPress={() => {
           showSnackMessage({
-            message: "Success snack message!",
-            type: "success",
+            message: 'Success snack message!',
+            type: 'success',
           });
-        }}
-      >
+        }}>
         Success snackbar
       </Button>
       <Button
         mode="contained"
         onPress={() => {
           showSnackMessage({
-            message: "Error snack message!",
-            type: "error",
+            message: 'Error snack message!',
+            type: 'error',
           });
-        }}
-      >
+        }}>
         Error snackbar
       </Button>
     </View>
@@ -65,7 +57,7 @@ export default function TestComponents() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     padding: 16,
   },
 });

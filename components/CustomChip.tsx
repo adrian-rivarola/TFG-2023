@@ -1,6 +1,6 @@
-import { View } from "react-native";
-import { Chip } from "react-native-paper";
-import { useTheme } from "../theme/ThemeContext";
+import { Chip } from 'react-native-paper';
+
+import { useTheme } from '../theme/ThemeContext';
 
 type CustomChipProps = {
   selected: boolean;
@@ -8,11 +8,7 @@ type CustomChipProps = {
   children: string;
 };
 
-export default function CustomChip({
-  selected,
-  onPress,
-  children,
-}: CustomChipProps) {
+export default function CustomChip({ selected, onPress, children }: CustomChipProps) {
   const {
     theme: { colors },
   } = useTheme();
@@ -24,8 +20,7 @@ export default function CustomChip({
         borderColor: colors.primaryContainer,
         borderWidth: 2,
         backgroundColor: selected ? colors.primaryContainer : colors.surface,
-      }}
-    >
+      }}>
       {children}
     </Chip>
   );

@@ -1,10 +1,10 @@
-import React from "react";
-import { SectionList, View } from "react-native";
-import { Text } from "react-native-paper";
+import React from 'react';
+import { SectionList, View } from 'react-native';
+import { Text } from 'react-native-paper';
 
-import { Transaction } from "../../data";
-import { useTheme } from "../../theme/ThemeContext";
-import TransactionCard from "./TransactionCard";
+import TransactionCard from './TransactionCard';
+import { Transaction } from '../../data';
+import { useTheme } from '../../theme/ThemeContext';
 
 type GroupedTransactionsProps = {
   transactions: Record<string, Transaction[]>;
@@ -25,7 +25,7 @@ export default function GroupedTransactions({
       })}
       keyExtractor={(item) => `${item.id}`}
       ListEmptyComponent={
-        <View style={{ paddingVertical: 20, alignItems: "center" }}>
+        <View style={{ paddingVertical: 20, alignItems: 'center' }}>
           <Text variant="bodyMedium">No hay transacciones en este periodo</Text>
         </View>
       }
@@ -40,8 +40,7 @@ export default function GroupedTransactions({
             paddingVertical: 5,
             paddingHorizontal: 10,
             backgroundColor: theme.colors.background,
-          }}
-        >
+          }}>
           <Text variant="labelLarge">{info.section.key}</Text>
         </View>
       )}

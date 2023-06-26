@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default function useForm<T extends object>(initialData: T) {
   const [formState, setFormState] = useState<T>(initialData);

@@ -1,35 +1,30 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useMemo } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
-import { IconButton } from "react-native-paper";
-import { TabBar, TabView } from "react-native-tab-view";
+import { MaterialIcons } from '@expo/vector-icons';
+import React, { useEffect, useMemo } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import { IconButton } from 'react-native-paper';
+import { TabBar, TabView } from 'react-native-tab-view';
 
-import CustomFAB from "../../components/CustomFAB";
-import GroupedTransactions from "../../components/transactions/GroupedTransactions";
-import { Transaction } from "../../data";
-import { useGetBudgetsById } from "../../hooks/budget/useGetBudgetById";
-import { useMainStore } from "../../store";
-import { useTheme } from "../../theme/ThemeContext";
-import { RootStackScreenProps } from "../../types";
-import { groupTransactionsByDate } from "../../utils/transactionUtils";
-import BudgetInfo from "./BudgetInfo";
+import CustomFAB from '../../components/CustomFAB';
+import GroupedTransactions from '../../components/transactions/GroupedTransactions';
+import { Transaction } from '../../data';
+import { useGetBudgetsById } from '../../hooks/budget/useGetBudgetById';
+import { useMainStore } from '../../store';
+import { useTheme } from '../../theme/ThemeContext';
+import { RootStackScreenProps } from '../../types';
+import { groupTransactionsByDate } from '../../utils/transactionUtils';
+import BudgetInfo from './BudgetInfo';
 
-type ScreenProps = RootStackScreenProps<"BudgetDetails">;
+type ScreenProps = RootStackScreenProps<'BudgetDetails'>;
 
-const screenWidth = Dimensions.get("screen").width;
+const screenWidth = Dimensions.get('screen').width;
 
-export default function BudgetDetailsScreen({
-  navigation,
-  route,
-}: ScreenProps) {
+export default function BudgetDetailsScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
-  const setSelectedCategories = useMainStore(
-    (state) => state.setSelectedCategories
-  );
+  const setSelectedCategories = useMainStore((state) => state.setSelectedCategories);
   const [index, setIndex] = React.useState(0);
   const routes = [
-    { key: "details", title: "Detalles" },
-    { key: "transactions", title: "Transacciones" },
+    { key: 'details', title: 'Detalles' },
+    { key: 'transactions', title: 'Transacciones' },
   ];
 
   const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
@@ -49,12 +44,10 @@ export default function BudgetDetailsScreen({
       headerRight: () => (
         <IconButton
           style={{ padding: 0, marginEnd: -10 }}
-          icon={() => (
-            <MaterialIcons name="edit" size={20} color={theme.colors.text} />
-          )}
+          icon={() => <MaterialIcons name="edit" size={20} color={theme.colors.text} />}
           onPress={() => {
             setSelectedCategories(budget.categories);
-            navigation.navigate("BudgetForm", { budget: budget.serialize() });
+            navigation.navigate('BudgetForm', { budget: budget.serialize() });
           }}
         />
       ),
@@ -74,17 +67,17 @@ export default function BudgetDetailsScreen({
       onIndexChange={setIndex}
       renderScene={({ route }) => {
         switch (route.key) {
-          case "details":
+          case 'details':
             return <BudgetInfo budget={budget} />;
-          case "transactions":
+          case 'transactions':
             return (
               <>
                 <GroupedTransactions transactions={groupedTransactions} />
+
                 <View
                   style={{
-                    marginBottom: 50,
-                  }}
-                >
+                    marginBottom: 80,
+                  }}>
                   <CustomFAB destination="TransactionForm" />
                 </View>
               </>
@@ -112,8 +105,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
   ms2: {
@@ -127,7 +120,7 @@ export const styles = StyleSheet.create({
     marginStart: 32,
   },
   description: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 16,
     marginStart: 32,
   },

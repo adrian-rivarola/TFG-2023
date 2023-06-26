@@ -1,20 +1,16 @@
-import { StyleSheet, View } from "react-native";
-import CurrencyInput, { FakeCurrencyInput } from "react-native-currency-input";
+import { StyleSheet, View } from 'react-native';
+import { FakeCurrencyInput } from 'react-native-currency-input';
+import { Text } from 'react-native-paper';
 
-import Layout from "../constants/Layout";
-import { useTheme } from "../theme/ThemeContext";
-import { Text } from "react-native-paper";
+import Layout from '../../constants/Layout';
+import { useTheme } from '../../theme/ThemeContext';
 
 type AmountInputProps = {
   label: string;
   value: number;
   setValue(val: number): void;
 };
-export default function AmountInput({
-  label,
-  value,
-  setValue,
-}: AmountInputProps) {
+export default function AmountInput({ label, value, setValue }: AmountInputProps) {
   const { theme } = useTheme();
 
   const themedStyles = StyleSheet.create({
@@ -59,6 +55,6 @@ const styles = StyleSheet.create({
   inputGroup: {
     flex: 1,
     paddingVertical: 16,
-    alignContent: "center",
+    alignContent: 'center',
   },
 });

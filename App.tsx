@@ -1,25 +1,25 @@
-import dayjs from "dayjs";
-import "dayjs/locale/es";
-import utc from "dayjs/plugin/utc";
-import { StatusBar } from "expo-status-bar";
-import { AppRegistry, LogBox } from "react-native";
-import Spinner from "react-native-loading-spinner-overlay";
-import { es, registerTranslation } from "react-native-paper-dates";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryClient, QueryClientProvider } from "react-query";
-import "reflect-metadata";
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+import utc from 'dayjs/plugin/utc';
+import { StatusBar } from 'expo-status-bar';
+import { AppRegistry, LogBox } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { es, registerTranslation } from 'react-native-paper-dates';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import 'reflect-metadata';
 
-import ConfirmationModal from "./components/ConfirmationModal";
-import SnackbarMessage from "./components/SnackbarMessage";
-import useCachedResources from "./hooks/useCachedResources";
-import Navigation from "./navigation";
-import { useModalStore } from "./store/modalStore";
-import { ThemeContextProvider } from "./theme/ThemeContext";
+import ConfirmationModal from './components/ConfirmationModal';
+import SnackbarMessage from './components/SnackbarMessage';
+import useCachedResources from './hooks/useCachedResources';
+import Navigation from './navigation';
+import { useModalStore } from './store/modalStore';
+import { ThemeContextProvider } from './theme/ThemeContext';
 
-LogBox.ignoreLogs([".+"]);
+LogBox.ignoreLogs(['.+']);
 LogBox.ignoreAllLogs(); // Ignore all log notifications
 
-export const queryClient = new QueryClient();
+const queryClient = new QueryClient();
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -44,8 +44,8 @@ export default function App() {
   );
 }
 
-dayjs.locale("es");
+dayjs.locale('es');
 dayjs.extend(utc);
 
-registerTranslation("es", es);
-AppRegistry.registerComponent("app", () => App);
+registerTranslation('en', es);
+AppRegistry.registerComponent('app', () => App);

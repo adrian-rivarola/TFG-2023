@@ -1,13 +1,13 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { Button, List, Text } from "react-native-paper";
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button, List, Text } from 'react-native-paper';
 
-import { useTheme } from "../../theme/ThemeContext";
-import { CategoryType } from "../../data";
-import { useMainStore } from "../../store";
-import CategoryIcon from "./CategoryIcon";
+import CategoryIcon from './CategoryIcon';
+import { CategoryType } from '../../data';
+import { useMainStore } from '../../store';
+import { useTheme } from '../../theme/ThemeContext';
 
 type CategorySelectProps = React.ComponentProps<typeof View> & {
   label: string;
@@ -39,7 +39,7 @@ export default function CategorySelect({
     categoryItem: {
       paddingStart: 10,
       paddingEnd: 5,
-      justifyContent: "center",
+      justifyContent: 'center',
       backgroundColor: colors.surface,
       borderColor: colors.secondary,
       borderRadius: 4,
@@ -63,25 +63,23 @@ export default function CategorySelect({
                   size={20}
                   name="close"
                   color={colors.primary}
-                  style={{ alignSelf: "center" }}
+                  style={{ alignSelf: 'center' }}
                 />
               ) : (
                 <MaterialIcons
                   size={30}
                   name="swap-horiz"
                   color={colors.primary}
-                  style={{ alignSelf: "center" }}
+                  style={{ alignSelf: 'center' }}
                 />
               )
             }
             onPress={() => {
               if (multiple) {
-                setSelectedCategories(
-                  selectedCategories.filter((cat) => cat.id !== category.id)
-                );
+                setSelectedCategories(selectedCategories.filter((cat) => cat.id !== category.id));
               } else {
-                navigation.navigate("CategoryList", {
-                  action: multiple ? "select-multiple" : "select",
+                navigation.navigate('CategoryList', {
+                  action: multiple ? 'select-multiple' : 'select',
                   initialTab: selectedCategories[0]?.type,
                   categoryType: expenseOnly ? CategoryType.expense : undefined,
                 });
@@ -92,19 +90,18 @@ export default function CategorySelect({
       ))}
 
       {(selectedCategories.length === 0 || multiple) && (
-        <View style={{ alignItems: "center", marginTop: 10 }}>
+        <View style={{ alignItems: 'center', marginTop: 10 }}>
           <Button
             icon="plus"
             mode="text"
             onPress={() => {
-              navigation.navigate("CategoryList", {
-                action: multiple ? "select-multiple" : "select",
+              navigation.navigate('CategoryList', {
+                action: multiple ? 'select-multiple' : 'select',
                 initialTab: selectedCategories[0]?.type,
                 categoryType: expenseOnly ? CategoryType.expense : undefined,
               });
-            }}
-          >
-            {multiple ? "Agregar categoría" : "Seleccionar categoría"}
+            }}>
+            {multiple ? 'Agregar categoría' : 'Seleccionar categoría'}
           </Button>
         </View>
       )}

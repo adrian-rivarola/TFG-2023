@@ -1,26 +1,27 @@
-import dayjs from "dayjs";
-import { DataSource } from "typeorm";
-import { Budget, Category, CategoryType, Transaction } from "../../data";
-import { initiMemoryDB } from "./dbSetup";
+import dayjs from 'dayjs';
+import { DataSource } from 'typeorm';
 
-describe("Budget", () => {
+import { Budget, Category, CategoryType, Transaction } from '../../data';
+import { initiMemoryDB } from './dbSetup';
+
+describe('Create Budget', () => {
   let dataSource: DataSource;
   let categories: Category[];
 
-  const weekStart = dayjs().startOf("day").startOf("week");
-  const weekEnd = dayjs().startOf("day").endOf("week");
+  const weekStart = dayjs().startOf('day').startOf('week');
+  const weekEnd = dayjs().startOf('day').endOf('week');
 
   beforeAll(async () => {
     dataSource = await initiMemoryDB();
     categories = Category.create([
       {
-        name: "Category 1",
-        icon: "icon",
+        name: 'Category 1',
+        icon: 'icon',
         type: CategoryType.expense,
       },
       {
-        name: "Category 2",
-        icon: "icon",
+        name: 'Category 2',
+        icon: 'icon',
         type: CategoryType.expense,
       },
     ]);
@@ -36,69 +37,71 @@ describe("Budget", () => {
     await dataSource.destroy();
   });
 
-  it("should create a budget with the correct date range", async () => {
+  it('should create a budget with the correct date range', async () => {
     const weekBudget = await Budget.create({
-      description: "Budget #1",
+      description: 'Budget #1',
       maxAmount: 100_000,
-      dateRange: "week",
+      dateRange: 'week',
       categories,
     }).save();
 
     expect(weekBudget).toBeInstanceOf(Budget);
-    expect(weekBudget.startDate.isSame(weekStart, "day")).toBe(true);
-    expect(weekBudget.endDate.isSame(weekEnd, "day")).toBe(true);
+    expect(weekBudget.startDate.isSame(weekStart, 'day')).toBe(true);
+    expect(weekBudget.endDate.isSame(weekEnd, 'day')).toBe(true);
 
     expect(weekBudget.totalSpent).toBe(0);
   });
 
-  it("should include existing transaction in total spent", async () => {
+  it('should include existing transactions in total spent', async () => {
     await Transaction.save([
       {
         amount: 10_000,
         category: categories[0],
-        date: weekStart.format("YYYY-MM-DD"),
+        date: weekStart.format('YYYY-MM-DD'),
       },
       {
         amount: 10_000,
         category: categories[0],
-        date: weekEnd.format("YYYY-MM-DD"),
+        date: weekEnd.format('YYYY-MM-DD'),
       },
     ]);
 
-    const weekBudget = await Budget.create({
-      description: "Budget #1",
+    const budget = await Budget.create({
+      description: 'Budget #1',
       maxAmount: 100_000,
-      dateRange: "week",
+      dateRange: 'week',
       categories,
     }).save();
 
-    const totalSpent = await Budget.getTotalSpent(weekBudget);
-    expect(totalSpent).toBe(20_000);
+    budget.totalSpent = await Budget.getTotalSpent(budget);
+
+    expect(budget.totalSpent).toBe(20_000);
+    expect(budget.percentage).toBe(20);
   });
 
-  it("should get different periods", async () => {
+  it('should get different periods', async () => {
     await Transaction.save([
       {
         amount: 5_000,
         category: categories[0],
-        date: weekStart.add(-1, "week").format("YYYY-MM-DD"),
+        date: weekStart.add(-1, 'week').format('YYYY-MM-DD'),
       },
       {
         amount: 10_000,
         category: categories[0],
-        date: weekStart.format("YYYY-MM-DD"),
+        date: weekStart.format('YYYY-MM-DD'),
       },
       {
         amount: 15_000,
         category: categories[0],
-        date: weekEnd.add(1, "week").format("YYYY-MM-DD"),
+        date: weekEnd.add(1, 'week').format('YYYY-MM-DD'),
       },
     ]);
 
     const weekBudget = await Budget.create({
-      description: "Budget #1",
+      description: 'Budget #1',
       maxAmount: 100_000,
-      dateRange: "week",
+      dateRange: 'week',
       categories,
     }).save();
 

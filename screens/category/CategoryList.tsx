@@ -1,19 +1,19 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useMemo, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
-import { List, Text } from "react-native-paper";
-import { TabBar, TabView } from "react-native-tab-view";
+import { MaterialIcons } from '@expo/vector-icons';
+import React, { useMemo, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { List, Text } from 'react-native-paper';
+import { TabBar, TabView } from 'react-native-tab-view';
 
-import CustomFAB from "../../components/CustomFAB";
-import CategoryIcon from "../../components/category/CategoryIcon";
-import Layout from "../../constants/Layout";
-import { useTheme } from "../../theme/ThemeContext";
-import { Category, CategoryType } from "../../data";
-import { useGetCategories } from "../../hooks/category/useGetCategories";
-import { useMainStore } from "../../store";
-import { RootStackScreenProps } from "../../types";
+import CustomFAB from '../../components/CustomFAB';
+import CategoryIcon from '../../components/category/CategoryIcon';
+import Layout from '../../constants/Layout';
+import { Category, CategoryType } from '../../data';
+import { useGetCategories } from '../../hooks/category/useGetCategories';
+import { useMainStore } from '../../store';
+import { useTheme } from '../../theme/ThemeContext';
+import { RootStackScreenProps } from '../../types';
 
-type ScreenProps = RootStackScreenProps<"CategoryList">;
+type ScreenProps = RootStackScreenProps<'CategoryList'>;
 
 const screenWidth = Layout.window.width;
 
@@ -28,12 +28,11 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
   ]);
 
   const { data: categories, isLoading } = useGetCategories();
-  // const categories = getDefaultCategories();
 
   const [index, setIndex] = useState(initialTab || 0);
   const routes = [
-    { key: "expenses", title: "Gastos" },
-    { key: "incomes", title: "Ingresos" },
+    { key: 'expenses', title: 'Gastos' },
+    { key: 'incomes', title: 'Ingresos' },
   ];
 
   const categoriesMap: Record<CategoryType, Category[]> = useMemo(
@@ -63,19 +62,16 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
 
   const onCategoryPress = (category: Category, remove = false) => {
     switch (action) {
-      case "edit":
-        navigation.navigate("CategoryForm", {
-          id: category.id,
-          icon: category.icon,
-          type: category.type,
-          name: category.name,
+      case 'edit':
+        navigation.navigate('CategoryForm', {
+          category: category.serialize(),
         });
         break;
-      case "select":
+      case 'select':
         setSelectedCategories([category]);
         navigation.goBack();
         break;
-      case "select-multiple":
+      case 'select-multiple':
         setSelectedCategories(
           remove
             ? selectedCategories.filter((c) => c.name !== category.name)
@@ -86,8 +82,7 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
   };
 
   const renderCategoryItem = (cat: Category) => {
-    const checked =
-      action !== "edit" && selectedCategories.some((c) => c.name === cat.name);
+    const checked = action !== 'edit' && selectedCategories.some((c) => c.name === cat.name);
 
     return (
       <List.Item
@@ -95,11 +90,7 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
         title={cat.name}
         style={themedStyles.categoryItem}
         left={() => <CategoryIcon size={30} category={cat} />}
-        right={() =>
-          checked && (
-            <MaterialIcons name="check" color={colors.primary} size={24} />
-          )
-        }
+        right={() => checked && <MaterialIcons name="check" color={colors.primary} size={24} />}
         onPress={() => onCategoryPress(cat, checked)}
       />
     );
@@ -109,7 +100,7 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
     return (
       <View style={styles.container}>
         {categories.length === 0 && (
-          <Text style={{ alignSelf: "center", paddingVertical: 16 }}>
+          <Text style={{ alignSelf: 'center', paddingVertical: 16 }}>
             Aún no tienes ninguna categoría
           </Text>
         )}
@@ -136,18 +127,10 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
           onIndexChange={setIndex}
           renderScene={({ route }) => {
             switch (route.key) {
-              case "expenses":
-                return (
-                  <CategoryFlatList
-                    categories={categoriesMap[CategoryType.expense]}
-                  />
-                );
-              case "incomes":
-                return (
-                  <CategoryFlatList
-                    categories={categoriesMap[CategoryType.income]}
-                  />
-                );
+              case 'expenses':
+                return <CategoryFlatList categories={categoriesMap[CategoryType.expense]} />;
+              case 'incomes':
+                return <CategoryFlatList categories={categoriesMap[CategoryType.income]} />;
             }
           }}
           renderTabBar={(props) => (

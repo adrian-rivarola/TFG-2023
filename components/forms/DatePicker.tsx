@@ -1,9 +1,10 @@
-import dayjs from "dayjs";
-import React, { useState } from "react";
-import { TouchableOpacity } from "react-native";
-import { Text } from "react-native-paper";
-import { DatePickerModal } from "react-native-paper-dates";
-import { useTheme } from "../theme/ThemeContext";
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
+import { DatePickerModal } from 'react-native-paper-dates';
+
+import { useTheme } from '../../theme/ThemeContext';
 
 type DatePickerProps = {
   date: Date;
@@ -11,14 +12,10 @@ type DatePickerProps = {
   maxDate?: Date;
   onChange: (newDate: Date) => void;
 };
-export function DatePicker({
-  date,
-  minDate,
-  maxDate,
-  onChange,
-}: DatePickerProps) {
+export function DatePicker({ date, minDate, maxDate, onChange }: DatePickerProps) {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false);
+
   return (
     <>
       <TouchableOpacity onPress={() => setOpen(true)}>
@@ -28,14 +25,14 @@ export function DatePicker({
             borderWidth: 1,
             borderRadius: 4,
             padding: 14,
-            textTransform: "capitalize",
-          }}
-        >
-          {dayjs(date).format("dddd, DD [de] MMMM")}
+            textTransform: 'capitalize',
+          }}>
+          {dayjs(date).format('dddd, DD [de] MMMM')}
         </Text>
       </TouchableOpacity>
+
       <DatePickerModal
-        locale="es"
+        locale="en"
         mode="single"
         visible={open}
         date={date}

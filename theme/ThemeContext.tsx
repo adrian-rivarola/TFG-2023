@@ -2,22 +2,16 @@ import {
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,
   Theme as NavigationTheme,
-} from "@react-navigation/native";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useColorScheme } from "react-native";
+} from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useColorScheme } from 'react-native';
 import {
   MD3DarkTheme as PaperDarkTheme,
   DefaultTheme as PaperDefaultTheme,
   Provider as PaperProvider,
   MD3Theme as PaperTheme,
-} from "react-native-paper";
-import { MD3Colors } from "react-native-paper/lib/typescript/types";
+} from 'react-native-paper';
+import { MD3Colors } from 'react-native-paper/lib/typescript/types';
 
 export type Theme = NavigationTheme &
   PaperTheme & {
@@ -34,8 +28,8 @@ const lightTheme: Theme = {
   colors: {
     ...NavigationDefaultTheme.colors,
     ...PaperDefaultTheme.colors,
-    expense: "rgb(248, 79, 49)",
-    income: "rgb(35, 197, 82)",
+    expense: 'rgb(248, 79, 49)',
+    income: 'rgb(35, 197, 82)',
   },
 };
 
@@ -45,12 +39,12 @@ const darkTheme: Theme = {
   colors: {
     ...NavigationDarkTheme.colors,
     ...PaperDarkTheme.colors,
-    expense: "rgba(248, 79, 49, .75)",
-    income: "rgba(35, 197, 82, .75)",
+    expense: 'rgba(248, 79, 49, .75)',
+    income: 'rgba(35, 197, 82, .75)',
   },
 };
 
-export type ThemeType = "dark" | "light";
+export type ThemeType = 'dark' | 'light';
 
 export interface ThemeContextValue {
   theme: Theme;
@@ -62,7 +56,7 @@ export interface ThemeContextValue {
 
 export const ThemeContext = React.createContext<ThemeContextValue>({
   theme: lightTheme,
-  themeType: "light",
+  themeType: 'light',
   isDarkTheme: false,
   setThemeType: () => {},
   toggleThemeType: () => {},
@@ -74,21 +68,16 @@ export interface ThemeContextProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeContextProvider = ({
-  children,
-}: ThemeContextProviderProps) => {
+export const ThemeContextProvider = ({ children }: ThemeContextProviderProps) => {
   const colorScheme = useColorScheme();
-  const [themeType, setThemeType] = useState<ThemeType>(colorScheme || "light");
+  const [themeType, setThemeType] = useState<ThemeType>(colorScheme || 'light');
 
   const toggleThemeType = useCallback(() => {
-    setThemeType((prev) => (prev === "dark" ? "light" : "dark"));
+    setThemeType((prev) => (prev === 'dark' ? 'light' : 'dark'));
   }, []);
 
-  const isDarkTheme = useMemo(() => themeType === "dark", [themeType]);
-  const theme = useMemo(
-    () => (isDarkTheme ? darkTheme : lightTheme),
-    [isDarkTheme]
-  );
+  const isDarkTheme = useMemo(() => themeType === 'dark', [themeType]);
+  const theme = useMemo(() => (isDarkTheme ? darkTheme : lightTheme), [isDarkTheme]);
 
   useEffect(() => {
     setThemeType(colorScheme || themeType);
@@ -103,8 +92,7 @@ export const ThemeContextProvider = ({
           isDarkTheme,
           setThemeType,
           toggleThemeType,
-        }}
-      >
+        }}>
         {children}
       </ThemeContext.Provider>
     </PaperProvider>

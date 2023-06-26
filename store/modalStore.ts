@@ -1,9 +1,9 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 type SnackOptions = {
   visible?: boolean;
   message: string;
-  type: "success" | "error";
+  type: 'success' | 'error';
 };
 
 type ModalOptions = {
@@ -26,17 +26,17 @@ interface ModalStore {
 }
 
 const DEFAULT_MODAL_OPTS = {
-  content: "",
-  confirmText: "",
-  cancelText: "",
+  content: '',
+  confirmText: '',
+  cancelText: '',
 };
 
 export const useModalStore = create<ModalStore>((set, get) => ({
   loading: false,
   snackOptions: {
     visible: false,
-    message: "",
-    type: "success",
+    message: '',
+    type: 'success',
   },
   modalOptions: DEFAULT_MODAL_OPTS,
   showSnackMessage: (options: SnackOptions) => {

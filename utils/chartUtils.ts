@@ -1,5 +1,6 @@
-import dayjs, { Dayjs } from "dayjs";
-import { StringDateRange } from "./dateUtils";
+import dayjs, { Dayjs } from 'dayjs';
+
+import { StringDateRange } from './dateUtils';
 
 type DateAmountEntity = {
   date: string | Dayjs | Date;
@@ -10,7 +11,7 @@ export function getTotalsByDate<T extends DateAmountEntity>(
   entities: T[],
   range: StringDateRange,
   dateOffset: StringDateRange,
-  dateFormat = "DD/MM"
+  dateFormat = 'DD/MM'
 ) {
   let startDate = dayjs().startOf(range);
   const endDate = dayjs().endOf(range);
@@ -23,7 +24,7 @@ export function getTotalsByDate<T extends DateAmountEntity>(
 
   const res: Record<string, number> = {};
   let dataIdx = 0;
-  while (!startDate.isAfter(endDate, "day")) {
+  while (!startDate.isAfter(endDate, 'day')) {
     const key = startDate.format(dateFormat);
     res[key] = data[dataIdx] || 0;
 

@@ -3,13 +3,11 @@
  * https://reactnavigation.org/docs/typescript/
  */
 
-import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import {
-  CompositeScreenProps,
-  NavigatorScreenParams,
-} from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import type { BudgetFormData, CategoryType, TransactionFormData } from "./data";
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import type { BudgetFormData, CategoryFormData, CategoryType, TransactionFormData } from './data';
 
 declare global {
   namespace ReactNavigation {
@@ -30,18 +28,11 @@ export type RootStackParamList = {
         budget: BudgetFormData;
       };
   CategoryList: {
-    action: "select" | "select-multiple" | "edit";
+    action: 'select' | 'select-multiple' | 'edit';
     categoryType?: CategoryType;
     initialTab?: CategoryType;
   };
-  CategoryForm:
-    | undefined
-    | {
-        id: number;
-        name: string;
-        icon: string;
-        type: CategoryType;
-      };
+  CategoryForm: undefined | { category: CategoryFormData };
   BudgetDetails: {
     budgetId: number;
   };
@@ -49,8 +40,10 @@ export type RootStackParamList = {
   Configuration: undefined;
 };
 
-export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, Screen>;
+export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  Screen
+>;
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -60,8 +53,7 @@ export type BottomTabParamList = {
   Configuration: undefined;
 };
 
-export type RootTabScreenProps<Screen extends keyof BottomTabParamList> =
-  CompositeScreenProps<
-    BottomTabScreenProps<BottomTabParamList, Screen>,
-    NativeStackScreenProps<RootStackParamList>
-  >;
+export type RootTabScreenProps<Screen extends keyof BottomTabParamList> = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabParamList, Screen>,
+  NativeStackScreenProps<RootStackParamList>
+>;

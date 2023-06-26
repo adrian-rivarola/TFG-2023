@@ -1,13 +1,12 @@
-import dayjs from "dayjs";
-import { DATE_FORMAT } from "../utils/dateUtils";
-import { Balance } from "./entities/Balance";
-import { Budget } from "./entities/Budget";
-import { Category, CategoryType } from "./entities/Category";
-import { Transaction } from "./entities/Transaction";
+import dayjs from 'dayjs';
 
-const EXPENSE_AMOUNTS = [
-  10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000,
-];
+import { DATE_FORMAT } from '../utils/dateUtils';
+import { Balance } from './entities/Balance';
+import { Budget } from './entities/Budget';
+import { Category, CategoryType } from './entities/Category';
+import { Transaction } from './entities/Transaction';
+
+const EXPENSE_AMOUNTS = [10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000];
 const INCOME_AMOUNTS = [600_000, 400_000, 500_000];
 
 export async function createMockData() {
@@ -20,15 +19,15 @@ export async function createMockData() {
   const categories = await Category.find();
   const transactions: Transaction[] = [];
 
-  let dateStart = dayjs().startOf("month").subtract(2, "month");
+  let dateStart = dayjs().startOf('month').subtract(2, 'month');
   // const dateEnd = dateStart.add(3, "months");
 
   // let dateStart = dayjs().startOf("year");
   const dateEnd = dayjs();
 
   while (dateStart.isBefore(dateEnd)) {
-    // const t = 1 + randInt(4);
-    const t = 1;
+    const t = 1 + randInt(4);
+    // const t = 1;
 
     for (let i = 0; i < t; i++) {
       const randomCategory = categories[randInt(categories.length)];
@@ -41,16 +40,17 @@ export async function createMockData() {
           amount: randomAmount,
           category: randomCategory,
           date: dateStart.format(DATE_FORMAT),
-          description: "",
+          description: '',
         });
         transactions.push(t);
       } catch (err) {
-        console.log(
-          `Failed to save all transactions, transactions saved: ${transactions.length}`
+        console.error(
+          `Failed to save all transactions, transactions saved: ${transactions.length}`,
+          err
         );
       }
     }
-    dateStart = dateStart.add(1, "day");
+    dateStart = dateStart.add(1, 'day');
   }
 
   const cCount = await Category.count();
@@ -75,60 +75,60 @@ export async function createMockData() {
 function getDefaultCategories() {
   return Category.create([
     // income
+    {
+      name: 'Salario',
+      icon: 'attach-money',
+      type: CategoryType.income,
+    },
     // {
-    //   name: "Salario",
-    //   icon: "attach-money",
-    //   type: CategoryType.income,
-    // },
-    // {
-    //   name: "Otros ingresos",
-    //   icon: "more-horiz",
+    //   name: 'Otros ingresos',
+    //   icon: 'more-horiz',
     //   type: CategoryType.income,
     // },
     // expense
     {
-      name: "Alimentos",
-      icon: "fastfood",
+      name: 'Alimentos',
+      icon: 'fastfood',
       type: CategoryType.expense,
     },
     {
-      name: "Entretenimiento",
-      icon: "movie",
+      name: 'Entretenimiento',
+      icon: 'movie',
       type: CategoryType.expense,
     },
     {
-      name: "Educación",
-      icon: "school",
+      name: 'Educación',
+      icon: 'school',
       type: CategoryType.expense,
     },
     {
-      name: "Hogar",
-      icon: "home",
+      name: 'Hogar',
+      icon: 'home',
       type: CategoryType.expense,
     },
     {
-      name: "Salud",
-      icon: "medical-services",
+      name: 'Salud',
+      icon: 'medical-services',
       type: CategoryType.expense,
     },
     {
-      name: "Servicios básicos",
-      icon: "lightbulb-outline",
+      name: 'Servicios básicos',
+      icon: 'lightbulb-outline',
       type: CategoryType.expense,
     },
     {
-      name: "Shopping",
-      icon: "shopping-cart",
+      name: 'Shopping',
+      icon: 'shopping-cart',
       type: CategoryType.expense,
     },
     {
-      name: "Transporte",
-      icon: "directions-bus",
+      name: 'Transporte',
+      icon: 'directions-bus',
       type: CategoryType.expense,
     },
     {
-      name: "Otros gastos",
-      icon: "more-horiz",
+      name: 'Otros gastos',
+      icon: 'more-horiz',
       type: CategoryType.expense,
     },
   ]);

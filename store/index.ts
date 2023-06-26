@@ -1,5 +1,6 @@
-import { create } from "zustand";
-import { Category, CategoryType } from "../data";
+import { create } from 'zustand';
+
+import { Category, CategoryType } from '../data';
 
 type TransactionFilter = {
   type?: CategoryType;

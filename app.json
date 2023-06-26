@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "TFG-2023",
+    "slug": "TFG-2023",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

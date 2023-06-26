@@ -1,14 +1,14 @@
-import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import BalanceCard from "../components/BalanceCard";
-import CustomFAB from "../components/CustomFAB";
-import ExepensesChart from "../components/reports/ExpensesChart";
-import LastTransactions from "../components/transactions/LastTransactions";
-import { globalStyles } from "../theme/globalStyles";
-import { RootTabScreenProps } from "../types";
+import BalanceCard from '../components/BalanceCard';
+import CustomFAB from '../components/CustomFAB';
+import ExepensesChart from '../components/reports/ExpensesChart';
+import LastTransactions from '../components/transactions/LastTransactions';
+import { globalStyles } from '../theme/globalStyles';
+import { RootTabScreenProps } from '../types';
 
-type ScreenProps = RootTabScreenProps<"Home">;
+type ScreenProps = RootTabScreenProps<'Home'>;
 
 export default function Home({ navigation }: ScreenProps) {
   return (
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   separator: {
     marginVertical: 30,
     height: 1,
-    width: "80%",
+    width: '80%',
   },
   smallSeparator: {
     marginVertical: 15,

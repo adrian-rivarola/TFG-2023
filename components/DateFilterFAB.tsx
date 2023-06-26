@@ -1,30 +1,27 @@
-import { useIsFocused } from "@react-navigation/native";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import type { StyleProp, TextStyle } from "react-native";
-import { FAB } from "react-native-paper";
-import { DatePickerModal } from "react-native-paper-dates";
+import { useIsFocused } from '@react-navigation/native';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import type { StyleProp, TextStyle } from 'react-native';
+import { FAB } from 'react-native-paper';
+import { DatePickerModal } from 'react-native-paper-dates';
 
-import { DATE_FORMAT, DateRange, getDatesFromRange } from "../utils/dateUtils";
+import { DATE_FORMAT, DateRange, getDatesFromRange } from '../utils/dateUtils';
 
 type DateFilterFABProps = {
   initialRange?: DateRange;
   onChange(dateRange?: DateRange): void;
 };
-type DateFilterOptions = "week" | "month" | "custom";
+type DateFilterOptions = 'week' | 'month' | 'custom';
 type FABAction = {
   labelStyle: StyleProp<TextStyle>;
-  size: "small" | "medium";
+  size: 'small' | 'medium';
 };
 
-export default function DateFilterFAB({
-  initialRange,
-  onChange,
-}: DateFilterFABProps) {
+export default function DateFilterFAB({ initialRange, onChange }: DateFilterFABProps) {
   const isFocused = useIsFocused();
   const [open, setOpen] = useState(false);
   const [openDateModal, setOpenDateModal] = useState(false);
-  const [range, setRange] = useState(initialRange || getDatesFromRange("week"));
+  const [range, setRange] = useState(initialRange || getDatesFromRange('week'));
   const [selectedRange, setSelectedRange] = useState<DateFilterOptions>();
 
   useEffect(() => {
@@ -34,8 +31,8 @@ export default function DateFilterFAB({
   }, [isFocused]);
 
   const getActionStyle = (range: DateFilterOptions): FABAction => {
-    const size = selectedRange === range ? "medium" : "small";
-    const fontWeight = selectedRange === range ? "bold" : "normal";
+    const size = selectedRange === range ? 'medium' : 'small';
+    const fontWeight = selectedRange === range ? 'bold' : 'normal';
 
     return {
       size,
@@ -60,45 +57,45 @@ export default function DateFilterFAB({
         fabStyle={{
           width: 50,
           height: 50,
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
         icon="calendar-today"
         actions={[
           {
-            label: "Esta semana",
-            icon: "calendar-range",
-            ...getActionStyle("week"),
+            label: 'Esta semana',
+            icon: 'calendar-range',
+            ...getActionStyle('week'),
             onPress: () => {
-              const newRange = getDatesFromRange("week");
-              setSelectedRange("week");
+              const newRange = getDatesFromRange('week');
+              setSelectedRange('week');
               onChange(newRange);
               setRange(newRange);
             },
           },
           {
-            label: "Este mes",
-            icon: "calendar-month",
-            ...getActionStyle("month"),
+            label: 'Este mes',
+            icon: 'calendar-month',
+            ...getActionStyle('month'),
             onPress: () => {
-              const newRange = getDatesFromRange("month");
-              setSelectedRange("month");
+              const newRange = getDatesFromRange('month');
+              setSelectedRange('month');
               onChange(newRange);
               setRange(newRange);
             },
           },
           {
-            label: "Personalizar",
-            icon: "calendar-edit",
-            ...getActionStyle("custom"),
+            label: 'Personalizar',
+            icon: 'calendar-edit',
+            ...getActionStyle('custom'),
             onPress: () => {
               setOpen(false);
               setOpenDateModal(true);
             },
           },
           {
-            icon: "calendar-remove",
-            label: "Remover filtro",
+            icon: 'calendar-remove',
+            label: 'Remover filtro',
             onPress: () => {
               setSelectedRange(undefined);
               onChange();
@@ -123,7 +120,7 @@ export default function DateFilterFAB({
               startDate: dayjs(startDate).format(DATE_FORMAT),
               endDate: dayjs(endDate).format(DATE_FORMAT),
             };
-            setSelectedRange("custom");
+            setSelectedRange('custom');
             onChange(newRange);
             setRange(newRange);
           }

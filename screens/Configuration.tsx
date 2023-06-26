@@ -1,23 +1,21 @@
-import dayjs from "dayjs";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { List, Switch } from "react-native-paper";
-import { useQueryClient } from "react-query";
+import dayjs from 'dayjs';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { List, Switch } from 'react-native-paper';
+import { useQueryClient } from 'react-query';
 
-import { Transaction, clearAllData } from "../data";
-import { createMockData } from "../data/mock";
-import { useModalStore } from "../store/modalStore";
-import { useTheme } from "../theme/ThemeContext";
-import { RootTabScreenProps } from "../types";
-import { convertToCSV, saveCSV } from "../utils/csvUtils";
+import { Transaction, clearAllData } from '../data';
+import { createMockData } from '../data/mock';
+import { useModalStore } from '../store/modalStore';
+import { useTheme } from '../theme/ThemeContext';
+import { RootTabScreenProps } from '../types';
+import { convertToCSV, saveCSV } from '../utils/csvUtils';
 
-type ScreenProps = RootTabScreenProps<"Configuration">;
+type ScreenProps = RootTabScreenProps<'Configuration'>;
 
 const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   const showSnackMessage = useModalStore((state) => state.showSnackMessage);
-  const showConfirmationModal = useModalStore(
-    (state) => state.showConfirmationModal
-  );
+  const showConfirmationModal = useModalStore((state) => state.showConfirmationModal);
   const queryClient = useQueryClient();
 
   const {
@@ -40,52 +38,53 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
     const cleanedTransactions = transactions.map((t) => ({
       description: t.description,
       amount: t.amount,
-      type: t.category.isExpense ? "Expense" : "Income",
+      type: t.category.isExpense ? 'Expense' : 'Income',
       category: t.category.name,
-      date: dayjs(t.date).format("YYYY-MM-DD"),
+      date: dayjs(t.date).format('YYYY-MM-DD'),
     }));
 
     const csvData = convertToCSV(cleanedTransactions, [
-      "description",
-      "amount",
-      "type",
-      "category",
-      "date",
+      'description',
+      'amount',
+      'type',
+      'category',
+      'date',
     ]);
 
     try {
-      const saved = await saveCSV("transactions.csv", csvData);
+      const saved = await saveCSV('transactions.csv', csvData);
       if (saved) {
         // TODO: don't show this on iOS if share is canceled
         showSnackMessage({
-          message: "El archivo fue exportado correctamente",
-          type: "success",
+          message: 'El archivo fue exportado correctamente',
+          type: 'success',
         });
       } else {
         showSnackMessage({
-          message: "No se pudo guardar el archivo",
-          type: "error",
+          message: 'No se pudo guardar el archivo',
+          type: 'error',
         });
       }
     } catch (err) {
+      console.warn('Failed to export data', err);
+
       showSnackMessage({
-        message: "Algo salió mal, por favor intente nuevamente",
-        type: "error",
+        message: 'Algo salió mal, por favor intente nuevamente',
+        type: 'error',
       });
     }
   };
 
   const clearData = async () => {
     showConfirmationModal({
-      content:
-        "Está seguro que quiere eliminar todos los datos registrados en esta aplicación?",
-      confirmText: "Eliminar todo",
+      content: 'Está seguro que quiere eliminar todos los datos registrados en esta aplicación?',
+      confirmText: 'Eliminar todo',
       onConfirm: () => {
         clearAllData().then(() => {
           queryClient.resetQueries();
           showSnackMessage({
-            message: "Los datos fueron eliminados correctamente",
-            type: "success",
+            message: 'Los datos fueron eliminados correctamente',
+            type: 'success',
           });
         });
       },
@@ -99,15 +98,15 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           title="Crear Categoría"
           style={themedStyles.categoryItem}
           onPress={() => {
-            navigation.navigate("CategoryForm");
+            navigation.navigate('CategoryForm');
           }}
         />
         <List.Item
           title="Ver Categorías"
           style={themedStyles.categoryItem}
           onPress={() => {
-            navigation.navigate("CategoryList", {
-              action: "edit",
+            navigation.navigate('CategoryList', {
+              action: 'edit',
             });
           }}
         />
@@ -117,9 +116,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         <List.Item
           title="Modo oscuro"
           style={themedStyles.categoryItem}
-          right={() => (
-            <Switch value={isDarkTheme} onValueChange={toggleThemeType} />
-          )}
+          right={() => <Switch value={isDarkTheme} onValueChange={toggleThemeType} />}
           onPress={toggleThemeType}
         />
       </List.Section>
@@ -141,7 +138,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           title="Probar Componentes"
           style={themedStyles.categoryItem}
           onPress={() => {
-            navigation.navigate("TestComponents");
+            navigation.navigate('TestComponents');
           }}
         />
         <List.Item
@@ -153,14 +150,14 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
                 queryClient.resetQueries();
                 showSnackMessage({
                   message: `Se crearon ${categories} categorías y ${transactions} transacciones`,
-                  type: "success",
+                  type: 'success',
                 });
               })
               .catch((err) => {
                 console.log(err);
                 showSnackMessage({
-                  message: "Algo salió mal :(",
-                  type: "error",
+                  message: 'Algo salió mal :(',
+                  type: 'error',
                 });
               });
           }}

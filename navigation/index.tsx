@@ -1,17 +1,16 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import * as React from "react";
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as React from 'react';
 
-import { useTheme } from "../theme/ThemeContext";
-import { RootStackParamList } from "../types";
-
-import TestComponents from "../screens/TestComponents";
-import BudgetDetailsScreen from "../screens/budget/BudgetDetails";
-import BudgetFormScreen from "../screens/budget/BudgetForm";
-import CategoryForm from "../screens/category/CategoryForm";
-import CategoryList from "../screens/category/CategoryList";
-import TransactionFormScreen from "../screens/transaction/TransactionForm";
-import BottomTabNavigator from "./BottomTabNavigator";
+import TestComponents from '../screens/TestComponents';
+import BudgetDetailsScreen from '../screens/budget/BudgetDetails';
+import BudgetFormScreen from '../screens/budget/BudgetForm';
+import CategoryForm from '../screens/category/CategoryForm';
+import CategoryList from '../screens/category/CategoryList';
+import TransactionFormScreen from '../screens/transaction/TransactionForm';
+import { useTheme } from '../theme/ThemeContext';
+import { RootStackParamList } from '../types';
+import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,9 +21,8 @@ export default function Navigation() {
     <NavigationContainer theme={theme}>
       <Stack.Navigator
         defaultScreenOptions={{
-          headerTitleAlign: "left",
-        }}
-      >
+          headerTitleAlign: 'left',
+        }}>
         <Stack.Screen
           name="BottomTab"
           component={BottomTabNavigator}
@@ -35,17 +33,17 @@ export default function Navigation() {
           name="CategoryForm"
           component={CategoryForm}
           options={({ route }) => ({
-            animation: "fade_from_bottom",
+            animation: 'fade_from_bottom',
             animationDuration: 250,
-            title: route.params?.id ? "Editar Categoría" : "Crear Categoría",
+            title: route.params?.category.id ? 'Editar Categoría' : 'Crear Categoría',
           })}
         />
         <Stack.Screen
           name="CategoryList"
           component={CategoryList}
           options={() => ({
-            title: "Categorías",
-            animation: "fade_from_bottom",
+            title: 'Categorías',
+            animation: 'fade_from_bottom',
             animationDuration: 250,
           })}
         />
@@ -54,11 +52,9 @@ export default function Navigation() {
           name="TransactionForm"
           component={TransactionFormScreen}
           options={({ route }) => ({
-            animation: "fade_from_bottom",
+            animation: 'fade_from_bottom',
             animationDuration: 250,
-            title: route.params?.transaction?.id
-              ? "Editar Transacctión"
-              : "Crear Transacctión",
+            title: route.params?.transaction?.id ? 'Editar Transacctión' : 'Crear Transacctión',
           })}
         />
         {/* Budget screens */}
@@ -66,21 +62,17 @@ export default function Navigation() {
           name="BudgetForm"
           component={BudgetFormScreen}
           options={({ route }) => ({
-            animation: route.params?.budget
-              ? "slide_from_right"
-              : "fade_from_bottom",
+            animation: route.params?.budget ? 'slide_from_right' : 'fade_from_bottom',
             animationDuration: 250,
-            title: route.params?.budget
-              ? "Editar Presupuesto"
-              : "Crear Presupuesto",
+            title: route.params?.budget ? 'Editar Presupuesto' : 'Crear Presupuesto',
           })}
         />
         <Stack.Screen
           name="BudgetDetails"
           component={BudgetDetailsScreen}
           options={() => ({
-            title: "Detalles de Presupuesto",
-            animation: "fade_from_bottom",
+            title: 'Detalles de Presupuesto',
+            animation: 'fade_from_bottom',
             animationDuration: 250,
           })}
         />
@@ -89,8 +81,8 @@ export default function Navigation() {
           name="TestComponents"
           component={TestComponents}
           options={() => ({
-            title: "Test",
-            animation: "fade_from_bottom",
+            title: 'Test',
+            animation: 'fade_from_bottom',
             animationDuration: 250,
           })}
         />

@@ -1,27 +1,18 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { ScrollView, View } from "react-native";
-import {
-  Button,
-  Chip,
-  Dialog,
-  IconButton,
-  Portal,
-  Text,
-} from "react-native-paper";
-import { useTheme } from "../../theme/ThemeContext";
-import { CategoryType } from "../../data";
-import { useGetCategories } from "../../hooks/category/useGetCategories";
-import { useMainStore } from "../../store";
+import { MaterialIcons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
+import { useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import { Button, Chip, Dialog, IconButton, Portal, Text } from 'react-native-paper';
 
-type FilterDialogProps = {};
+import { CategoryType } from '../../data';
+import { useGetCategories } from '../../hooks/category/useGetCategories';
+import { useMainStore } from '../../store';
+import { useTheme } from '../../theme/ThemeContext';
 
-export default function TransactionFilterDialog({}: FilterDialogProps) {
+export default function TransactionFilterDialog() {
   const {
     theme: { colors },
   } = useTheme();
-  const navigation = useNavigation();
   const [activeFilters, setActiveFilters] = useMainStore((store) => [
     store.activeFilters,
     store.setActiveFilters,
@@ -53,13 +44,11 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
             backgroundColor: colors.background,
           }}
           visible={isFocused && visible}
-          onDismiss={closeDialog}
-        >
+          onDismiss={closeDialog}>
           <Dialog.Title
             style={{
               fontSize: 18,
-            }}
-          >
+            }}>
             Filtrar transacciones
           </Dialog.Title>
 
@@ -67,15 +56,13 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
             <ScrollView
               contentContainerStyle={{
                 marginVertical: 15,
-              }}
-            >
+              }}>
               <View>
                 <Text variant="labelLarge">Tipo:</Text>
                 <View
                   style={{
-                    flexDirection: "row",
-                  }}
-                >
+                    flexDirection: 'row',
+                  }}>
                   <Chip
                     selected={activeFilters.type === CategoryType.income}
                     onPress={() =>
@@ -84,8 +71,7 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
                         type: CategoryType.income,
                       })
                     }
-                    style={{ marginEnd: 10 }}
-                  >
+                    style={{ marginEnd: 10 }}>
                     Ingresos
                   </Chip>
                   <Chip
@@ -95,8 +81,7 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
                         ...activeFilters,
                         type: CategoryType.expense,
                       })
-                    }
-                  >
+                    }>
                     Egresos
                   </Chip>
                 </View>
@@ -114,10 +99,9 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
                 </Text>
                 <View
                   style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                  }}
-                >
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                  }}>
                   {categories?.map((cat) => (
                     <Chip
                       key={cat.id}
@@ -126,8 +110,7 @@ export default function TransactionFilterDialog({}: FilterDialogProps) {
                         marginEnd: 10,
                         marginBottom: 10,
                       }}
-                      icon={() => <MaterialIcons name={cat.icon as any} />}
-                    >
+                      icon={() => <MaterialIcons name={cat.icon as any} />}>
                       {cat.name}
                     </Chip>
                   ))}

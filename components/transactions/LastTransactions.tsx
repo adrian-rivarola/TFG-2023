@@ -1,9 +1,9 @@
-import { StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
+import { View } from 'react-native';
+import { Button, Card, Text } from 'react-native-paper';
 
-import { useGetTransactions } from "../../hooks/transaction/useGetTransactions";
-import TransactionCard from "./TransactionCard";
+import { useGetTransactions } from '../../hooks/transaction/useGetTransactions';
+import TransactionCard from './TransactionCard';
 
 export default function LastTransactions() {
   const { data: transactions, isLoading } = useGetTransactions({
@@ -11,7 +11,7 @@ export default function LastTransactions() {
   });
   const navigation = useNavigation();
 
-  if (isLoading || !transactions) {
+  if (isLoading) {
     return null;
   }
 
@@ -19,26 +19,29 @@ export default function LastTransactions() {
     <View>
       <View
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
         <Text variant="titleMedium">Últimas transacciones</Text>
 
         <Button
           mode="text"
           onPress={() => {
-            navigation.navigate("BottomTab", {
-              screen: "TransactionList",
+            navigation.navigate('BottomTab', {
+              screen: 'TransactionList',
             });
-          }}
-        >
+          }}>
           Ver más
         </Button>
       </View>
 
-      {transactions.map((transaction) => (
+      {transactions?.length === 0 && (
+        <Card style={{ padding: 20, alignItems: 'center' }}>
+          <Text variant="titleSmall">Aún no hay transacciones</Text>
+        </Card>
+      )}
+      {transactions?.map((transaction) => (
         <View key={transaction.id} style={{ marginBottom: 10 }}>
           <TransactionCard transaction={transaction} />
         </View>
@@ -46,10 +49,3 @@ export default function LastTransactions() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-});

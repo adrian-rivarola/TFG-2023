@@ -1,8 +1,9 @@
-import React from "react";
-import { View } from "react-native";
-import { Text } from "react-native-paper";
-import { Budget } from "../../data";
-import BudgetCard from "./BudgetCard";
+import React from 'react';
+import { View } from 'react-native';
+import { Text } from 'react-native-paper';
+
+import { Budget } from '../../data';
+import BudgetCard from './BudgetCard';
 
 type BudgetGroupProps = {
   title: string;
@@ -18,11 +19,10 @@ export function BudgetGroup({ budgets, title }: BudgetGroupProps) {
     <View style={{ marginBottom: 15 }}>
       <View
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
           marginBottom: 5,
-        }}
-      >
+        }}>
         <Text variant="labelLarge">{title}</Text>
       </View>
 

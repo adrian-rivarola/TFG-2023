@@ -1,6 +1,7 @@
-import { Snackbar } from "react-native-paper";
-import { useTheme } from "../theme/ThemeContext";
-import { useModalStore } from "../store/modalStore";
+import { Snackbar } from 'react-native-paper';
+
+import { useModalStore } from '../store/modalStore';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function SnackbarMessage() {
   const snackOptions = useModalStore((state) => state.snackOptions);
@@ -13,18 +14,16 @@ export default function SnackbarMessage() {
   return (
     <Snackbar
       style={{
-        backgroundColor:
-          snackOptions.type === "error" ? colors.error : colors.onSurface,
+        backgroundColor: snackOptions.type === 'error' ? colors.error : colors.onSurface,
       }}
       visible={!!snackOptions.visible}
       onDismiss={hideSnackMessage}
       theme={{ colors: { inversePrimary: colors.onPrimary } }}
       duration={4000}
       action={{
-        label: "OK",
+        label: 'OK',
         onPress: hideSnackMessage,
-      }}
-    >
+      }}>
       {snackOptions.message}
     </Snackbar>
   );

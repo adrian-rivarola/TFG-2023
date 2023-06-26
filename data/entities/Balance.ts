@@ -1,13 +1,13 @@
-import dayjs from "dayjs";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { DateRange } from "../../utils/dateUtils";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity("Balance")
+import { DateRange } from '../../utils/dateUtils';
+
+@Entity('Balance')
 export class Balance extends BaseEntity {
-  @PrimaryGeneratedColumn("increment")
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column("float", {
+  @Column('float', {
     default: 0,
   })
   initialBalance: number;
