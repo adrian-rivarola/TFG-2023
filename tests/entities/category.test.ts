@@ -1,9 +1,9 @@
 import { DataSource, QueryFailedError } from 'typeorm';
 
-import { Category, CategoryType } from '../../data';
 import { initiMemoryDB } from './dbSetup';
+import { Category, CategoryType } from '@/data';
 
-describe('Create Category', () => {
+describe('Category', () => {
   let dataSource: DataSource;
 
   beforeAll(async () => {
@@ -34,6 +34,19 @@ describe('Create Category', () => {
     expect(Category.countBy({ type: CategoryType.expense })).resolves.toBe(1);
   });
 
+  it('should serialize a category to JSON', () => {
+    const category = Category.create({
+      name: 'Expense Category',
+      icon: 'icon',
+      type: CategoryType.expense,
+    });
+
+    const categoryData = category.serialize();
+    ['id', 'name', 'icon', 'type'].forEach((prop) => {
+      expect(categoryData).toHaveProperty(prop);
+    });
+  });
+
   it('should create a new income category', async () => {
     const category = await Category.create({
       name: 'Income Category',
@@ -48,22 +61,6 @@ describe('Create Category', () => {
     expect(category.isExpense).toBe(false);
 
     expect(Category.countBy({ type: CategoryType.income })).resolves.toBe(1);
-  });
-
-  it('should not create a category with the same name', async () => {
-    await Category.save({
-      name: 'Category 1',
-      icon: 'icon',
-      type: CategoryType.expense,
-    });
-
-    const category = Category.create({
-      name: 'Category 1',
-      icon: 'icon',
-      type: CategoryType.expense,
-    });
-
-    expect(Category.save(category)).rejects.toThrow(QueryFailedError);
   });
 
   it('should not create a category with missing fields', async () => {

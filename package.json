@@ -12,7 +12,11 @@
     "verify": "yarn check-types && yarn test"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/types": "<rootDir>/types/index",
+      "^@/(.*)": "<rootDir>/src/$1"
+    }
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
@@ -42,6 +46,7 @@
     "react-native": "0.70.8",
     "react-native-chart-kit": "6.12.0",
     "react-native-currency-input": "^1.1.0",
+    "react-native-dropdown-select-list": "^2.0.4",
     "react-native-loading-spinner-overlay": "^3.0.1",
     "react-native-pager-view": "6.0.1",
     "react-native-paper": "5.0.0-rc.9",
@@ -61,6 +66,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/intl": "^1.2.0",
     "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11",
@@ -68,6 +74,7 @@
     "@types/react-native": "~0.70.6",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
+    "babel-plugin-module-resolver": "^5.0.0",
     "babel-plugin-transform-typescript-metadata": "^0.3.2",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",

@@ -1,15 +1,16 @@
 import dayjs from 'dayjs';
 import { DataSource } from 'typeorm';
 
-import { Budget, Category, CategoryType, Transaction } from '../../data';
 import { initiMemoryDB } from './dbSetup';
+import { Budget, Category, CategoryType, Transaction } from '@/data';
 
-describe('Create Budget', () => {
+describe('Budget', () => {
   let dataSource: DataSource;
   let categories: Category[];
 
-  const weekStart = dayjs().startOf('day').startOf('week');
-  const weekEnd = dayjs().startOf('day').endOf('week');
+  const monthStart = dayjs().startOf('month');
+  const weekStart = dayjs().startOf('week');
+  const weekEnd = dayjs().endOf('week');
 
   beforeAll(async () => {
     dataSource = await initiMemoryDB();
@@ -52,6 +53,33 @@ describe('Create Budget', () => {
     expect(weekBudget.totalSpent).toBe(0);
   });
 
+  it('should serialize a budget to JSON', () => {
+    const budget = Budget.create({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'week',
+      categories,
+    });
+
+    const budgetData = budget.serialize();
+    ['id', 'description', 'dateRange', 'categories', 'maxAmount'].forEach((prop) => {
+      expect(budgetData).toHaveProperty(prop);
+    });
+  });
+
+  it('should be able to get dateInfo', async () => {
+    const monthBudget = await Budget.create({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'month',
+      categories,
+    });
+
+    expect(monthBudget.dateInfo).toBe(
+      `${monthStart.format('DD')} al ${monthStart.endOf('month').format('DD [de] MMMM')}`
+    );
+  });
+
   it('should include existing transactions in total spent', async () => {
     await Transaction.save([
       {
@@ -74,27 +102,99 @@ describe('Create Budget', () => {
     }).save();
 
     budget.totalSpent = await Budget.getTotalSpent(budget);
+    budget.transactions = await Budget.findTransactions(budget);
 
+    expect(budget.transactions).toHaveLength(2);
     expect(budget.totalSpent).toBe(20_000);
     expect(budget.percentage).toBe(20);
   });
 
-  it('should get different periods', async () => {
+  it('should get total spent when budget is loaded from the db', async () => {
+    const mock = jest.spyOn(Budget, 'getTotalSpent').mockResolvedValue(10_000);
+
+    await Budget.save({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'week',
+      categories,
+    });
+    const budget = await Budget.findOne({
+      where: {
+        description: 'Budget #1',
+      },
+    });
+
+    expect(budget?.totalSpent).toBe(10_000);
+    mock.mockRestore();
+  });
+
+  it('should handle error getting total spent', async () => {
+    const sumError = new Error('Failed to get total spent');
+    const sumMock = jest.spyOn(Transaction, 'sum').mockRejectedValue(sumError);
+    const logMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    await Transaction.save({
+      amount: 5_000,
+      category: categories[0],
+      date: weekStart.format('YYYY-MM-DD'),
+    });
+
+    const budget = await Budget.create({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'week',
+      categories,
+    }).save();
+
+    const totalSpent = await Budget.getTotalSpent(budget);
+
+    expect(totalSpent).toBe(0);
+    expect(logMock).toHaveBeenCalledWith('Failed to get total spend of budget:', sumError);
+
+    sumMock.mockRestore();
+    logMock.mockRestore();
+  });
+
+  it('should get previous periods', async () => {
     await Transaction.save([
+      // current week
+      {
+        amount: 5_000,
+        category: categories[0],
+        date: weekStart.format('YYYY-MM-DD'),
+      },
+      // 1 week ago
       {
         amount: 5_000,
         category: categories[0],
         date: weekStart.add(-1, 'week').format('YYYY-MM-DD'),
       },
       {
+        amount: 5_000,
+        category: categories[0],
+        date: weekStart.add(-1, 'week').format('YYYY-MM-DD'),
+      },
+      // 2 weeks ago
+      {
         amount: 10_000,
         category: categories[0],
-        date: weekStart.format('YYYY-MM-DD'),
+        date: weekStart.add(-2, 'week').format('YYYY-MM-DD'),
+      },
+      {
+        amount: 10_000,
+        category: categories[0],
+        date: weekStart.add(-2, 'week').format('YYYY-MM-DD'),
+      },
+      // 3 weeks ago
+      {
+        amount: 15_000,
+        category: categories[0],
+        date: weekStart.add(-3, 'week').format('YYYY-MM-DD'),
       },
       {
         amount: 15_000,
         category: categories[0],
-        date: weekEnd.add(1, 'week').format('YYYY-MM-DD'),
+        date: weekStart.add(-3, 'week').format('YYYY-MM-DD'),
       },
     ]);
 
@@ -105,16 +205,45 @@ describe('Create Budget', () => {
       categories,
     }).save();
 
-    const previousWeek = await Budget.getTotalSpent(weekBudget, -1);
-    expect(previousWeek).toBe(5_000);
+    const previouesPeriods = await Budget.getPreviousPeriods(weekBudget);
 
-    const currentWeek = await Budget.getTotalSpent(weekBudget, 0);
-    expect(currentWeek).toBe(10_000);
+    expect(previouesPeriods).toHaveLength(3);
+    previouesPeriods.forEach((val, idx) => {
+      expect(val.totalSpent).toBe(10_000 * (idx + 1));
+    });
+  });
 
-    const nextWeek = await Budget.getTotalSpent(weekBudget, 1);
-    expect(nextWeek).toBe(15_000);
+  it('should return an empty list if no transactions exist', async () => {
+    const weekBudget = await Budget.create({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'week',
+      categories,
+    }).save();
 
-    const futureWeek = await Budget.getTotalSpent(weekBudget, 10);
-    expect(futureWeek).toBe(0);
+    const previouesPeriods = await Budget.getPreviousPeriods(weekBudget);
+
+    expect(previouesPeriods).toHaveLength(0);
+  });
+
+  it('should return an empty list if no transactions exist for previous periods', async () => {
+    await Transaction.save(
+      // current week
+      {
+        amount: 5_000,
+        category: categories[0],
+        date: weekStart.format('YYYY-MM-DD'),
+      }
+    );
+    const weekBudget = await Budget.create({
+      description: 'Budget #1',
+      maxAmount: 100_000,
+      dateRange: 'week',
+      categories,
+    }).save();
+
+    const previouesPeriods = await Budget.getPreviousPeriods(weekBudget);
+
+    expect(previouesPeriods).toHaveLength(0);
   });
 });

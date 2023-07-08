@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 
-import { DB_ENTITIES, DB_SUBSCRIBERS } from '../../data';
+import { DB_ENTITIES, DB_SUBSCRIBERS } from '@/data';
 
 export function initiMemoryDB() {
   const dataSource = new DataSource({

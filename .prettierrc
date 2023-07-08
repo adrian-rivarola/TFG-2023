@@ -2,6 +2,10 @@
   "printWidth": 100,
   "tabWidth": 2,
   "singleQuote": true,
-  "bracketSameLine": true,
-  "trailingComma": "es5"
+  "trailingComma": "es5",
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^([@.])(.*)$"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": ["jsx", "typescript", "decorators-legacy"]
 }
