@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import BottomTabNavigator from './BottomTabNavigator';
+import CreateMockData from '@/screens/CreateMockData';
 import TestComponents from '@/screens/TestComponents';
 import BudgetDetailsScreen from '@/screens/budget/BudgetDetails';
 import BudgetFormScreen from '@/screens/budget/BudgetForm';
@@ -78,6 +79,15 @@ export default function Navigation() {
           })}
         />
         {/* Other screens */}
+        <Stack.Screen
+          name="CreateMockData"
+          component={CreateMockData}
+          options={() => ({
+            title: 'Crear datos de prueba',
+            animation: 'slide_from_right',
+            animationDuration: 250,
+          })}
+        />
         <Stack.Screen
           name="TestComponents"
           component={TestComponents}

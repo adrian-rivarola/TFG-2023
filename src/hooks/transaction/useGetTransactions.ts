@@ -5,11 +5,15 @@ import { Transaction } from '@/data';
 
 const DEFAULT_ORDER: FindOptionsOrderProperty<Transaction> = { date: 'DESC' };
 
-export function useGetTransactions(opts?: FindManyOptions<Transaction>) {
-  return useQuery(['transactions', opts], () => {
-    return Transaction.find({
-      order: DEFAULT_ORDER,
-      ...opts,
-    });
-  });
+export function useGetTransactions(filterOpts?: FindManyOptions<Transaction>, enabled?: boolean) {
+  return useQuery(
+    ['transactions', filterOpts],
+    () => {
+      return Transaction.find({
+        order: DEFAULT_ORDER,
+        ...filterOpts,
+      });
+    },
+    { enabled }
+  );
 }

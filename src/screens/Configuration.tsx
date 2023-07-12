@@ -5,7 +5,6 @@ import { List, Switch } from 'react-native-paper';
 import { useQueryClient } from 'react-query';
 
 import { Transaction, clearAllData } from '@/data';
-import { createMockData } from '@/data/mock';
 import { useModalStore } from '@/store';
 import { useTheme } from '@/theme/ThemeContext';
 import { RootTabScreenProps } from '@/types';
@@ -25,11 +24,15 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   } = useTheme();
 
   const themedStyles = StyleSheet.create({
+    sectionTitle: {
+      fontWeight: 'bold',
+    },
     categoryItem: {
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      borderWidth: 1,
+      borderColor: colors.border,
       backgroundColor: colors.surface,
-      paddingStart: 20,
+      paddingStart: 10,
+      marginTop: -1,
     },
   });
 
@@ -93,7 +96,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
 
   return (
     <View style={{ marginVertical: 8 }}>
-      <List.Section title="Categorías">
+      <List.Section title="Categorías" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Crear Categoría"
           style={themedStyles.categoryItem}
@@ -112,7 +115,7 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
         />
       </List.Section>
 
-      <List.Section title="Apariencia">
+      <List.Section title="Apariencia" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Modo oscuro"
           style={themedStyles.categoryItem}
@@ -120,7 +123,8 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           onPress={toggleThemeType}
         />
       </List.Section>
-      <List.Section title="Datos">
+
+      <List.Section title="Datos" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Exportar datos a CSV"
           style={themedStyles.categoryItem}
@@ -131,35 +135,21 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           style={themedStyles.categoryItem}
           onPress={clearData}
         />
+        <List.Item
+          title="Insertar datos de prueba"
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            navigation.navigate('CreateMockData');
+          }}
+        />
       </List.Section>
 
-      <List.Section title="Pruebas">
+      <List.Section title="Pruebas" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Probar Componentes"
           style={themedStyles.categoryItem}
           onPress={() => {
             navigation.navigate('TestComponents');
-          }}
-        />
-        <List.Item
-          title="Insertar datos de prueba"
-          style={themedStyles.categoryItem}
-          onPress={() => {
-            createMockData()
-              .then(({ categories, transactions }) => {
-                queryClient.resetQueries();
-                showSnackMessage({
-                  message: `Se crearon ${categories} categorías y ${transactions} transacciones`,
-                  type: 'success',
-                });
-              })
-              .catch((err) => {
-                console.log(err);
-                showSnackMessage({
-                  message: 'Algo salió mal :(',
-                  type: 'error',
-                });
-              });
           }}
         />
       </List.Section>

@@ -6,6 +6,8 @@ type SnackOptions = {
   type: 'success' | 'error';
 };
 
+type ShowSnackOptions = Omit<SnackOptions, 'visible'>;
+
 type ModalOptions = {
   visible?: boolean;
   content?: string;
@@ -16,7 +18,7 @@ type ModalOptions = {
 
 interface ModalStore {
   snackOptions: SnackOptions;
-  showSnackMessage: (options: SnackOptions) => void;
+  showSnackMessage: (options: ShowSnackOptions) => void;
   hideSnackMessage: () => void;
   modalOptions: ModalOptions;
   showConfirmationModal: (options: ModalOptions) => void;
@@ -37,7 +39,7 @@ export const useModalStore = create<ModalStore>((set, get) => ({
     type: 'success',
   },
   modalOptions: DEFAULT_MODAL_OPTS,
-  showSnackMessage: (options: SnackOptions) => {
+  showSnackMessage: (options: ShowSnackOptions) => {
     set({
       snackOptions: {
         ...options,

@@ -1,16 +1,15 @@
 import { useMemo } from 'react';
-import { Dimensions, View } from 'react-native';
+import { View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { AbstractChartConfig } from 'react-native-chart-kit/dist/AbstractChart';
 import { LineChartData } from 'react-native-chart-kit/dist/line-chart/LineChart';
 import { Card } from 'react-native-paper';
 
+import { SCREEN_WIDTH } from '@/constants/Layout';
 import { Budget, Transaction } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { getBudgetStatusColor, getBudgetTrend } from '@/utils/budgetUtils';
 import { convertToShortScale } from '@/utils/numberUtils';
-
-const screenWidth = Dimensions.get('screen').width;
 
 type BudgetLineChartProps = {
   transactions: Transaction[];
@@ -22,7 +21,7 @@ export default function BudgetLineChart({ transactions, budget }: BudgetLineChar
   const data = useMemo(() => getGraphData(), [transactions]);
 
   const lineColor = getBudgetStatusColor(budget.percentage);
-  const chartWidth = screenWidth + screenWidth / (data.datasets[0].data.length - 1) - 85;
+  const chartWidth = SCREEN_WIDTH + SCREEN_WIDTH / (data.datasets[0].data.length - 1) - 85;
   const chartConfig: AbstractChartConfig = {
     strokeWidth: 2,
     propsForDots: {
@@ -68,7 +67,7 @@ export default function BudgetLineChart({ transactions, budget }: BudgetLineChar
           transparent
           withShadow={false}
           chartConfig={chartConfig}
-          style={{ padding: 10, paddingBottom: -20, margin: 0, overflow: 'hidden' }}
+          style={{ padding: 10, paddingBottom: -30, margin: 0, overflow: 'hidden' }}
           width={chartWidth}
           height={380}
           data={data}
@@ -79,7 +78,7 @@ export default function BudgetLineChart({ transactions, budget }: BudgetLineChar
             if (!num) {
               return '0';
             }
-            return convertToShortScale(num);
+            return convertToShortScale(num, 1);
           }}
         />
       </View>

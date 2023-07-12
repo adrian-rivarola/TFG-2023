@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import BalanceCard from '@/components/BalanceCard';
 import CustomFAB from '@/components/CustomFAB';
-import ExepensesChart from '@/components/reports/ExpensesChart';
+import ExepensesBarChart from '@/components/reports/ExepensesBarChart';
 import LastTransactions from '@/components/transactions/LastTransactions';
 import { globalStyles } from '@/theme/globalStyles';
 import { RootTabScreenProps } from '@/types';
@@ -17,7 +17,7 @@ export default function Home({ navigation }: ScreenProps) {
         <View style={globalStyles.screenContainer}>
           <BalanceCard />
           <View style={styles.smallSeparator} />
-          <ExepensesChart />
+          <ExepensesBarChart />
           <View style={styles.smallSeparator} />
           <LastTransactions />
           <View style={styles.separator} />

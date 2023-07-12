@@ -81,7 +81,7 @@ export default function CategoryList({ navigation, route }: ScreenProps) {
         key={cat.id}
         title={cat.name}
         style={themedStyles.categoryItem}
-        left={() => <CategoryIcon size={30} category={cat} />}
+        left={() => <CategoryIcon size={30} icon={cat.icon} isExpense={cat.isExpense} />}
         right={() => checked && <MaterialIcons name="check" color={colors.primary} size={24} />}
         onPress={() => onCategoryPress(cat, checked)}
       />

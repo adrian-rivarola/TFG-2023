@@ -1,18 +1,18 @@
-import { ViewStyle } from 'react-native';
 import { Chip } from 'react-native-paper';
 
 import { useTheme } from '@/theme/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
-type CustomChipProps = {
-  icon?: string;
-  children: string;
-  selected?: boolean;
-  style?: ViewStyle;
-  onPress: () => void;
-};
+type CustomChipProps = React.ComponentProps<typeof Chip>;
 
-export default function CustomChip({ children, selected, style, icon, onPress }: CustomChipProps) {
+export default function CustomChip({
+  children,
+  selected,
+  style,
+  icon,
+  onPress,
+  ...props
+}: CustomChipProps) {
   const {
     theme: { colors },
   } = useTheme();
@@ -32,6 +32,7 @@ export default function CustomChip({ children, selected, style, icon, onPress }:
       textStyle={{
         fontSize: 12,
       }}
+      {...props}
     >
       {children}
     </Chip>

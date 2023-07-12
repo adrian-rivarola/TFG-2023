@@ -35,7 +35,7 @@ export default function TransactionCard({ transaction, hideDate }: TransactionCa
     >
       <Card.Content>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <CategoryIcon category={category} />
+          <CategoryIcon icon={category.icon} isExpense={category.isExpense} />
 
           <View style={{ marginStart: 10 }}>
             <Text variant="labelLarge">{category.name}</Text>

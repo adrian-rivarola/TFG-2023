@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import { AbstractChartConfig } from 'react-native-chart-kit/dist/AbstractChart';
 import { ChartData } from 'react-native-chart-kit/dist/HelperTypes';
-import { Card, Text } from 'react-native-paper';
+import { Card } from 'react-native-paper';
 
+import { SCREEN_WIDTH } from '@/constants/Layout';
 import { Budget } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { getBudgetStatusColor } from '@/utils/budgetUtils';
@@ -14,8 +14,6 @@ import { convertToShortScale } from '@/utils/numberUtils';
 type PeriodsBarChartProps = {
   budget: Budget;
 };
-
-const screenWidth = Dimensions.get('screen').width;
 
 export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
   const { theme, isDarkTheme } = useTheme();
@@ -64,10 +62,10 @@ export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
       if (!num) {
         return '0';
       }
-      return convertToShortScale(num, 1);
+      return convertToShortScale(num, 2);
     },
   };
-  const chartWidth = Math.max(screenWidth - 60, 50 * budget.previousPeriods.length + 1);
+  const chartWidth = Math.max(SCREEN_WIDTH - 60, 50 * budget.previousPeriods.length + 1);
 
   return (
     <Card elevation={1} style={{ marginBottom: 15 }}>
@@ -79,6 +77,7 @@ export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
           fromZero
           style={{
             alignSelf: 'flex-start',
+            marginBottom: -10,
             marginStart: -5,
           }}
           segments={5}
@@ -87,13 +86,11 @@ export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
           showBarTops={false}
           width={chartWidth}
           height={340}
-          yLabelsOffset={-1}
           yAxisSuffix=""
           yAxisLabel="Gs. "
+          yLabelsOffset={-1}
         />
       </Card.Content>
     </Card>
   );
 }
-
-const styles = StyleSheet.create({});

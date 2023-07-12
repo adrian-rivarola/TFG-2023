@@ -35,6 +35,7 @@ export type RootStackParamList = {
     budgetId: number;
   };
   TestComponents: undefined;
+  CreateMockData: undefined;
   Configuration: undefined;
 };
 

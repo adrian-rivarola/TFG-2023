@@ -1,9 +1,8 @@
-import { Alert, StyleSheet, View } from 'react-native';
-import { Card, IconButton, Text } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 
-import { Balance } from '@/data';
+import AdjustBalanceDialog from './AdjustBalanceDialog';
 import { useGetBalance } from '@/hooks/balance/useGetBalance';
-import { useUpdateBalance } from '@/hooks/balance/useUpdateBalance';
 import { useTheme } from '@/theme/ThemeContext';
 import { formatCurrency } from '@/utils/numberUtils';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -13,32 +12,11 @@ export default function BalanceCard() {
     theme: { colors },
   } = useTheme();
   const { data, isLoading } = useGetBalance();
-  const { mutate: updateBalance } = useUpdateBalance();
 
   if (isLoading || !data) {
     return null;
   }
   const { balance, totalExpense, totalIncome } = data;
-
-  const adjustBalance = () => {
-    Alert.prompt(
-      'Actualizar balance actual',
-      '',
-      async (text) => {
-        const newBalance = parseInt(text, 10);
-
-        if (!isNaN(newBalance)) {
-          const [res] = await Balance.find({ take: 1 });
-          const { initialBalance = 0 } = res || {};
-          const newInitialBalance = newBalance + initialBalance - balance;
-          updateBalance(newInitialBalance);
-        }
-      },
-      'plain-text',
-      balance === 0 ? '' : balance.toString(),
-      'numeric'
-    );
-  };
 
   return (
     <Card elevation={1} mode="elevated" style={styles.balanceContainer}>
@@ -53,7 +31,7 @@ export default function BalanceCard() {
             top: 0,
           }}
         >
-          <IconButton icon="cog" iconColor={colors.secondary} size={20} onPress={adjustBalance} />
+          <AdjustBalanceDialog balance={balance} />
         </View>
       </Card.Content>
 
@@ -77,7 +55,6 @@ export default function BalanceCard() {
               alignItems: 'center',
             }}
           >
-            {/* TODO: define order of icon/text */}
             <Text
               style={{
                 color: colors.income,

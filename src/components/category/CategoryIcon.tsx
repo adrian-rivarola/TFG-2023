@@ -1,16 +1,13 @@
-import { View } from 'react-native';
 import { Avatar } from 'react-native-paper';
 
-import { Category } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
-type CategoryIconProps = React.ComponentProps<typeof View> & {
-  category: Category;
-  size?: number;
+type CategoryIconProps = React.ComponentProps<typeof Avatar.Icon> & {
+  isExpense?: boolean;
 };
 
-export default function CategoryIcon({ category, size = 40, ...props }: CategoryIconProps) {
+export default function CategoryIcon({ icon, size = 40, isExpense, ...props }: CategoryIconProps) {
   const {
     theme: { colors },
   } = useTheme();
@@ -22,10 +19,10 @@ export default function CategoryIcon({ category, size = 40, ...props }: Category
       style={[
         props.style,
         {
-          backgroundColor: category.isExpense ? colors.expense : colors.income,
+          backgroundColor: isExpense ? colors.expense : colors.income,
         },
       ]}
-      icon={() => <MaterialIcons name={category.icon as any} size={size / 2} color="#FFF" />}
+      icon={() => <MaterialIcons name={icon as any} size={size * 0.65} color="#FFF" />}
     />
   );
 }

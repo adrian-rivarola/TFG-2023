@@ -2,32 +2,27 @@ import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Text, TextInput } from 'react-native-paper';
 
+import IconSelector from '@/components/IconSelector';
 import CategoryTypeSelector from '@/components/category/CategoryTypeSelector';
 import DeleteCategoryButton from '@/components/category/DeleteCategoryButton';
 import Layout from '@/constants/Layout';
 import { Category, CategoryFormData, CategoryType } from '@/data';
 import { useSaveCategory } from '@/hooks/category';
+import { useGetTransactions } from '@/hooks/transaction';
 import useForm from '@/hooks/useForm';
 import { useModalStore } from '@/store';
-import { useTheme } from '@/theme/ThemeContext';
 import { globalStyles } from '@/theme/globalStyles';
 import { RootStackScreenProps } from '@/types';
-import { MaterialIcons } from '@expo/vector-icons';
-
-const materialIcons = MaterialIcons.getRawGlyphMap();
 
 type ScreenProps = RootStackScreenProps<'CategoryForm'>;
 
 const DEFAULT_CATEGORY: CategoryFormData = {
   name: '',
-  icon: '',
+  icon: 'add',
   type: CategoryType.expense,
 };
 
 export default function CategoryForm({ navigation, route }: ScreenProps) {
-  const {
-    theme: { colors },
-  } = useTheme();
   const { mutateAsync: saveCategory, isLoading } = useSaveCategory();
   const [showSnackMessage, showConfirmationModal] = useModalStore((state) => [
     state.showSnackMessage,
@@ -39,13 +34,26 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
     ...route.params?.category,
   });
 
+  const { data: transactions } = useGetTransactions(
+    {
+      take: 1,
+      where: {
+        category: {
+          id: formData?.id || 0,
+        },
+      },
+    },
+    formData.id !== undefined
+  );
+  const hasTransactions = transactions === undefined ? true : transactions.length > 0;
+
   useEffect(() => {
-    if (formData.id) {
+    if (formData.id && !hasTransactions) {
       navigation.setOptions({
         headerRight: () => <DeleteCategoryButton categoryId={formData.id!} />,
       });
     }
-  }, []);
+  }, [hasTransactions]);
 
   const handleSubmit = async () => {
     const category = await Category.findOne({
@@ -55,13 +63,15 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
       withDeleted: true,
     });
 
-    if (category === null) {
+    if (category === null && !hasTransactions) {
       return handleCreate();
     }
 
     showConfirmationModal({
       onConfirm: handleCreate,
-      content: `Ya existe una categoría con el nombre '${formData.name}', desea continuar igualmente?`,
+      content: hasTransactions
+        ? 'Ya existen transacciones creadas con esta categoría, desea actualizar de todas formas? '
+        : `Ya existe una categoría con el nombre '${formData.name}', desea continuar igualmente?`,
     });
   };
 
@@ -102,23 +112,13 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
           />
         </View>
 
-        {/* TODO: Add an icon/emoji selector */}
         <View style={styles.inputGroup}>
           <Text>Ícono:</Text>
-          <View>
-            <TextInput
-              autoCapitalize="none"
-              mode="outlined"
-              value={formData.icon}
-              onChangeText={(val) => onChange('icon', val)}
-            />
-          </View>
-
-          {formData.icon && (materialIcons as any)[formData.icon as any] && (
-            <View style={{ marginTop: 8 }}>
-              <MaterialIcons name={formData.icon as any} size={24} color={colors.text} />
-            </View>
-          )}
+          <IconSelector
+            icon={formData.icon}
+            onIconSelect={(icon) => onChange('icon', icon)}
+            isExpense={formData.type === CategoryType.expense}
+          />
         </View>
 
         <View style={{ marginTop: 24 }}>

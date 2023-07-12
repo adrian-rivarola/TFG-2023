@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { TabBar, TabView } from 'react-native-tab-view';
 
@@ -8,6 +7,7 @@ import Layout from '@/constants/Layout';
 import { CategoryType } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { DateRange, RootTabScreenProps } from '@/types';
+import { getDateInfo, getDatesFromRange } from '@/utils/dateUtils';
 
 type ScreenProps = RootTabScreenProps<'ReportsScreen'>;
 type ReportTabsKey = 'expenses' | 'incomes';
@@ -25,16 +25,12 @@ export default function Reports({ navigation, route }: ScreenProps) {
     { key: 'expenses', title: 'Gastos' },
     { key: 'incomes', title: 'Ingresos' },
   ];
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(getDatesFromRange('month'));
 
   useEffect(() => {
     if (dateRange) {
-      const start = dayjs(dateRange.startDate);
-      const end = dayjs(dateRange.endDate);
-      const dateInfo = `${start.format('DD[/]MM')} al ${end.format('DD[/]MM')}`;
-
       navigation.setOptions({
-        title: `Reportes - ${dateInfo}`,
+        title: `Reportes - ${getDateInfo(dateRange)}`,
       });
     } else {
       navigation.setOptions({

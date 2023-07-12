@@ -1,33 +1,86 @@
 import dayjs from 'dayjs';
 
-import { Balance } from './entities/Balance';
 import { Budget } from './entities/Budget';
 import { Category, CategoryType } from './entities/Category';
 import { Transaction } from './entities/Transaction';
+import { Balance } from '@/data';
+import { DateRange } from '@/types';
 import { DATE_FORMAT } from '@/utils/dateUtils';
 
-const EXPENSE_AMOUNTS = [10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000];
-const INCOME_AMOUNTS = [600_000, 400_000, 500_000];
+export type MockOptions = {
+  categories?: boolean;
+  transactions?: boolean;
+  budgets?: boolean;
+  dateRange: DateRange;
+  maxDailyTransactions: number;
+};
 
-export async function createMockData() {
+const EXPENSE_AMOUNTS = [10_000, 20_000, 30_000, 40_000, 50_000, 100_000, 250_000];
+const INCOME_AMOUNTS = [200_000, 400_000, 500_000];
+
+export async function createMockData(options: MockOptions) {
   await Transaction.clear();
   await Budget.clear();
   await Category.clear();
   await Balance.clear();
 
   await Category.save(getDefaultCategories());
+
+  options.transactions && (await createTransactions(options));
+  options.budgets && (await createBudgets());
+
+  await adjustBalance();
+
+  const cCount = await Category.count();
+  const tCount = await Transaction.count();
+  const bCount = await Budget.count();
+
+  return {
+    categories: cCount,
+    transactions: tCount,
+    budgets: bCount,
+  };
+}
+
+async function adjustBalance() {
+  const transactions = await Transaction.find();
+  const balance = transactions.reduce(
+    (acu, t) => (t.category.isExpense ? acu - t.amount : acu + t.amount),
+    0
+  );
+  if (balance <= 100_000) {
+    await Balance.setInitialBalance(Math.abs(balance) + 200000);
+  }
+}
+
+async function createBudgets() {
+  const expenses = await Category.find({ where: { type: CategoryType.expense } });
+  await Budget.save([
+    {
+      description: 'Presupuesto semanal',
+      maxAmount: 150000,
+      categories: [expenses[randInt(expenses.length)]],
+      dateRange: 'week',
+    },
+    {
+      description: 'Presupuesto menusal',
+      maxAmount: 850000,
+      categories: [expenses[randInt(expenses.length)]],
+      dateRange: 'month',
+    },
+  ]);
+}
+
+async function createTransactions(options: MockOptions) {
   const categories = await Category.find();
   const transactions: Transaction[] = [];
 
-  let dateStart = dayjs().startOf('year').subtract(2, 'month');
-  // const dateEnd = dateStart.add(3, "months");
-
-  // let dateStart = dayjs().startOf("year");
-  const dateEnd = dayjs();
+  const { startDate, endDate } = options.dateRange;
+  let dateStart = dayjs(startDate);
+  const dateEnd = dayjs(endDate);
 
   while (dateStart.isBefore(dateEnd)) {
-    const t = 1 + randInt(4);
-    // const t = 1;
+    const t = 1 + randInt(options.maxDailyTransactions);
 
     for (let i = 0; i < t; i++) {
       const randomCategory = categories[randInt(categories.length)];
@@ -52,39 +105,7 @@ export async function createMockData() {
     }
     dateStart = dateStart.add(1, 'day');
   }
-
-  const expenses = await Category.find({ where: { type: CategoryType.expense } });
-  await Budget.create({
-    description: 'Presupuesto semanal',
-    maxAmount: 150_000,
-    categories: [expenses[randInt(expenses.length)]],
-    dateRange: 'week',
-  }).save();
-
-  await Budget.create({
-    description: 'Presupuesto menusal',
-    maxAmount: 850_000,
-    categories: [expenses[randInt(expenses.length)]],
-    dateRange: 'month',
-  }).save();
-
-  const cCount = await Category.count();
-  const tCount = await Transaction.count();
-
-  const balance = transactions.reduce(
-    (acu, t) => (t.category.isExpense ? acu - t.amount : acu + t.amount),
-    0
-  );
-  if (balance <= 100_000) {
-    await Balance.setInitialBalance(Math.abs(balance) + 200_000);
-  }
-
-  console.log(`Created ${tCount} transactions and ${cCount} categories.`);
-
-  return {
-    categories: cCount,
-    transactions: tCount,
-  };
+  return transactions;
 }
 
 function getDefaultCategories() {

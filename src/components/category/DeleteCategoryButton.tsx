@@ -2,7 +2,6 @@ import React from 'react';
 import { IconButton } from 'react-native-paper';
 
 import { useDeleteCategory } from '@/hooks/category';
-import { useGetTransactions } from '@/hooks/transaction';
 import { useModalStore } from '@/store';
 import { useTheme } from '@/theme/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -20,18 +19,6 @@ export default function DeleteCategoryButton({ categoryId }: DeleteCategoryButto
     state.showConfirmationModal,
   ]);
   const { mutateAsync: deleteCategory } = useDeleteCategory();
-  const { data: transactions } = useGetTransactions({
-    take: 1,
-    where: {
-      category: {
-        id: categoryId,
-      },
-    },
-  });
-
-  if (transactions?.length) {
-    return null;
-  }
 
   return (
     <IconButton

@@ -6,7 +6,7 @@ import Layout from '@/constants/Layout';
 import { useTheme } from '@/theme/ThemeContext';
 
 type AmountInputProps = {
-  label: string;
+  label?: string;
   value: number;
   setValue(val: number): void;
 };
@@ -29,7 +29,7 @@ export default function AmountInput({ label, value, setValue }: AmountInputProps
 
   return (
     <View style={styles.inputGroup}>
-      <Text>{label}</Text>
+      {label && <Text>{label}</Text>}
 
       <FakeCurrencyInput
         value={value}

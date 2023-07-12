@@ -1,7 +1,7 @@
 import { Dayjs } from 'dayjs';
 import React from 'react';
 import { SectionList, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { ActivityIndicator, Text } from 'react-native-paper';
 
 import EmptyCard from '../EmptyCard';
 import TransactionCard from './TransactionCard';
@@ -10,11 +10,13 @@ import { useTheme } from '@/theme/ThemeContext';
 import { getGroupLabel } from '@/utils/dateUtils';
 
 type GroupedTransactionsProps = {
+  isLoading?: boolean;
   transactions: Map<Dayjs, Transaction[]>;
   onEndReached?: () => void;
 };
 
 export default function GroupedTransactions({
+  isLoading,
   transactions,
   onEndReached,
 }: GroupedTransactionsProps) {
@@ -45,6 +47,7 @@ export default function GroupedTransactions({
         </View>
       )}
       renderSectionFooter={() => <View style={{ marginBottom: 10 }} />}
+      ListFooterComponent={isLoading ? <ActivityIndicator style={{ paddingVertical: 15 }} /> : null}
       onEndReached={onEndReached}
     />
   );
