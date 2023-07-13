@@ -6,7 +6,7 @@ import AmountInput from './forms/AmountInput';
 import { Balance } from '@/data';
 import { useUpdateBalance } from '@/hooks/balance';
 import { useModalStore } from '@/store';
-import { useTheme } from '@/theme/ThemeContext';
+import { ThemeContextProvider, useTheme } from '@/theme/ThemeContext';
 
 type AdjustBalanceDialogProps = {
   balance: number;
@@ -74,7 +74,9 @@ export default function AdjustBalanceDialog({ balance }: AdjustBalanceDialogProp
 
           <Dialog.ScrollArea>
             <ScrollView contentContainerStyle={{}}>
-              <AmountInput value={newBalance} setValue={setNewBalance} />
+              <ThemeContextProvider>
+                <AmountInput value={newBalance} setValue={setNewBalance} />
+              </ThemeContextProvider>
             </ScrollView>
           </Dialog.ScrollArea>
 

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Text, TextInput } from 'react-native-paper';
+import { Not } from 'typeorm';
 
-import IconSelector from '@/components/IconSelector';
 import CategoryTypeSelector from '@/components/category/CategoryTypeSelector';
 import DeleteCategoryButton from '@/components/category/DeleteCategoryButton';
+import IconSelector from '@/components/category/IconSelector';
 import Layout from '@/constants/Layout';
 import { Category, CategoryFormData, CategoryType } from '@/data';
 import { useSaveCategory } from '@/hooks/category';
@@ -34,7 +35,7 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
     ...route.params?.category,
   });
 
-  const { data: transactions } = useGetTransactions(
+  const { data: transactions, isLoading: loadingTransactions } = useGetTransactions(
     {
       take: 1,
       where: {
@@ -45,22 +46,25 @@ export default function CategoryForm({ navigation, route }: ScreenProps) {
     },
     formData.id !== undefined
   );
-  const hasTransactions = transactions === undefined ? true : transactions.length > 0;
+  const hasTransactions = transactions && transactions.length > 0;
 
   useEffect(() => {
-    if (formData.id && !hasTransactions) {
-      navigation.setOptions({
-        headerRight: () => <DeleteCategoryButton categoryId={formData.id!} />,
-      });
+    const canDelete = formData.id && !hasTransactions;
+    if (loadingTransactions || !canDelete) {
+      return;
     }
-  }, [hasTransactions]);
+
+    navigation.setOptions({
+      headerRight: () => <DeleteCategoryButton categoryId={formData.id!} />,
+    });
+  }, [formData, hasTransactions]);
 
   const handleSubmit = async () => {
     const category = await Category.findOne({
       where: {
         name: formData.name,
+        id: Not(formData?.id || 0),
       },
-      withDeleted: true,
     });
 
     if (category === null && !hasTransactions) {

@@ -11,6 +11,11 @@ describe('formatCurrency', () => {
 });
 
 describe('convertToShortScale', () => {
+  it('should return 0 for invalid inputs', () => {
+    expect(convertToShortScale('')).toBe('0');
+    expect(convertToShortScale('asd')).toBe('0');
+  });
+
   it('should formats the values correctly', () => {
     expect(convertToShortScale(0)).toBe('0');
     expect(convertToShortScale(1_000)).toBe('1K');
@@ -19,5 +24,9 @@ describe('convertToShortScale', () => {
     expect(convertToShortScale(1_250_000)).toBe('1M');
     expect(convertToShortScale(1_200_000, 1)).toBe('1.2M');
     expect(convertToShortScale(1_750_000, 2)).toBe('1.75M');
+  });
+
+  it('should remove trailing zeros', () => {
+    expect(convertToShortScale(2_000_000, 2)).toBe('2M');
   });
 });

@@ -68,7 +68,7 @@ describe('Budget', () => {
   });
 
   it('should be able to get dateInfo', async () => {
-    const monthBudget = await Budget.create({
+    const monthBudget = Budget.create({
       description: 'Budget #1',
       maxAmount: 100_000,
       dateRange: 'month',

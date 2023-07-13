@@ -12,13 +12,13 @@ type DeleteTransactionButtonProps = {
 
 export default function DeleteTransactionButton({ transactionId }: DeleteTransactionButtonProps) {
   const navigation = useNavigation();
-
   const { theme } = useTheme();
+
+  const { mutateAsync: deleteTransaction } = useDeleteTransaction();
   const [showSnackMessage, showConfirmationModal] = useModalStore((state) => [
     state.showSnackMessage,
     state.showConfirmationModal,
   ]);
-  const { mutateAsync: deleteTransaction } = useDeleteTransaction();
 
   return (
     <IconButton

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import {
   MD3DarkTheme as PaperDarkTheme,
@@ -14,7 +14,7 @@ import {
   Theme as NavigationTheme,
 } from '@react-navigation/native';
 
-export type Theme = NavigationTheme &
+type Theme = NavigationTheme &
   PaperTheme & {
     // add here extra theme props
     colors: MD3Colors & {
@@ -45,9 +45,9 @@ const darkTheme: Theme = {
   },
 };
 
-export type ThemeType = 'dark' | 'light';
+type ThemeType = 'dark' | 'light';
 
-export interface ThemeContextValue {
+interface ThemeContextValue {
   theme: Theme;
   themeType: ThemeType;
   isDarkTheme: boolean;
@@ -55,7 +55,7 @@ export interface ThemeContextValue {
   setThemeType: React.Dispatch<React.SetStateAction<ThemeType>>;
 }
 
-export const ThemeContext = React.createContext<ThemeContextValue>({
+const ThemeContext = React.createContext<ThemeContextValue>({
   theme: lightTheme,
   themeType: 'light',
   isDarkTheme: false,
@@ -65,7 +65,7 @@ export const ThemeContext = React.createContext<ThemeContextValue>({
 
 export const useTheme = () => useContext(ThemeContext);
 
-export interface ThemeContextProviderProps {
+interface ThemeContextProviderProps {
   children: React.ReactNode;
 }
 
@@ -77,8 +77,8 @@ export const ThemeContextProvider = ({ children }: ThemeContextProviderProps) =>
     setThemeType((prev) => (prev === 'dark' ? 'light' : 'dark'));
   }, []);
 
-  const isDarkTheme = useMemo(() => themeType === 'dark', [themeType]);
-  const theme = useMemo(() => (isDarkTheme ? darkTheme : lightTheme), [isDarkTheme]);
+  const isDarkTheme = themeType === 'dark';
+  const theme = isDarkTheme ? darkTheme : lightTheme;
 
   useEffect(() => {
     setThemeType(colorScheme || themeType);

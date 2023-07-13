@@ -42,7 +42,7 @@ export default function BottomTabNavigator() {
           title: 'Transacciones',
           tabBarLabel: 'Transacciones',
           tabBarIcon: ({ color }) => <TabBarIcon name="list-alt" color={color} />,
-          headerRight: () => <TransactionFilterDialog />,
+          headerRight: TransactionFilterDialog,
         }}
       />
       <BottomTab.Screen

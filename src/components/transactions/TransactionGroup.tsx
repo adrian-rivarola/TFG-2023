@@ -9,17 +9,17 @@ import { Transaction } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { getGroupLabel } from '@/utils/dateUtils';
 
-type GroupedTransactionsProps = {
+type TransactionGroupProps = {
   isLoading?: boolean;
   transactions: Map<Dayjs, Transaction[]>;
   onEndReached?: () => void;
 };
 
-export default function GroupedTransactions({
+export default function TransactionGroup({
   isLoading,
   transactions,
   onEndReached,
-}: GroupedTransactionsProps) {
+}: TransactionGroupProps) {
   const { theme } = useTheme();
 
   return (

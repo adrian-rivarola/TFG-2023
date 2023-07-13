@@ -3,6 +3,8 @@ import { ScrollView, View } from 'react-native';
 import { ActivityIndicator, Avatar, Card, ProgressBar, Text } from 'react-native-paper';
 import PieChart from 'react-native-pie-chart';
 
+import CardHeader from '../CardHeader';
+import EmptyCard from '../EmptyCard';
 import { CategoryTotal, CategoryType } from '@/data';
 import { useCategoryTypeTotals } from '@/hooks/reports';
 import { useTheme } from '@/theme/ThemeContext';
@@ -43,55 +45,51 @@ export default function CategoryTypeReport({ categoryType, dateRange }: Transact
   }
 
   if (!pieChartData?.length) {
-    return (
-      <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-        <Text variant="bodyMedium">No hay registros en este periodo de tiempo</Text>
-      </View>
-    );
+    return <EmptyCard style={{ margin: 10 }} />;
   }
 
   return (
     <ScrollView>
       <View style={globalStyles.screenContainer}>
-        <Card>
-          <Card.Title title={`${categoryTitle} por categoría`} titleVariant="titleMedium" />
-
-          <Card.Content>
-            <View
-              style={{
-                position: 'relative',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: 10,
-                marginBottom: 20,
-              }}
-            >
-              <Text
-                variant="headlineSmall"
+        <CardHeader title={`${categoryTitle} por categoría`}>
+          <Card elevation={1}>
+            <Card.Content>
+              <View
                 style={{
-                  position: 'absolute',
-                  zIndex: 100,
+                  position: 'relative',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 10,
+                  marginBottom: 20,
                 }}
               >
-                {convertToShortScale(categoryTotal)}
-              </Text>
+                <Text
+                  variant="headlineSmall"
+                  style={{
+                    position: 'absolute',
+                    zIndex: 100,
+                  }}
+                >
+                  {convertToShortScale(categoryTotal, 2)}
+                </Text>
 
-              <PieChart
-                series={pieChartData.map((d) => d.total)}
-                sliceColor={pieChartData.map((d) => d.color)}
-                widthAndHeight={size}
-                coverRadius={0.44}
-                coverFill={colors.background}
-              />
-            </View>
+                <PieChart
+                  series={pieChartData.map((d) => d.total)}
+                  sliceColor={pieChartData.map((d) => d.color)}
+                  widthAndHeight={size}
+                  coverRadius={0.44}
+                  coverFill={colors.background}
+                />
+              </View>
 
-            <View>
-              {pieChartData.map((d, i) => (
-                <CategoryAmount key={i} data={d} />
-              ))}
-            </View>
-          </Card.Content>
-        </Card>
+              <View>
+                {pieChartData.map((d, i) => (
+                  <CategoryAmount key={i} data={d} />
+                ))}
+              </View>
+            </Card.Content>
+          </Card>
+        </CardHeader>
 
         <View style={{ paddingVertical: 10 }} />
       </View>

@@ -6,7 +6,7 @@ import CustomChip from '../CustomChip';
 import { CategoryType } from '@/data';
 import { useGetCategories } from '@/hooks/category/useGetCategories';
 import { TransactionFilter, useMainStore } from '@/store';
-import { useTheme } from '@/theme/ThemeContext';
+import { ThemeContextProvider, useTheme } from '@/theme/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TransactionFilterDialog() {
@@ -55,131 +55,133 @@ export default function TransactionFilterDialog() {
       />
 
       <Portal>
-        <Dialog
-          style={{
-            backgroundColor: colors.background,
-          }}
-          visible={visible}
-          onDismiss={closeDialog}
-        >
-          <Dialog.Title
+        <ThemeContextProvider>
+          <Dialog
             style={{
-              fontSize: 18,
+              backgroundColor: colors.background,
             }}
+            visible={visible}
+            onDismiss={closeDialog}
           >
-            Filtrar transacciones
-          </Dialog.Title>
-
-          <Dialog.ScrollArea>
-            <ScrollView
-              contentContainerStyle={{
-                marginVertical: 15,
+            <Dialog.Title
+              style={{
+                fontSize: 18,
               }}
             >
-              <View>
-                <Text variant="labelLarge">Tipo:</Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                  }}
-                >
-                  <CustomChip
-                    selected={filters.categoryType === undefined}
-                    onPress={() =>
-                      setFilters({
-                        ...filters,
-                        categoryType: undefined,
-                      })
-                    }
-                  >
-                    Todos
-                  </CustomChip>
-                  <CustomChip
-                    selected={filters.categoryType === CategoryType.expense}
-                    onPress={() =>
-                      setFilters({
-                        ...filters,
-                        categoryType: CategoryType.expense,
-                      })
-                    }
-                  >
-                    Gastos
-                  </CustomChip>
-                  <CustomChip
-                    selected={filters.categoryType === CategoryType.income}
-                    onPress={() =>
-                      setFilters({
-                        ...filters,
-                        categoryType: CategoryType.income,
-                      })
-                    }
-                  >
-                    Ingresos
-                  </CustomChip>
-                </View>
-              </View>
+              Filtrar transacciones
+            </Dialog.Title>
 
-              <View
-                style={{
-                  marginBottom: 20,
+            <Dialog.ScrollArea>
+              <ScrollView
+                contentContainerStyle={{
+                  marginVertical: 15,
                 }}
-              />
-
-              {shownCategories.length > 0 && (
+              >
                 <View>
-                  <Text variant="labelLarge" style={{ marginBottom: 10 }}>
-                    Categorías:
-                  </Text>
-
+                  <Text variant="labelLarge">Tipo:</Text>
                   <View
                     style={{
                       flexDirection: 'row',
-                      flexWrap: 'wrap',
                     }}
                   >
-                    {shownCategories.map((cat) => (
-                      <CustomChip
-                        key={cat.id}
-                        icon={cat.icon}
-                        onPress={() => {
-                          const selectedCategories = filters.categories || [];
-                          const newCategories = selectedCategories.includes(cat.id)
-                            ? selectedCategories.filter((c) => c !== cat.id)
-                            : selectedCategories.concat(cat.id);
-
-                          setFilters({
-                            ...filters,
-                            categories: newCategories,
-                          });
-                        }}
-                        selected={filters.categories?.includes(cat.id)}
-                        style={{
-                          marginEnd: 5,
-                          marginBottom: 5,
-                          padding: 0,
-                        }}
-                      >
-                        {cat.name}
-                      </CustomChip>
-                    ))}
+                    <CustomChip
+                      selected={filters.categoryType === undefined}
+                      onPress={() =>
+                        setFilters({
+                          ...filters,
+                          categoryType: undefined,
+                        })
+                      }
+                    >
+                      Todos
+                    </CustomChip>
+                    <CustomChip
+                      selected={filters.categoryType === CategoryType.expense}
+                      onPress={() =>
+                        setFilters({
+                          ...filters,
+                          categoryType: CategoryType.expense,
+                        })
+                      }
+                    >
+                      Gastos
+                    </CustomChip>
+                    <CustomChip
+                      selected={filters.categoryType === CategoryType.income}
+                      onPress={() =>
+                        setFilters({
+                          ...filters,
+                          categoryType: CategoryType.income,
+                        })
+                      }
+                    >
+                      Ingresos
+                    </CustomChip>
                   </View>
                 </View>
-              )}
-            </ScrollView>
-          </Dialog.ScrollArea>
 
-          <Dialog.Actions>
-            <Button onPress={closeDialog}>Cancelar</Button>
-            <Button
-              onPress={() => {
-                setActiveFilters(filters);
-                closeDialog(true);
-              }}
-            >
-              Confirmar
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
+                <View
+                  style={{
+                    marginBottom: 20,
+                  }}
+                />
+
+                {shownCategories.length > 0 && (
+                  <View>
+                    <Text variant="labelLarge" style={{ marginBottom: 10 }}>
+                      Categorías:
+                    </Text>
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {shownCategories.map((cat) => (
+                        <CustomChip
+                          key={cat.id}
+                          icon={cat.icon}
+                          onPress={() => {
+                            const selectedCategories = filters.categories || [];
+                            const newCategories = selectedCategories.includes(cat.id)
+                              ? selectedCategories.filter((c) => c !== cat.id)
+                              : selectedCategories.concat(cat.id);
+
+                            setFilters({
+                              ...filters,
+                              categories: newCategories,
+                            });
+                          }}
+                          selected={filters.categories?.includes(cat.id)}
+                          style={{
+                            marginEnd: 5,
+                            marginBottom: 5,
+                            padding: 0,
+                          }}
+                        >
+                          {cat.name}
+                        </CustomChip>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
+            </Dialog.ScrollArea>
+
+            <Dialog.Actions>
+              <Button onPress={closeDialog}>Cancelar</Button>
+              <Button
+                onPress={() => {
+                  setActiveFilters(filters);
+                  closeDialog(true);
+                }}
+              >
+                Confirmar
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </ThemeContextProvider>
       </Portal>
     </>
   );

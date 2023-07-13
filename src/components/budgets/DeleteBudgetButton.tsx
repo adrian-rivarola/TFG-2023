@@ -12,13 +12,13 @@ type DeleteBudgetIconProps = {
 
 export default function DeleteBudgetButton({ budgetId }: DeleteBudgetIconProps) {
   const navigation = useNavigation();
-
   const { theme } = useTheme();
+
+  const { mutateAsync: deleteBudget } = useDeleteBudget();
   const [showSnackMessage, showConfirmationModal] = useModalStore((state) => [
     state.showSnackMessage,
     state.showConfirmationModal,
   ]);
-  const { mutateAsync: deleteBudget } = useDeleteBudget();
 
   return (
     <IconButton

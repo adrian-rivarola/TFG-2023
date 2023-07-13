@@ -3,8 +3,9 @@ import { View } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import type { AbstractChartConfig } from 'react-native-chart-kit/dist/AbstractChart';
 import type { ChartData } from 'react-native-chart-kit/dist/HelperTypes';
-import { ActivityIndicator, Button, Card, Text } from 'react-native-paper';
+import { ActivityIndicator, Card, Text } from 'react-native-paper';
 
+import CardHeader from '../CardHeader';
 import DateRangeSelector from '../DateRangeSelector';
 import { SCREEN_WIDTH } from '@/constants/Layout';
 import { useExpenseTotals } from '@/hooks/reports';
@@ -40,38 +41,18 @@ export default function ExepensesBarChart() {
     barPercentage: 0.75,
     color: () => (isDarkTheme ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)'),
     labelColor: () => theme.colors.text,
-    formatYLabel: (n) => {
-      const num = parseInt(n, 10);
-      if (!num) {
-        return '0';
-      }
-      return convertToShortScale(num, 2);
-    },
+    formatYLabel: (n) => convertToShortScale(n, 1),
   };
 
   return (
-    <View>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Text variant="titleMedium">Gastos totales</Text>
-
-        <Button
-          mode="text"
-          onPress={() => {
-            navigation.navigate('BottomTab', {
-              screen: 'ReportsScreen',
-            });
-          }}
-        >
-          Ver más
-        </Button>
-      </View>
-
+    <CardHeader
+      title="Gastos totales"
+      onSeeMorePress={() => {
+        navigation.navigate('BottomTab', {
+          screen: 'ReportsScreen',
+        });
+      }}
+    >
       <Card elevation={1}>
         <View style={{ margin: 15 }}>
           <DateRangeSelector value={activePeriod} onChange={setActivePeriod} />
@@ -112,6 +93,6 @@ export default function ExepensesBarChart() {
           )}
         </Card.Content>
       </Card>
-    </View>
+    </CardHeader>
   );
 }

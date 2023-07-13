@@ -3,7 +3,7 @@ import { TabBar, TabView } from 'react-native-tab-view';
 
 import DateFilterFAB from '@/components/DateFilterFAB';
 import CategoryTypeReport from '@/components/category/CategoryTypeReport';
-import Layout from '@/constants/Layout';
+import { SCREEN_WIDTH } from '@/constants/Layout';
 import { CategoryType } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
 import { DateRange, RootTabScreenProps } from '@/types';
@@ -16,48 +16,33 @@ type ReportTabs = {
   title: string;
 };
 
-const screenWidth = Layout.window.width;
-
-export default function Reports({ navigation, route }: ScreenProps) {
+export default function Reports({ navigation }: ScreenProps) {
   const { theme } = useTheme();
   const [index, setIndex] = React.useState(0);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(getDatesFromRange('month'));
   const routes: ReportTabs[] = [
     { key: 'expenses', title: 'Gastos' },
     { key: 'incomes', title: 'Ingresos' },
   ];
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(getDatesFromRange('month'));
 
   useEffect(() => {
-    if (dateRange) {
-      navigation.setOptions({
-        title: `Reportes - ${getDateInfo(dateRange)}`,
-      });
-    } else {
-      navigation.setOptions({
-        title: 'Reportes',
-      });
-    }
+    navigation.setOptions({
+      title: dateRange ? `Reportes - ${getDateInfo(dateRange)}` : 'Reportes',
+    });
   }, [dateRange]);
 
   return (
     <>
       <TabView
         initialLayout={{
-          width: screenWidth,
+          width: SCREEN_WIDTH,
         }}
         navigationState={{ index, routes }}
         onIndexChange={setIndex}
         renderScene={({ route }) => {
-          switch (route.key) {
-            case 'expenses':
-              return (
-                <CategoryTypeReport dateRange={dateRange} categoryType={CategoryType.expense} />
-              );
-            case 'incomes':
-              return (
-                <CategoryTypeReport dateRange={dateRange} categoryType={CategoryType.income} />
-              );
-          }
+          const categoryType =
+            route.key === 'expenses' ? CategoryType.expense : CategoryType.income;
+          return <CategoryTypeReport dateRange={dateRange} categoryType={categoryType} />;
         }}
         renderTabBar={(props) => (
           <TabBar

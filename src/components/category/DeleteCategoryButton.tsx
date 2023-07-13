@@ -12,13 +12,13 @@ type DeleteCategoryButtonProps = {
 
 export default function DeleteCategoryButton({ categoryId }: DeleteCategoryButtonProps) {
   const navigation = useNavigation();
-
   const { theme } = useTheme();
+
+  const { mutateAsync: deleteCategory } = useDeleteCategory();
   const [showSnackMessage, showConfirmationModal] = useModalStore((state) => [
     state.showSnackMessage,
     state.showConfirmationModal,
   ]);
-  const { mutateAsync: deleteCategory } = useDeleteCategory();
 
   return (
     <IconButton

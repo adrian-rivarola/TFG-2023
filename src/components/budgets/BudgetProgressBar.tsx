@@ -17,14 +17,20 @@ export default function BudgetProgressBar({ maxAmount, totalSpent }: BudgetProgr
   return (
     <View>
       <ProgressBar progress={barProgress} color={color} style={{ marginTop: 5, marginBottom: 5 }} />
+
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
         }}
       >
-        <Text variant="labelMedium">{formatCurrency(totalSpent)}</Text>
-        <Text variant="labelMedium">{formatCurrency(maxAmount)}</Text>
+        <Text variant="labelMedium">{formatCurrency(totalSpent)} gastado</Text>
+
+        <Text variant="labelMedium">
+          {totalSpent < maxAmount
+            ? `${formatCurrency(maxAmount - totalSpent)} restante`
+            : `Exedido por ${formatCurrency(totalSpent - maxAmount)}`}
+        </Text>
       </View>
     </View>
   );

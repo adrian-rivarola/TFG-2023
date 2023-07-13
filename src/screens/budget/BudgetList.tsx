@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
+import CardHeader from '@/components/CardHeader';
 import CustomFAB from '@/components/CustomFAB';
-import { BudgetGroup } from '@/components/budgets/BudgetGroup';
+import BudgetCard from '@/components/budgets/BudgetCard';
 import { useGetBudgets } from '@/hooks/budget';
 import { globalStyles } from '@/theme/globalStyles';
 import { RootTabScreenProps } from '@/types';
@@ -11,9 +12,16 @@ import { RootTabScreenProps } from '@/types';
 type ScreenProps = RootTabScreenProps<'BudgetList'>;
 
 export default function BudgetListScreen({ navigation }: ScreenProps) {
-  const { data: budgets, isLoading, isError, refetch } = useGetBudgets();
+  const { data: budgets, isLoading, refetch } = useGetBudgets();
+  const budgetGroups = useMemo(
+    () => ({
+      week: budgets?.filter((b) => b.dateRange === 'week') || [],
+      month: budgets?.filter((b) => b.dateRange === 'month') || [],
+    }),
+    [budgets]
+  );
 
-  if (isError || !budgets) {
+  if (!budgets) {
     return null;
   }
 
@@ -27,18 +35,28 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
             </Text>
           ) : (
             <>
-              <BudgetGroup
-                budgets={budgets.filter((b) => b.dateRange === 'week')}
+              <CardHeader
                 title="Esta semana"
-              />
-              <BudgetGroup
-                budgets={budgets.filter((b) => b.dateRange === 'month')}
-                title="Este mes"
-              />
+                titleVariant="labelLarge"
+                style={{
+                  marginBottom: 10,
+                }}
+              >
+                {budgetGroups.week.map((budget) => (
+                  <BudgetCard key={budget.id} budget={budget} />
+                ))}
+              </CardHeader>
+
+              <CardHeader title="Este mes" titleVariant="labelLarge">
+                {budgetGroups.month.map((budget) => (
+                  <BudgetCard key={budget.id} budget={budget} />
+                ))}
+              </CardHeader>
             </>
           )}
         </View>
       </ScrollView>
+
       <CustomFAB destination="BudgetForm" />
     </>
   );

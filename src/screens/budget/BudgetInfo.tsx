@@ -1,104 +1,87 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
-import { Avatar, Banner, Card, Text } from 'react-native-paper';
+import React, { useEffect, useMemo } from 'react';
+import { View } from 'react-native';
+import { ActivityIndicator, IconButton } from 'react-native-paper';
+import { TabBar, TabView } from 'react-native-tab-view';
 
-import EmptyCard from '@/components/EmptyCard';
-import BudgetLineChart from '@/components/budgets/BudgetLineChart';
-import BudgetProgressBar from '@/components/budgets/BudgetProgressBar';
-import PeriodsBarChart from '@/components/budgets/PeriodsBarChart';
-import { Budget } from '@/data';
+import BudgetDetails from './BudgetDetails';
+import CustomFAB from '@/components/CustomFAB';
+import TransactionGroup from '@/components/transactions/TransactionGroup';
+import { SCREEN_WIDTH } from '@/constants/Layout';
+import { useGetBudgetsById } from '@/hooks/budget';
+import { useMainStore } from '@/store';
 import { useTheme } from '@/theme/ThemeContext';
-import { globalStyles } from '@/theme/globalStyles';
+import type { RootStackScreenProps } from '@/types';
+import { groupTransactionsByDate } from '@/utils/transactionUtils';
 import { MaterialIcons } from '@expo/vector-icons';
 
-type BudgetInfoProps = {
-  budget: Budget;
-};
+type ScreenProps = RootStackScreenProps<'BudgetDetails'>;
 
-export default function BudgetInfo({ budget }: BudgetInfoProps) {
+export default function BudgetInfoScreen({ navigation, route }: ScreenProps) {
   const { theme } = useTheme();
-  const { transactions = [] } = budget;
+  const setSelectedCategories = useMainStore((state) => state.setSelectedCategories);
+  const [index, setIndex] = React.useState(0);
+  const routes = [
+    { key: 'details', title: 'Detalles' },
+    { key: 'transactions', title: 'Transacciones' },
+  ];
 
-  const overspent = budget.totalSpent > budget.maxAmount;
+  const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
+
+  const groupedTransactions = useMemo(() => {
+    return groupTransactionsByDate(budget?.transactions || []);
+  }, [budget?.transactions]);
+
+  useEffect(() => {
+    if (!budget) return;
+
+    navigation.setOptions({
+      title: budget.description,
+      headerRight: () => (
+        <IconButton
+          style={{ padding: 0, marginEnd: -10 }}
+          icon={() => <MaterialIcons name="edit" size={20} color={theme.colors.text} />}
+          onPress={() => {
+            setSelectedCategories(budget.categories);
+            navigation.navigate('BudgetForm', { budget: budget.serialize() });
+          }}
+        />
+      ),
+    });
+  }, [budget]);
+
+  if (isLoading || !budget) {
+    return <ActivityIndicator style={{ marginVertical: 40 }} />;
+  }
 
   return (
-    <ScrollView>
-      <View style={globalStyles.screenContainer}>
-        <Banner
-          visible={overspent}
-          elevation={3}
-          style={{
-            backgroundColor: theme.colors.errorContainer,
-            justifyContent: 'center',
-          }}
-          icon={(props) => (
-            <Avatar.Icon
-              {...props}
-              size={30}
-              style={[
-                {
-                  backgroundColor: theme.colors.expense,
-                },
-              ]}
-              icon={() => <MaterialIcons name="warning" size={15} color={theme.colors.card} />}
-            />
-          )}
-        >
-          <Text variant="bodyLarge">Se ha excedido el presupuesto!</Text>
-        </Banner>
+    <TabView
+      initialLayout={{ width: SCREEN_WIDTH }}
+      navigationState={{ index, routes }}
+      onIndexChange={setIndex}
+      renderScene={({ route }) => {
+        switch (route.key) {
+          case 'details':
+            return <BudgetDetails budget={budget} />;
+          case 'transactions':
+            return (
+              <>
+                <TransactionGroup transactions={groupedTransactions} />
 
-        <View>
-          <Text
-            style={{
-              marginBottom: 10,
-            }}
-            variant="titleMedium"
-          >
-            Periodo actual:
-          </Text>
-
-          <Card elevation={1} style={{ marginTop: 0 }}>
-            <Card.Content>
-              <Text variant="labelLarge">{budget.dateInfo}</Text>
-              <BudgetProgressBar {...budget} />
-            </Card.Content>
-          </Card>
-        </View>
-
-        {transactions.length === 0 && <EmptyCard style={{ marginTop: 40 }} />}
-
-        {transactions.length > 0 && (
-          <View style={{ marginTop: 30 }}>
-            <Text
-              style={{
-                marginBottom: 10,
-              }}
-              variant="titleMedium"
-            >
-              Tendencia:
-            </Text>
-
-            <BudgetLineChart budget={budget} transactions={transactions} />
-          </View>
-        )}
-
-        {budget.previousPeriods.length > 0 && (
-          <View style={{ marginTop: 30 }}>
-            <Text
-              style={{
-                marginBottom: 10,
-              }}
-              variant="titleMedium"
-            >
-              Periodos anteriores:
-            </Text>
-
-            <PeriodsBarChart budget={budget} />
-          </View>
-        )}
-
-        <View style={{ padding: 15 }} />
-      </View>
-    </ScrollView>
+                <View style={{ marginBottom: 80 }}>
+                  <CustomFAB destination="TransactionForm" />
+                </View>
+              </>
+            );
+        }
+      }}
+      renderTabBar={(props) => (
+        <TabBar
+          indicatorStyle={{ backgroundColor: theme.colors.primary }}
+          style={{ backgroundColor: theme.colors.background }}
+          labelStyle={{ color: theme.colors.text }}
+          {...props}
+        />
+      )}
+    />
   );
 }

@@ -135,6 +135,9 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           style={themedStyles.categoryItem}
           onPress={clearData}
         />
+      </List.Section>
+
+      <List.Section title="Pruebas" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Insertar datos de prueba"
           style={themedStyles.categoryItem}
@@ -142,9 +145,6 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
             navigation.navigate('CreateMockData');
           }}
         />
-      </List.Section>
-
-      <List.Section title="Pruebas" titleStyle={themedStyles.sectionTitle}>
         <List.Item
           title="Probar Componentes"
           style={themedStyles.categoryItem}

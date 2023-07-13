@@ -49,21 +49,15 @@ export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
     backgroundGradientTo: theme.colors.background,
     fillShadowGradientFromOpacity: 1,
     fillShadowGradientToOpacity: 0.75,
-    barPercentage: 1,
+    barPercentage: 0.9,
     propsForBackgroundLines: {
       strokeWidth: 1,
       stroke: isDarkTheme ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
     },
     color: () => (isDarkTheme ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'),
     labelColor: () => theme.colors.text,
-    formatTopBarValue: (val) => (val > 0 ? convertToShortScale(val, 1) : ''),
-    formatYLabel: (n) => {
-      const num = parseInt(n, 10);
-      if (!num) {
-        return '0';
-      }
-      return convertToShortScale(num, 2);
-    },
+    formatTopBarValue: (val) => (val > 0 ? convertToShortScale(val, 2) : ''),
+    formatYLabel: (n) => convertToShortScale(n, 2),
   };
   const chartWidth = Math.max(SCREEN_WIDTH - 60, 50 * budget.previousPeriods.length + 1);
 
@@ -85,7 +79,7 @@ export default function PeriodsBarChart({ budget }: PeriodsBarChartProps) {
           chartConfig={chartConfig}
           showBarTops={false}
           width={chartWidth}
-          height={340}
+          height={280}
           yAxisSuffix=""
           yAxisLabel="Gs. "
           yLabelsOffset={-1}

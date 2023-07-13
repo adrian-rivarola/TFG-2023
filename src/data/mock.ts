@@ -116,11 +116,11 @@ function getDefaultCategories() {
       icon: 'attach-money',
       type: CategoryType.income,
     },
-    // {
-    //   name: 'Otros ingresos',
-    //   icon: 'more-horiz',
-    //   type: CategoryType.income,
-    // },
+    {
+      name: 'Otros ingresos',
+      icon: 'more-horiz',
+      type: CategoryType.income,
+    },
     // expense
     {
       name: 'Alimentos',

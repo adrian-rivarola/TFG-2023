@@ -16,6 +16,7 @@ export default function CustomChip({
   const {
     theme: { colors },
   } = useTheme();
+
   return (
     <Chip
       icon={() =>

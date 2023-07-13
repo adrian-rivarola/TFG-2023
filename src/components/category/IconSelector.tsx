@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, TouchableWithoutFeedback, View } from 'react-native';
 import { Dialog, Portal, Searchbar } from 'react-native-paper';
 
-import CategoryIcon from './category/CategoryIcon';
+import CategoryIcon from './CategoryIcon';
 import { useTheme } from '@/theme/ThemeContext';
 import { MaterialIcons } from '@expo/vector-icons';
 

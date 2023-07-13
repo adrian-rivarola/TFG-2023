@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { List, Text } from 'react-native-paper';
 import { TabBar, TabView } from 'react-native-tab-view';

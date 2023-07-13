@@ -1,126 +1,88 @@
-import React, { useEffect, useMemo } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, IconButton } from 'react-native-paper';
-import { TabBar, TabView } from 'react-native-tab-view';
+import React from 'react';
+import { ScrollView, View } from 'react-native';
+import { Avatar, Banner, Card, Text } from 'react-native-paper';
 
-import BudgetInfo from './BudgetInfo';
-import CustomFAB from '@/components/CustomFAB';
-import GroupedTransactions from '@/components/transactions/GroupedTransactions';
-import { useGetBudgetsById } from '@/hooks/budget';
-import { useMainStore } from '@/store';
+import CardHeader from '@/components/CardHeader';
+import EmptyCard from '@/components/EmptyCard';
+import BudgetLineChart from '@/components/budgets/BudgetLineChart';
+import BudgetProgressBar from '@/components/budgets/BudgetProgressBar';
+import PeriodsBarChart from '@/components/budgets/PeriodsBarChart';
+import { Budget } from '@/data';
 import { useTheme } from '@/theme/ThemeContext';
-import type { RootStackScreenProps } from '@/types';
-import { groupTransactionsByDate } from '@/utils/transactionUtils';
+import { globalStyles } from '@/theme/globalStyles';
+import { formatCurrency } from '@/utils/numberUtils';
 import { MaterialIcons } from '@expo/vector-icons';
 
-type ScreenProps = RootStackScreenProps<'BudgetDetails'>;
+type BudgetDetailsProps = {
+  budget: Budget;
+};
 
-const screenWidth = Dimensions.get('screen').width;
-
-export default function BudgetDetailsScreen({ navigation, route }: ScreenProps) {
+export default function BudgetDetails({ budget }: BudgetDetailsProps) {
   const { theme } = useTheme();
-  const setSelectedCategories = useMainStore((state) => state.setSelectedCategories);
-  const [index, setIndex] = React.useState(0);
-  const routes = [
-    { key: 'details', title: 'Detalles' },
-    { key: 'transactions', title: 'Transacciones' },
-  ];
+  const { transactions = [] } = budget;
 
-  const { data: budget, isLoading } = useGetBudgetsById(route.params.budgetId);
-
-  const groupedTransactions = useMemo(() => {
-    return groupTransactionsByDate(budget?.transactions || []);
-  }, [budget?.transactions]);
-
-  useEffect(() => {
-    if (!budget) return;
-
-    navigation.setOptions({
-      title: budget.description,
-      headerRight: () => (
-        <IconButton
-          style={{ padding: 0, marginEnd: -10 }}
-          icon={() => <MaterialIcons name="edit" size={20} color={theme.colors.text} />}
-          onPress={() => {
-            setSelectedCategories(budget.categories);
-            navigation.navigate('BudgetForm', { budget: budget.serialize() });
-          }}
-        />
-      ),
-    });
-  }, [budget]);
-
-  if (isLoading || !budget) {
-    return <ActivityIndicator style={{ marginVertical: 40 }} />;
-  }
+  const overspent = budget.totalSpent > budget.maxAmount;
 
   return (
-    <TabView
-      initialLayout={{
-        width: screenWidth,
-      }}
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={({ route }) => {
-        switch (route.key) {
-          case 'details':
-            return <BudgetInfo budget={budget} />;
-          case 'transactions':
-            return (
-              <>
-                <GroupedTransactions transactions={groupedTransactions} />
+    <ScrollView>
+      <Banner
+        visible={overspent}
+        elevation={3}
+        style={{
+          backgroundColor: theme.colors.errorContainer,
+          justifyContent: 'center',
+          marginBottom: 10,
+        }}
+        icon={(props) => (
+          <Avatar.Icon
+            {...props}
+            size={30}
+            style={{
+              backgroundColor: theme.colors.expense,
+            }}
+            icon={() => <MaterialIcons name="warning" size={15} color={theme.colors.card} />}
+          />
+        )}
+      >
+        <Text variant="bodyLarge">Se ha excedido el presupuesto!</Text>
+      </Banner>
 
-                <View style={{ marginBottom: 80 }}>
-                  <CustomFAB destination="TransactionForm" />
-                </View>
-              </>
-            );
-        }
-      }}
-      renderTabBar={(props) => (
-        <TabBar
-          indicatorStyle={{ backgroundColor: theme.colors.primary }}
-          style={{ backgroundColor: theme.colors.background }}
-          labelStyle={{ color: theme.colors.text }}
-          {...props}
-        />
-      )}
-    />
+      <View style={globalStyles.screenContainer}>
+        <CardHeader title="Periodo actual:">
+          <Card elevation={1} style={{ marginTop: 0 }}>
+            <Card.Content>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                }}
+              >
+                <Text variant="titleMedium">{budget.dateInfo}</Text>
+                <Text variant="titleSmall">{formatCurrency(budget.maxAmount)}</Text>
+              </View>
+
+              <BudgetProgressBar {...budget} />
+            </Card.Content>
+          </Card>
+        </CardHeader>
+
+        {transactions.length === 0 && <EmptyCard style={{ marginTop: 40 }} />}
+
+        {transactions.length > 0 && (
+          <CardHeader title="Tendencia:" style={{ marginTop: 30 }}>
+            <BudgetLineChart budget={budget} transactions={transactions} />
+          </CardHeader>
+        )}
+
+        {budget.previousPeriods.length > 0 && (
+          <CardHeader title="Periodos anteriores:" style={{ marginTop: 30 }}>
+            <PeriodsBarChart budget={budget} />
+          </CardHeader>
+        )}
+
+        <View style={{ padding: 15 }} />
+      </View>
+    </ScrollView>
   );
 }
-
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 10,
-  },
-  transactionInfo: {
-    paddingVertical: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  ms2: {
-    marginStart: 10,
-  },
-  mb2: {
-    marginBottom: 10,
-  },
-  amount: {
-    marginTop: 15,
-    marginStart: 32,
-  },
-  description: {
-    flexDirection: 'row',
-    marginTop: 16,
-    marginStart: 32,
-  },
-  budgetInfo: {
-    marginTop: 16,
-  },
-  budgetCard: {
-    marginTop: 16,
-  },
-});

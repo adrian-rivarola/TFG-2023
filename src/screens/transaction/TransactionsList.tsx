@@ -4,7 +4,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { Between, FindOptionsWhere, In } from 'typeorm';
 
 import DateFilterFAB from '@/components/DateFilterFAB';
-import GroupedTransactions from '@/components/transactions/GroupedTransactions';
+import TransactionGroup from '@/components/transactions/TransactionGroup';
 import { Transaction } from '@/data';
 import { useGetInfiniteTransactions } from '@/hooks/transaction';
 import { useMainStore } from '@/store';
@@ -46,7 +46,7 @@ export default function TransactionsListScreen({ navigation }: ScreenProps) {
   return (
     <>
       <View>
-        <GroupedTransactions
+        <TransactionGroup
           isLoading={isFetchingNextPage}
           transactions={groupedTransactions}
           onEndReached={() => {

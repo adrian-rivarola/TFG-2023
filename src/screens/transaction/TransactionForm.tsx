@@ -7,7 +7,7 @@ import CategorySelect from '@/components/category/CategorySelect';
 import AmountInput from '@/components/forms/AmountInput';
 import { DatePicker } from '@/components/forms/DatePicker';
 import DeleteTransactionButton from '@/components/transactions/DeleteTransactionButton';
-import Layout from '@/constants/Layout';
+import { SCREEN_WIDTH } from '@/constants/Layout';
 import { Transaction, TransactionFormData } from '@/data';
 import { useSaveTransaction } from '@/hooks/transaction';
 import useForm from '@/hooks/useForm';
@@ -17,8 +17,6 @@ import { RootStackScreenProps } from '@/types';
 import { DATE_FORMAT } from '@/utils/dateUtils';
 
 type ScreenProps = RootStackScreenProps<'TransactionForm'>;
-
-const screenWidth = Layout.window.width;
 
 const DEFAULT_TRANSACTION = {
   amount: 0,
@@ -76,15 +74,6 @@ export default function TransactionFormScreen({ navigation, route }: ScreenProps
       });
   };
 
-  const styles = StyleSheet.create({
-    inputGroup: {
-      flex: 1,
-      paddingVertical: 16,
-      alignContent: 'center',
-      width: screenWidth - 100,
-    },
-  });
-
   return (
     <ScrollView>
       <View style={globalStyles.formContainer}>
@@ -134,3 +123,12 @@ export default function TransactionFormScreen({ navigation, route }: ScreenProps
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  inputGroup: {
+    flex: 1,
+    paddingVertical: 16,
+    alignContent: 'center',
+    width: SCREEN_WIDTH - 100,
+  },
+});

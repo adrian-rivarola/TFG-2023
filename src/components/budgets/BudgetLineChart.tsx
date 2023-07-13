@@ -67,19 +67,20 @@ export default function BudgetLineChart({ transactions, budget }: BudgetLineChar
           transparent
           withShadow={false}
           chartConfig={chartConfig}
-          style={{ padding: 10, paddingBottom: -30, margin: 0, overflow: 'hidden' }}
-          width={chartWidth}
-          height={380}
-          data={data}
-          segments={5}
-          yAxisLabel="Gs "
-          formatYLabel={(n) => {
-            const num = parseInt(n, 10);
-            if (!num) {
-              return '0';
-            }
-            return convertToShortScale(num, 1);
+          style={{
+            paddingTop: 15,
+            paddingBottom: 0,
+            paddingHorizontal: 5,
+            margin: 0,
+            overflow: 'hidden',
           }}
+          width={chartWidth}
+          height={250}
+          data={data}
+          segments={4}
+          yAxisLabel="Gs "
+          yLabelsOffset={5}
+          formatYLabel={(n) => convertToShortScale(n, 1)}
         />
       </View>
     </Card>

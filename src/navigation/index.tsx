@@ -3,8 +3,8 @@ import * as React from 'react';
 import BottomTabNavigator from './BottomTabNavigator';
 import CreateMockData from '@/screens/CreateMockData';
 import TestComponents from '@/screens/TestComponents';
-import BudgetDetailsScreen from '@/screens/budget/BudgetDetails';
 import BudgetFormScreen from '@/screens/budget/BudgetForm';
+import BudgetInfoScreen from '@/screens/budget/BudgetInfo';
 import CategoryForm from '@/screens/category/CategoryForm';
 import CategoryList from '@/screens/category/CategoryList';
 import TransactionFormScreen from '@/screens/transaction/TransactionForm';
@@ -71,7 +71,7 @@ export default function Navigation() {
         />
         <Stack.Screen
           name="BudgetDetails"
-          component={BudgetDetailsScreen}
+          component={BudgetInfoScreen}
           options={() => ({
             title: 'Detalles de Presupuesto',
             animation: 'fade_from_bottom',

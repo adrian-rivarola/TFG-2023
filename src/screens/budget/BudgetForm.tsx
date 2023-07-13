@@ -103,7 +103,7 @@ export default function BudgetFormScreen({ navigation, route }: ScreenProps) {
         </View>
 
         <View style={styles.inputGroup}>
-          <CategorySelect multiple label="Categorías:" categoryType={CategoryType.expense} />
+          <CategorySelect label="Categorías:" categoryType={CategoryType.expense} multiple />
         </View>
 
         <View style={{ marginTop: 24 }}>
