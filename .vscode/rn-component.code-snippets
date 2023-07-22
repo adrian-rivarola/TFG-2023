@@ -1,0 +1,10 @@
+{
+  "Creates a React Native component": {
+    "prefix": "rnc",
+    "scope": "javascript,typescript,javascriptreact,typescriptreact",
+    "body": [
+      "import React from \"react\";\nimport { StyleSheet, View } from \"react-native\";\nimport { Text } from \"react-native-paper\";\n\ntype $1Props = {};\n\nexport default function $1(props: $1Props) {\n  return (\n    <View>\n      <Text>$1</Text>\n    </View>\n  );\n}\n\nconst styles = StyleSheet.create({});\n"
+    ],
+    "description": "Create RN Component with typed Props, styles and Paper imports"
+  }
+}

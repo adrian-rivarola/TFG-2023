@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "exclude": ["*.db"],
+  "compilerOptions": {
+    "strict": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["./*"],
+      "@/assets/*": ["../assets/*"],
+      "@/types": ["../types/index"]
+    }
+  }
+}
