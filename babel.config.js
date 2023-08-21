@@ -5,6 +5,7 @@ module.exports = function (api) {
     plugins: [
       'react-native-paper/babel',
       '@babel/transform-react-jsx-source',
+      '@babel/plugin-transform-numeric-separator',
       'babel-plugin-transform-typescript-metadata',
       [
         'module-resolver',

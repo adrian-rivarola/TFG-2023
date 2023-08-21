@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { Text } from 'react-native-paper';
 
 import CardHeader from '@/components/CardHeader';
 import CustomFAB from '@/components/CustomFAB';
+import EmptyCard from '@/components/EmptyCard';
 import BudgetCard from '@/components/budgets/BudgetCard';
 import { useGetBudgets } from '@/hooks/budget';
 import { globalStyles } from '@/theme/globalStyles';
@@ -30,28 +30,30 @@ export default function BudgetListScreen({ navigation }: ScreenProps) {
       <ScrollView refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}>
         <View style={globalStyles.screenContainer}>
           {budgets.length === 0 ? (
-            <Text style={{ alignSelf: 'center', paddingVertical: 15 }}>
-              Aún no tienes ningún presupuesto
-            </Text>
+            <EmptyCard text="Aún no tienes ningún presupuesto" />
           ) : (
             <>
-              <CardHeader
-                title="Esta semana"
-                titleVariant="labelLarge"
-                style={{
-                  marginBottom: 10,
-                }}
-              >
-                {budgetGroups.week.map((budget) => (
-                  <BudgetCard key={budget.id} budget={budget} />
-                ))}
-              </CardHeader>
+              {budgetGroups.week.length > 0 && (
+                <CardHeader
+                  title="Esta semana"
+                  titleVariant="labelLarge"
+                  style={{
+                    marginBottom: 10,
+                  }}
+                >
+                  {budgetGroups.week.map((budget) => (
+                    <BudgetCard key={budget.id} budget={budget} />
+                  ))}
+                </CardHeader>
+              )}
 
-              <CardHeader title="Este mes" titleVariant="labelLarge">
-                {budgetGroups.month.map((budget) => (
-                  <BudgetCard key={budget.id} budget={budget} />
-                ))}
-              </CardHeader>
+              {budgetGroups.month.length > 0 && (
+                <CardHeader title="Este mes" titleVariant="labelLarge">
+                  {budgetGroups.month.map((budget) => (
+                    <BudgetCard key={budget.id} budget={budget} />
+                  ))}
+                </CardHeader>
+              )}
             </>
           )}
         </View>

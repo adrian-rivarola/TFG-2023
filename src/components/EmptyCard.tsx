@@ -12,7 +12,7 @@ export default function EmptyCard({ text, style }: EmptyCardProps) {
     <Card elevation={1} style={style}>
       <Card.Content>
         <Text style={{ alignSelf: 'center' }} variant="titleSmall">
-          {text || 'Aún no hay registros en este periodo'}
+          {text || 'No hay registros en este periodo'}
         </Text>
       </Card.Content>
     </Card>

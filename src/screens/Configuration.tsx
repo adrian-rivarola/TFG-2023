@@ -39,35 +39,23 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   const exportCSV = async () => {
     const transactions = await Transaction.find();
     const cleanedTransactions = transactions.map((t) => ({
-      description: t.description,
-      amount: t.amount,
-      type: t.category.isExpense ? 'Expense' : 'Income',
-      category: t.category.name,
-      date: dayjs(t.date).format('YYYY-MM-DD'),
+      Descipción: t.description,
+      Monto: t.amount,
+      Tipo: t.category.isExpense ? 'Gasto' : 'Ingreso',
+      Categoría: t.category.name,
+      Fecha: dayjs(t.date).format('YYYY-MM-DD'),
     }));
 
     const csvData = convertToCSV(cleanedTransactions, [
-      'description',
-      'amount',
-      'type',
-      'category',
-      'date',
+      'Descipción',
+      'Monto',
+      'Tipo',
+      'Categoría',
+      'Fecha',
     ]);
 
     try {
-      const saved = await saveCSV('transactions.csv', csvData);
-      if (saved) {
-        // TODO: don't show this on iOS if share is canceled
-        showSnackMessage({
-          message: 'El archivo fue exportado correctamente',
-          type: 'success',
-        });
-      } else {
-        showSnackMessage({
-          message: 'No se pudo guardar el archivo',
-          type: 'error',
-        });
-      }
+      await saveCSV('transacciones.csv', csvData);
     } catch (err) {
       console.warn('Failed to export data', err);
 

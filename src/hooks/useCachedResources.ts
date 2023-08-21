@@ -3,10 +3,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import { DataSource } from 'typeorm';
 
-import { initiDB } from '@/data';
+import { DB_ENTITIES, initiDB } from '@/data';
 import { FontAwesome } from '@expo/vector-icons';
-
-const DB_NAME = 'testing.db';
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -20,7 +18,7 @@ export default function useCachedResources() {
 
         // initialize db connection
         if (!dataSource.current) {
-          dataSource.current = await initiDB(DB_NAME);
+          dataSource.current = await initiDB();
         }
 
         // Load fonts
