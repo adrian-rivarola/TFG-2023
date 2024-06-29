@@ -1,5 +1,7 @@
-import { documentDirectory, writeAsStringAsync } from 'expo-file-system';
+import * as FileSystem from 'expo-file-system';
+import { startActivityAsync } from 'expo-intent-launcher';
 import { shareAsync } from 'expo-sharing';
+import { Platform } from 'react-native';
 
 export function convertToCSV<T extends Record<string, string | number>>(
   objectsList: T[],
@@ -13,11 +15,11 @@ export function convertToCSV<T extends Record<string, string | number>>(
   return csvContent.join('\n');
 }
 
-export async function saveCSV(name: string, csvData: string) {
+async function shareCSV(name: string, csvData: string) {
   try {
-    const filename = documentDirectory + name;
+    const filename = FileSystem.documentDirectory + name;
 
-    await writeAsStringAsync(filename, csvData, {
+    await FileSystem.writeAsStringAsync(filename, csvData, {
       encoding: 'utf8',
     });
 
@@ -26,5 +28,32 @@ export async function saveCSV(name: string, csvData: string) {
   } catch (err) {
     console.log('Failed to save CSV file!', err);
     throw err;
+  }
+}
+
+export async function saveCSV(filename: string, csvData: string) {
+  if (Platform.OS === 'ios') {
+    return await shareCSV(filename, csvData);
+  }
+
+  const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+  if (permissions.granted) {
+    const fileType = 'text/csv';
+    const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+      permissions.directoryUri,
+      filename,
+      fileType
+    );
+
+    await FileSystem.writeAsStringAsync(fileUri, csvData, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+
+    await startActivityAsync('android.intent.action.VIEW', {
+      flags: 1,
+      data: fileUri,
+      type: fileType,
+    });
+    return;
   }
 }

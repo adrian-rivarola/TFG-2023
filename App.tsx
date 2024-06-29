@@ -12,7 +12,7 @@ import ConfirmationModal from '@/components/ConfirmationModal';
 import SnackbarMessage from '@/components/SnackbarMessage';
 import useCachedResources from '@/hooks/useCachedResources';
 import Navigation from '@/navigation';
-import { ThemeContextProvider } from '@/theme/ThemeContext';
+import { ThemeContextProvider, useTheme } from '@/theme/ThemeContext';
 
 LogBox.ignoreLogs(['.+']);
 LogBox.ignoreAllLogs(); // Ignore all log notifications
@@ -21,6 +21,7 @@ const queryClient = new QueryClient();
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
+  const { theme } = useTheme();
 
   if (!isLoadingComplete) {
     return null;
@@ -31,7 +32,7 @@ export default function App() {
       <ThemeContextProvider>
         <SafeAreaProvider>
           <Navigation />
-          <StatusBar />
+          <StatusBar backgroundColor={theme.colors.backdrop} />
         </SafeAreaProvider>
         <ConfirmationModal />
         <SnackbarMessage />

@@ -170,7 +170,7 @@ export default function TransactionFilterDialog() {
             </Dialog.ScrollArea>
 
             <Dialog.Actions>
-              <Button onPress={closeDialog}>Cancelar</Button>
+              <Button onPress={() => closeDialog()}>Cancelar</Button>
               <Button
                 onPress={() => {
                   setActiveFilters(filters);

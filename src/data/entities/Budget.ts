@@ -129,7 +129,7 @@ export class Budget extends BaseEntity {
     const res = [];
     for (let i = 1; i <= diff; i++) {
       const totalSpent = await Budget.getTotalSpent(budget, -i);
-      const dateRange = getDatesFromRange(budget.dateRange, -i - 2);
+      const dateRange = getDatesFromRange(budget.dateRange, -i);
 
       res.push({ totalSpent, dateRange });
     }

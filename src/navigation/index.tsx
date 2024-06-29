@@ -21,8 +21,9 @@ export default function Navigation() {
   return (
     <NavigationContainer theme={theme}>
       <Stack.Navigator
-        defaultScreenOptions={{
+        screenOptions={{
           headerTitleAlign: 'left',
+          headerBackTitleVisible: false,
         }}
       >
         <Stack.Screen

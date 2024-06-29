@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
-import { FindManyOptions, FindOptionsOrderProperty } from 'typeorm';
+import { FindManyOptions, FindOptionsOrder } from 'typeorm';
 
 import { Transaction } from '@/data';
 
-const DEFAULT_ORDER: FindOptionsOrderProperty<Transaction> = { date: 'DESC' };
+const DEFAULT_ORDER: FindOptionsOrder<Transaction> = { date: 'DESC' };
 
 export function useGetTransactions(filterOpts?: FindManyOptions<Transaction>, enabled?: boolean) {
   return useQuery(

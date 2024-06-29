@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { openURL } from 'expo-linking';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { List, Switch } from 'react-native-paper';
@@ -37,10 +38,14 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
   });
 
   const exportCSV = async () => {
-    const transactions = await Transaction.find();
+    const transactions = await Transaction.find({
+      order: {
+        date: 'ASC',
+      },
+    });
     const cleanedTransactions = transactions.map((t) => ({
       Descipción: t.description,
-      Monto: t.amount,
+      Monto: t.category.isExpense ? -t.amount : t.amount,
       Tipo: t.category.isExpense ? 'Gasto' : 'Ingreso',
       Categoría: t.category.name,
       Fecha: dayjs(t.date).format('YYYY-MM-DD'),
@@ -55,7 +60,8 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
     ]);
 
     try {
-      await saveCSV('transacciones.csv', csvData);
+      const filename = `registros-${dayjs().format('YYYY-MM-DD')}.csv`;
+      await saveCSV(filename, csvData);
     } catch (err) {
       console.warn('Failed to export data', err);
 
@@ -134,12 +140,19 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
           }}
         />
         <List.Item
+          title=""
+          style={themedStyles.categoryItem}
+          onPress={() => {
+            openURL('https://www.youtube.com/watch?v=2qBlE2-WL60');
+          }}
+        />
+        {/* <List.Item
           title="Probar Componentes"
           style={themedStyles.categoryItem}
           onPress={() => {
             navigation.navigate('TestComponents');
           }}
-        />
+        /> */}
       </List.Section>
     </View>
   );

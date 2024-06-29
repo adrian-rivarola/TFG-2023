@@ -1,9 +1,10 @@
 import dayjs from 'dayjs';
 
+import { getDefaultCategories } from './default-categories';
 import { Budget } from './entities/Budget';
 import { Category, CategoryType } from './entities/Category';
 import { Transaction } from './entities/Transaction';
-import { Balance } from '@/data';
+import { Balance, dataSource } from '@/data';
 import { DateRange } from '@/types';
 import { DATE_FORMAT } from '@/utils/dateUtils';
 
@@ -24,12 +25,10 @@ export async function createMockData(options: MockOptions) {
   await Category.clear();
   await Balance.clear();
 
-  await Category.save(getDefaultCategories());
+  await Category.insert(getDefaultCategories());
 
   options.transactions && (await createTransactions(options));
   options.budgets && (await createBudgets());
-
-  await adjustBalance();
 
   const cCount = await Category.count();
   const tCount = await Transaction.count();
@@ -73,101 +72,48 @@ async function createBudgets() {
 
 async function createTransactions(options: MockOptions) {
   const categories = await Category.find();
-  const transactions: Transaction[] = [];
 
   const { startDate, endDate } = options.dateRange;
-  let dateStart = dayjs(startDate);
   const dateEnd = dayjs(endDate);
+  let dateStart = dayjs(startDate);
+
+  const transactionsBatches: object[][] = [[]];
+  let currBatch = 0;
 
   while (dateStart.isBefore(dateEnd)) {
-    const t = 1 + randInt(options.maxDailyTransactions);
-
-    for (let i = 0; i < t; i++) {
+    for (let i = 0; i < options.maxDailyTransactions; i++) {
       const randomCategory = categories[randInt(categories.length)];
       const randomAmount = randomCategory.isExpense
         ? EXPENSE_AMOUNTS[randInt(EXPENSE_AMOUNTS.length)]
         : INCOME_AMOUNTS[randInt(INCOME_AMOUNTS.length)];
 
-      try {
-        const t = await Transaction.save({
-          amount: randomAmount,
-          category: randomCategory,
-          date: dateStart.format(DATE_FORMAT),
-          description: '',
-        });
-        transactions.push(t);
-      } catch (err) {
-        console.error(
-          `Failed to save all transactions, transactions saved: ${transactions.length}`,
-          err
-        );
+      transactionsBatches[currBatch].push({
+        amount: randomAmount,
+        category: randomCategory,
+        date: dateStart.format(DATE_FORMAT),
+        description: '',
+      });
+
+      if (transactionsBatches[currBatch].length === 800) {
+        transactionsBatches.push([]);
+        currBatch++;
       }
     }
     dateStart = dateStart.add(1, 'day');
   }
-  return transactions;
-}
 
-function getDefaultCategories() {
-  return Category.create([
-    // income
-    {
-      name: 'Salario',
-      icon: 'attach-money',
-      type: CategoryType.income,
-    },
-    {
-      name: 'Otros ingresos',
-      icon: 'more-horiz',
-      type: CategoryType.income,
-    },
-    // expense
-    {
-      name: 'Alimentos',
-      icon: 'fastfood',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Entretenimiento',
-      icon: 'movie',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Educación',
-      icon: 'school',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Hogar',
-      icon: 'home',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Salud',
-      icon: 'medical-services',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Servicios básicos',
-      icon: 'lightbulb-outline',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Shopping',
-      icon: 'shopping-cart',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Transporte',
-      icon: 'directions-bus',
-      type: CategoryType.expense,
-    },
-    {
-      name: 'Otros gastos',
-      icon: 'more-horiz',
-      type: CategoryType.expense,
-    },
-  ]);
+  console.log('Transaction Batches');
+  transactionsBatches.forEach((batch, idx) => {
+    console.log(`Batch ${idx + 1}: ${batch.length} items`);
+  });
+
+  let idx = 1;
+
+  for (const batch of transactionsBatches) {
+    console.log(`Processing batch ${idx}`);
+    await dataSource.createQueryBuilder().insert().into(Transaction).values(batch).execute();
+    idx++;
+  }
 }
 
 function randInt(max: number) {

@@ -1,6 +1,8 @@
 /* istanbul ignore file */
+import * as SQLite from 'expo-sqlite/legacy';
 import { DataSource } from 'typeorm';
 
+import { getDefaultCategories } from './default-categories';
 import { Balance } from './entities/Balance';
 import { Budget, BudgetSubscriber } from './entities/Budget';
 import { Category } from './entities/Category';
@@ -19,14 +21,16 @@ export async function initiDB(dbName: string = DB_NAME) {
   dataSource = new DataSource({
     type: 'expo',
     database: dbName,
-    driver: require('expo-sqlite'),
+    driver: SQLite,
     logging: false,
-    synchronize: true,
+    synchronize: false,
     entities: DB_ENTITIES,
     subscribers: DB_SUBSCRIBERS,
   });
   dataSource = await dataSource.initialize();
   DB_ENTITIES.map((e) => e.useDataSource(dataSource));
+
+  syncDB();
 
   return dataSource;
 }
@@ -36,4 +40,15 @@ export async function clearAllData() {
   await Transaction.clear();
   await Balance.clear();
   await Category.clear();
+}
+
+async function syncDB() {
+  const tables: any[] = await dataSource.query(`SELECT name FROM sqlite_master WHERE type='table'`);
+  if (tables.length > 0) {
+    return;
+  }
+
+  console.log('Initializing DB...');
+  await dataSource.synchronize(false);
+  await Category.insert(getDefaultCategories());
 }

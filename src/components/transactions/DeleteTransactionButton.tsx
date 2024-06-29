@@ -30,7 +30,7 @@ export default function DeleteTransactionButton({ transactionId }: DeleteTransac
           onConfirm: async () => {
             return deleteTransaction(transactionId).then(() => {
               showSnackMessage({
-                message: 'Transacción eliminado',
+                message: 'Transacción eliminada',
                 type: 'success',
               });
               navigation.navigate('BottomTab', {

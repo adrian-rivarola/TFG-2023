@@ -30,7 +30,7 @@ export default function DeleteCategoryButton({ categoryId }: DeleteCategoryButto
           onConfirm: async () => {
             return deleteCategory(categoryId).then(() => {
               showSnackMessage({
-                message: 'Categoría eliminado',
+                message: 'Categoría eliminada',
                 type: 'success',
               });
               navigation.goBack();
