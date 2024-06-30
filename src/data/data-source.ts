@@ -43,8 +43,13 @@ export async function clearAllData() {
 }
 
 async function syncDB() {
+  const requiredTables = DB_ENTITIES.map((e) => dataSource.getMetadata(e).tableName);
+
   const tables: any[] = await dataSource.query(`SELECT name FROM sqlite_master WHERE type='table'`);
-  if (tables.length > 0) {
+  const existingTables: string[] = tables.map((t) => t.name);
+
+  const allTablesExist = requiredTables.every((t) => existingTables.includes(t));
+  if (allTablesExist) {
     return;
   }
 

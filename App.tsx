@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import utc from 'dayjs/plugin/utc';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { AppRegistry, LogBox } from 'react-native';
 import { es, registerTranslation } from 'react-native-paper-dates';
@@ -16,6 +17,8 @@ import { ThemeContextProvider, useTheme } from '@/theme/ThemeContext';
 
 LogBox.ignoreLogs(['.+']);
 LogBox.ignoreAllLogs(); // Ignore all log notifications
+
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 

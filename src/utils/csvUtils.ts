@@ -54,6 +54,5 @@ export async function saveCSV(filename: string, csvData: string) {
       data: fileUri,
       type: fileType,
     });
-    return;
   }
 }

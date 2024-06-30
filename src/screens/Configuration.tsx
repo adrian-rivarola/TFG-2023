@@ -52,11 +52,11 @@ const ConfigurationScreen = ({ navigation }: ScreenProps) => {
     }));
 
     const csvData = convertToCSV(cleanedTransactions, [
-      'Descipción',
+      'Fecha',
       'Monto',
       'Tipo',
       'Categoría',
-      'Fecha',
+      'Descipción',
     ]);
 
     try {

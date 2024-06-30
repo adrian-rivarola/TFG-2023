@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import { DataSource } from 'typeorm';
 
-import { DB_ENTITIES, initiDB } from '@/data';
+import { initiDB } from '@/data';
 import { FontAwesome } from '@expo/vector-icons';
 
 export default function useCachedResources() {
@@ -14,8 +14,6 @@ export default function useCachedResources() {
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
-        await SplashScreen.preventAutoHideAsync();
-
         // initialize db connection
         if (!dataSource.current) {
           dataSource.current = await initiDB();
@@ -28,7 +26,7 @@ export default function useCachedResources() {
         console.warn(e);
       } finally {
         setLoadingComplete(true);
-        SplashScreen.hideAsync();
+        await SplashScreen.hideAsync();
       }
     }
 

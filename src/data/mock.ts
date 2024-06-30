@@ -41,17 +41,6 @@ export async function createMockData(options: MockOptions) {
   };
 }
 
-async function adjustBalance() {
-  const transactions = await Transaction.find();
-  const balance = transactions.reduce(
-    (acu, t) => (t.category.isExpense ? acu - t.amount : acu + t.amount),
-    0
-  );
-  if (balance <= 100_000) {
-    await Balance.setInitialBalance(Math.abs(balance) + 200000);
-  }
-}
-
 async function createBudgets() {
   const expenses = await Category.find({ where: { type: CategoryType.expense } });
   await Budget.save([

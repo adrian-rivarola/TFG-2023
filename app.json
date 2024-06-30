@@ -1,38 +1,40 @@
 {
   "expo": {
-    "name": "TFG-2023",
-    "slug": "TFG-2023",
+    "name": "Medidor de Pobreza",
+    "slug": "poverty_meter",
     "version": "1.0.0",
     "orientation": "portrait",
+    "backgroundColor": "#010101",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "poverty",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#010101"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#010101"
+      },
+      "package": "com.adrriv.poverty_meter"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-asset",
-      "expo-font"
-    ]
+    "plugins": ["expo-asset", "expo-font"],
+    "extra": {
+      "eas": {
+        "projectId": "29f63420-86ca-4fb2-8515-6eaaa72abdd8"
+      }
+    }
   }
 }
